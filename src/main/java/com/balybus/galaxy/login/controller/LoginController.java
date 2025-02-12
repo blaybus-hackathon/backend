@@ -3,7 +3,6 @@ package com.balybus.galaxy.login.controller;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
 import com.balybus.galaxy.login.service.LoginService;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
