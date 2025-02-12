@@ -36,5 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
-# Ignore all YAML configuration files
-src/main/resources/application*.yml
+### application*.yml ###
+src/main/resources/*.ymlgit reset --soft HEAD~1
+                        git add .
+                        git commit -m "Removed application.yml and updated .gitignore"
+                        git push --force origin main
