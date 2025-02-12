@@ -13,4 +13,8 @@ public class LoginService {
     public String renewAccessToken() {
         return tokenProvider.generateAccessToken("");
     }
+
+    public String getRefreshToken() {
+        return tokenProvider.refreshToken();
+    }
 }
