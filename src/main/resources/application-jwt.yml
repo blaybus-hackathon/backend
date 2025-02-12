@@ -1,5 +1,0 @@
-jwt:
-  issuer: "blaybus"
-  secret-key: "sdjvlakjvcznvweqjcnijnckajsnckjacnajklnckaqweyriuwqryqpofuowiqufncxzxcjvknknzxcnvzbvejkqrgyugceabjcaj"
-  access-expiration-time: 3600000
-  refresh-expiration-time: 2592000000
