@@ -1,0 +1,121 @@
+package com.balybus.galaxy.login.serviceImpl.service;
+
+import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.global.response.ApiResponse;
+import com.balybus.galaxy.global.response.SuccessCode;
+import com.balybus.galaxy.helper.domain.Helper;
+import com.balybus.galaxy.helper.domain.repository.HelperRepository;
+import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.dto.request.SignUpDTO;
+import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
+import com.balybus.galaxy.login.serviceImpl.LoginService;
+import com.balybus.galaxy.member.domain.Member;
+import com.balybus.galaxy.member.dto.request.MemberRequest;
+import com.balybus.galaxy.member.dto.response.MemberResponse;
+import com.balybus.galaxy.member.repository.MemberRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+import static com.balybus.galaxy.global.exception.ExceptionCode.LOGIN_ID_EXIST;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class LoginServiceImpl implements LoginService {
+
+    private final TokenProvider tokenProvider;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final MemberRepository memberRepository;
+    private final HelperRepository helperRepository;
+
+
+    public String renewAccessToken() {
+        return tokenProvider.generateAccessToken("");
+    }
+
+    public String getRefreshToken() {
+        return tokenProvider.refreshToken("");
+    }
+
+    public void signUp(SignUpDTO signUpRequest) {
+        // 1. email 중복성 검사
+        if(memberRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
+            throw new BadRequestException(LOGIN_ID_EXIST);
+        }
+
+        // 1.2 비밀번호 암호화
+        String encryptedPassword = bCryptPasswordEncoder.encode(signUpRequest.getPassword());
+
+        // 2. 기본 회원 정보 저장
+        Member member = Member.builder()
+                .email(signUpRequest.getEmail())
+                .password(encryptedPassword)
+                .userAuth(signUpRequest.getRoleType())
+                .build();
+        Member savedMember = memberRepository.save(member);
+
+        // 3. 요양 보호사 정보 저장
+        if(signUpRequest.getRoleType() == RoleType.MEMBER) {
+            Helper helper = Helper.builder()
+                    .member(savedMember)
+                    .name(signUpRequest.getName())
+                    .phone(signUpRequest.getPhone())
+                    .addressDetail(signUpRequest.getAddressDetail())
+                    .essentialCertNo(signUpRequest.getEssentialCertNo())
+                    .carOwnYn(signUpRequest.isCarOwnYn())
+                    .eduYn(signUpRequest.isEduYn())
+                    .wage(signUpRequest.getWage())
+                    .build();
+            helperRepository.save(helper);
+        }
+    }
+
+    /**
+     * 로그인
+     * @param signInDto MemberRequest.SignInDto
+     * @return ApiResponse<MemberResponse.SignInDto>
+     */
+    @Override
+    @Transactional
+    public ApiResponse<?> signIn(MemberRequest.SignInDto signInDto) {
+        if (signInDto != null) {
+            // 1. 사용자 조회
+            Optional<Member> userOpt = memberRepository.findByEmail(signInDto.getUserId());
+            if(userOpt.isPresent()) {
+                Member login = userOpt.get();
+                // 2. 비밀번호 일치하는지 확인
+                if (bCryptPasswordEncoder.matches(signInDto.getUserPw(), login.getPassword())) {
+                    // 3. 1에서 찾은 데이터를 통해 JWT 생성 및 반환
+                    String accessToken = tokenProvider.generateAccessToken(login.getEmail());
+                    String refreshToken = tokenProvider.refreshToken(login.getEmail());
+                    login.updateRefreshToken(refreshToken);
+
+                    // 4. 조회 결과 전달
+                    return ApiResponse.SUCCESS(SuccessCode.LOGIN_SUCCESS,
+                            MemberResponse.SignInDto.builder()
+                                    .accessToken(accessToken)
+                                    .refreshToken(refreshToken)
+                                    .userAuth(login.getUserAuth())
+                                    .build());
+                } else {
+                    log.error("로그인 실패 : 아이디, 비밀번호 불일치, 사용자 ID {}", signInDto.getUserId());
+                    return ApiResponse.ERROR(ExceptionCode.LOGIN_FAIL); // 비밀번호 불일치 시 로그인 실패
+                }
+            } else {
+                log.error("로그인 실패 : 존재하지 않는 사용자, 사용자 ID {}", signInDto.getUserId());
+                return ApiResponse.ERROR(ExceptionCode.LOGIN_FAIL);  // 존재하지 않는 사용자인 경우 Error
+            }
+        } else {
+            log.error("로그인 실패 : LoginDto가 비어 있습니다.");
+            return ApiResponse.ERROR(ExceptionCode.INVALID_REQUEST); // LoginDto 값 비어 있을 때
+        }
+    }
+
+}
