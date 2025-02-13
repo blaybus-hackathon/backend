@@ -47,7 +47,7 @@ public class TokenProvider {
     }
 
     /**
-     * 토큰 발급 / 갱신
+     * 엑세스 토큰 발급 / 갱신
      */
     private String createToken(String subject, final Long tokenExpirationTime) {
         Date now = new Date();
