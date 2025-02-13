@@ -8,9 +8,10 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum RoleType {
-    MEMBER("MEMBER", "일반 사용자 권한"),
-    ADMIN("ROLE_ADMIN", "관리자 권한"),
-    NONE("NONE", "무권한");
+    ADMIN("ROLE_ADMIN", "시스템 관리자 권한"),
+    MEMBER("ROLE_MEMBER", "요양 보호사 권한"),
+    MANAGER("ROLE_MANAGER", "관리자 권한"),
+    NONE("ROLE_NONE", "알 수 없는 권한");
 
     private final String code;
     private final String displayName;

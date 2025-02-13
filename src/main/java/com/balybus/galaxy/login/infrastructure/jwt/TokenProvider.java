@@ -32,11 +32,23 @@ public class TokenProvider {
         this.refreshExpirationTime = refreshExpirationTime;
     }
 
+    /**
+     * 엑세스 토큰 발급 / 갱신
+     * @param subject
+     * @return
+     */
     public String generateAccessToken(String subject) {
         final String accessToken = createToken(subject, accessExpirationTime);
         return accessToken;
     }
 
+    public String refreshToken() {
+        return createToken(EMPTY_STRING, refreshExpirationTime);
+    }
+
+    /**
+     * 엑세스 토큰 발급 / 갱신
+     */
     private String createToken(String subject, final Long tokenExpirationTime) {
         Date now = new Date();
         final Date expiry = new Date(now.getTime() + tokenExpirationTime);
