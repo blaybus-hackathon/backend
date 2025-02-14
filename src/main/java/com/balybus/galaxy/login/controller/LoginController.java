@@ -1,9 +1,11 @@
 package com.balybus.galaxy.login.controller;
 
 import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
+import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,19 +36,18 @@ public class LoginController {
     }
 
     /**
-     * TBL_HELPER
+     * TBL_HELPER 회원 가입
      * @param signUpDTO
      * @return
      */
     @PutMapping("/sign-up")
-    public ResponseEntity<SignUpDTO> signUp(@RequestBody SignUpDTO signUpDTO) {
+    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
         if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
             throw new BadRequestException(SIGNUP_INFO_NULL);
         }
-        loginService.signUp(signUpDTO);
-        return ResponseEntity.ok(signUpDTO);
+        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
+        return ResponseEntity.ok(helperResponse);
     }
-
 
     /**
      * 로그인

@@ -8,6 +8,7 @@ import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
+import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import com.balybus.galaxy.login.serviceImpl.LoginService;
 import com.balybus.galaxy.member.domain.TblUser;
@@ -44,7 +45,7 @@ public class LoginServiceImpl implements LoginService {
         return tokenProvider.refreshToken("");
     }
 
-    public void signUp(SignUpDTO signUpRequest) {
+    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
         // 1. email 중복성 검사
         if(memberRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
             throw new BadRequestException(LOGIN_ID_EXIST);
@@ -61,9 +62,10 @@ public class LoginServiceImpl implements LoginService {
                 .build();
         TblUser savedMember = memberRepository.save(member);
 
+        TblHelper helper = null;
         // 3. 요양 보호사 정보 저장
         if(signUpRequest.getRoleType() == RoleType.MEMBER) {
-            TblHelper helper = TblHelper.builder()
+            helper = TblHelper.builder()
                     .user(savedMember)
                     .name(signUpRequest.getName())
                     .phone(signUpRequest.getPhone())
@@ -75,6 +77,11 @@ public class LoginServiceImpl implements LoginService {
                     .build();
             helperRepository.save(helper);
         }
+        return TblHelperResponse.builder()
+                .name(helper.getName())
+                .phone(helper.getPhone())
+                .addressDetail(helper.getAddressDetail())
+                .build();
     }
 
     /**
