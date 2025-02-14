@@ -1,6 +1,6 @@
 package com.balybus.galaxy.address.serviceImpl.service;
 
-import com.balybus.galaxy.address.serviceImpl.TblAddressThirdServiceImpl;
+import com.balybus.galaxy.address.serviceImpl.TblAddressSecondService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,5 +10,5 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class TblAddressThirdService implements TblAddressThirdServiceImpl {
+public class TblAddressSecondServiceImpl implements TblAddressSecondService {
 }

@@ -27,6 +27,11 @@ public enum ExceptionCode {
     HELPER_ALREADY_HAS_WORK_TIME(3005, "해당 요양 보호사는 이미 등록된 근무 시간이 있습니다."),
     HELPER_ALREADY_HAS_EXPERIENCE(3006, "해당 요양 보호사는 이미 등록된 근무 경력이 있습니다."),
 
+    NO_ADDRESS_INFO(3007, "유효한 근무 가능 지역 조합이 없습니다."),
+    INVALID_ADDR_INFO(3008, "잘못된 주소 목록"),
+
+    DUPLICATE_WORK_TIME(3009, "중복된 근무 가능 시간 주소가 존재합니다."),
+
     // 4xxx 파일 업로드
     UPLOAD_FAILED(4000, "파일 업로드에 실패하였습니다."),
     FILE_NOT_FOUND(4001, "첨부파일을 찾을 수 없습니다."),
