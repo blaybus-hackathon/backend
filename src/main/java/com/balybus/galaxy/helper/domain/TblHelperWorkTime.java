@@ -33,11 +33,11 @@ public class TblHelperWorkTime extends BaseEntity {
     @Column(name = "hwt_start_time")
     @Comment("시작시간")
     @NotNull
-    private Float startTime;
+    private String startTime;
 
     @Column(name = "htw_end_time")
     @Comment("종료시간")
     @NotNull
-    private Float endTime;
+    private String endTime;
 
 }
