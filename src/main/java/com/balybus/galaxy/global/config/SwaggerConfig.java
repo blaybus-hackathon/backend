@@ -13,7 +13,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Galaxy API")
-                        .description("Galaxy API 문서")
+                        .description("Blaybus Galaxy Project API 문서")
                         .version("1.0.0"));
     }
 }

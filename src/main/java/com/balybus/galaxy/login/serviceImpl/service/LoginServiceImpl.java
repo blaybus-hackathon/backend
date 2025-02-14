@@ -4,13 +4,15 @@ import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.response.ApiResponse;
 import com.balybus.galaxy.global.response.SuccessCode;
-import com.balybus.galaxy.helper.domain.Helper;
-import com.balybus.galaxy.helper.domain.repository.HelperRepository;
+import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
+import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
+import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import com.balybus.galaxy.login.serviceImpl.LoginService;
-import com.balybus.galaxy.member.domain.Member;
+import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
@@ -44,7 +46,7 @@ public class LoginServiceImpl implements LoginService {
         return tokenProvider.refreshToken("");
     }
 
-    public void signUp(SignUpDTO signUpRequest) {
+    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
         // 1. email 중복성 검사
         if(memberRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
             throw new BadRequestException(LOGIN_ID_EXIST);
@@ -54,27 +56,37 @@ public class LoginServiceImpl implements LoginService {
         String encryptedPassword = bCryptPasswordEncoder.encode(signUpRequest.getPassword());
 
         // 2. 기본 회원 정보 저장
-        Member member = Member.builder()
+        TblUser member = TblUser.builder()
                 .email(signUpRequest.getEmail())
                 .password(encryptedPassword)
                 .userAuth(signUpRequest.getRoleType())
                 .build();
-        Member savedMember = memberRepository.save(member);
+        TblUser savedMember = memberRepository.save(member);
+
+        TblHelper helper = null;
 
         // 3. 요양 보호사 정보 저장
         if(signUpRequest.getRoleType() == RoleType.MEMBER) {
-            Helper helper = Helper.builder()
-                    .member(savedMember)
+            helper = TblHelper.builder()
+                    .user(savedMember)
                     .name(signUpRequest.getName())
                     .phone(signUpRequest.getPhone())
                     .addressDetail(signUpRequest.getAddressDetail())
                     .essentialCertNo(signUpRequest.getEssentialCertNo())
+                    .socialCertNo(signUpRequest.getSocialCertNo())
+                    .nurseCertNo(signUpRequest.getNurseCertNo())
                     .carOwnYn(signUpRequest.isCarOwnYn())
                     .eduYn(signUpRequest.isEduYn())
                     .wage(signUpRequest.getWage())
                     .build();
             helperRepository.save(helper);
         }
+
+        return TblHelperResponse.builder()
+                .name(helper.getName())
+                .phone(helper.getPhone())
+                .addressDetail(helper.getAddressDetail())
+                .build();
     }
 
     /**
@@ -87,9 +99,9 @@ public class LoginServiceImpl implements LoginService {
     public ApiResponse<?> signIn(MemberRequest.SignInDto signInDto) {
         if (signInDto != null) {
             // 1. 사용자 조회
-            Optional<Member> userOpt = memberRepository.findByEmail(signInDto.getUserId());
+            Optional<TblUser> userOpt = memberRepository.findByEmail(signInDto.getUserId());
             if(userOpt.isPresent()) {
-                Member login = userOpt.get();
+                TblUser login = userOpt.get();
                 // 2. 비밀번호 일치하는지 확인
                 if (bCryptPasswordEncoder.matches(signInDto.getUserPw(), login.getPassword())) {
                     // 3. 1에서 찾은 데이터를 통해 JWT 생성 및 반환
