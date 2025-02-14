@@ -27,6 +27,10 @@ public enum ExceptionCode {
     HELPER_ALREADY_HAS_WORK_TIME(3005, "해당 요양 보호사는 이미 등록된 근무 시간이 있습니다."),
     HELPER_ALREADY_HAS_EXPERIENCE(3006, "해당 요양 보호사는 이미 등록된 근무 경력이 있습니다."),
 
+    // 4xxx 파일 업로드
+    UPLOAD_FAILED(4000, "파일 업로드에 실패하였습니다."),
+    FILE_NOT_FOUND(4001, "첨부파일을 찾을 수 없습니다."),
+
     // 9XXX
     INTERNAL_SEVER_ERROR(9999, "서버에서 에러가 발생하였습니다.");
 
