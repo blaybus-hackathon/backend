@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,5 +83,18 @@ public class FileUploadUtils {
 
     private String getUuid() {
         return (LocalDate.now()+ UUID.randomUUID().toString()).replaceAll("-", "");
+    }
+
+    /**
+     * 이미지 조회
+     * @param entity - PhotoFile : 바이트로 변환하려는 포토 entity
+     */
+    public byte[] viewImage(TblImg entity) {
+        try {
+            String uploadedFilePath = Paths.get(archive, entity.getImgUuid()).toString();
+            return Files.readAllBytes(new File(uploadedFilePath).toPath());
+        } catch (IOException e) {
+            throw new CustomException(ExceptionCode.FILE_NOT_FOUND);
+        }
     }
 }
