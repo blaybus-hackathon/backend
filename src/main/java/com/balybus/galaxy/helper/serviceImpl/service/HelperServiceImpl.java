@@ -134,6 +134,7 @@ public class HelperServiceImpl implements HelperService {
                         .date(workTimeDTO.getDay())
                         .startTime(workTimeDTO.getStartTime())
                         .endTime(workTimeDTO.getEndTime())
+                        .negotiation(helperWorkTimeRequestDTO.getNegotiation())
                         .build())
                 .collect(Collectors.toList());
 
