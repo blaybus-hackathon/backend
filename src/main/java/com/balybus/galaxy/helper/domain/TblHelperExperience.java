@@ -33,7 +33,7 @@ public class TblHelperExperience extends BaseEntity {
 
     @Column(name = "filed")
     @Comment("근무지")
-    private String filed;
+    private String field;
 
     @Column(name = "he_start_date")
     @Comment("근무시작일")

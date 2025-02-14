@@ -35,6 +35,18 @@ public class HelperService implements HelperServiceImpl {
         TblHelper tblHelper = helperRepository.findById(helperWorkTimeRequestDTO.getHelperId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
+        // 1-2 Helper테이블이 1개 이상의 WorkTime 테이블을 가지고 있으면 중복 처리로 에러 발생
+        int countHelperWorTime = helperWorkTimeRepository.countByHelperAndDateAndStartTimeAndEndTime(
+                tblHelper,
+                helperWorkTimeRequestDTO.getDate(),
+                helperWorkTimeRequestDTO.getStartTime(),
+                helperWorkTimeRequestDTO.getEndTime()
+        );
+
+        if(countHelperWorTime > 0) {
+            throw new BadRequestException(HELPER_ALREADY_HAS_WORK_TIME);
+        }
+
         // 2. 엔티티 만들어서 회원 가입 진행, 가입 전 null값 체크
         if(HelperWorkTimeRequestDTO.hasNullHelperWorkTimeRequestDTO(helperWorkTimeRequestDTO)) {
             throw new BadRequestException(SIGNUP_HELPER_WORK_TIME_INFO_NULL);
@@ -71,6 +83,17 @@ public class HelperService implements HelperServiceImpl {
         TblHelper tblHelper = helperRepository.findById(helperExperienceDTO.getHelperId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
+        // 1-2 Helper테이블이 1개 이상의 Experience 테이블을 가지고 있으면 중복 처리로 에러 발생
+        int countExperience = helperExperienceRepository.countByHelperAndFieldAndHeStartDateAndHeEndDate(
+                tblHelper,
+                helperExperienceDTO.getField(),
+                helperExperienceDTO.getHeStartDate(),
+                helperExperienceDTO.getHeEndDate()
+                );
+        if(countExperience > 0) {
+            throw new BadRequestException(HELPER_ALREADY_HAS_EXPERIENCE);
+        }
+
         // 2. 엔티티 만들어서 회원 가입 진행, 가입 전 null값 체크
         if(HelperExperienceDTO.hasNullHelperExperienceRequestDTO(helperExperienceDTO)) {
             throw new BadRequestException(SIGNUP_HELPER_EXPERIENCE_INFO_NULL);
@@ -78,7 +101,7 @@ public class HelperService implements HelperServiceImpl {
 
         TblHelperExperience tblHelperExperience = TblHelperExperience.builder()
                 .helper(tblHelper)
-                .filed(helperExperienceDTO.getField())
+                .field(helperExperienceDTO.getField())
                 .heStartDate(helperExperienceDTO.getHeStartDate())
                 .heEndDate(helperExperienceDTO.getHeEndDate())
                 .build();
@@ -88,7 +111,7 @@ public class HelperService implements HelperServiceImpl {
 
             return HelperExperienceResponse.builder()
                     .helperName(tblHelperExperienceSaved.getHelper().getName())
-                    .filed(tblHelperExperienceSaved.getFiled())
+                    .filed(tblHelperExperienceSaved.getField())
                     .build();
 
         } catch (DataIntegrityViolationException e) {

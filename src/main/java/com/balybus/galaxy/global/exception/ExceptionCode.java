@@ -24,6 +24,10 @@ public enum ExceptionCode {
 
     SIGNUP_HELPER_EXPERIENCE_INFO_NULL(3004, "요양 보호사 경력 회원 가입 정보를 다시 확인해주세요."),
 
+    HELPER_ALREADY_HAS_WORK_TIME(3005, "해당 요양 보호사는 이미 등록된 근무 시간이 있습니다."),
+    HELPER_ALREADY_HAS_EXPERIENCE(3006, "해당 요양 보호사는 이미 등록된 근무 경력이 있습니다."),
+
+
     // 9XXX
     INTERNAL_SEVER_ERROR(9999, "서버에서 에러가 발생하였습니다.");
 
