@@ -97,4 +97,40 @@ public class FileUploadUtils {
             throw new CustomException(ExceptionCode.FILE_NOT_FOUND);
         }
     }
+
+    /**
+     * 파일 삭제
+     * @param fileSeq - Long : 삭제하려는 이미지 시퀀스 넘버
+     */
+    public void deleteFile(Long fileSeq) {
+        // 1. 삭제 요청한 데이터가 있는지 확인
+        TblImg fileEntity = photoFileRepository.findById(fileSeq)
+                .orElseThrow(() -> new CustomException(ExceptionCode.FILE_NOT_FOUND));
+
+        // 2. 데이터 삭제
+        deleteFile(fileEntity);
+    }
+
+    /**
+     * 파일 삭제
+     * @param fileEntity - PhotoFile : 삭제하려는 이미지 entity
+     */
+    public void deleteFile(TblImg fileEntity) {
+        // 1. 업로드된 파일 경로 획득
+        String uploadedFilePath = Paths.get(archive, fileEntity.getImgUuid()).toString();
+
+        // 2. 파일 찾기
+        File file = new File(uploadedFilePath);
+
+        // 3. 파일 및 DB 정보 삭제
+        if (file.exists()) {
+            boolean deleteRe = file.delete();
+            // 파일이 삭제되면, DB 에서 정보 삭제
+            if (deleteRe) photoFileRepository.delete(fileEntity);
+        }else {
+            log.debug("FILE NOT FOUND");
+            log.debug("savedFilename : {}", fileEntity.getImgUuid());
+            photoFileRepository.delete(fileEntity);
+        }
+    }
 }
