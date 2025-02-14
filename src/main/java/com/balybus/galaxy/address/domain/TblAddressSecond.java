@@ -24,12 +24,4 @@ public class TblAddressSecond {
 
     @Column(name = "as_name")
     private String name;
-
-    @JoinColumn(name = "af_seq")
-    @ManyToOne
-    @Comment("시.도 구분자")
-    private TblAddressFirst tblAddressFirst;
-
-    @OneToMany(mappedBy = "addressSecond", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<TblAddressThird> tblAddressThirds;
 }

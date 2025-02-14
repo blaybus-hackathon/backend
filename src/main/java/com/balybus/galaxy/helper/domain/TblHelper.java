@@ -1,5 +1,8 @@
 package com.balybus.galaxy.helper.domain;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
+import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;

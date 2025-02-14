@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
-import java.util.List;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +22,4 @@ public class TblAddressFirst {
     @Column(name = "af_name")
     @Comment("시.군.구 명")
     private String name;
-
-    @OneToMany(mappedBy = "tblAddressFirst", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<TblAddressSecond> tblAddressSeconds;
 }

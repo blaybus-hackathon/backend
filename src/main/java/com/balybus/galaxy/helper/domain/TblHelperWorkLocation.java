@@ -25,4 +25,16 @@ public class TblHelperWorkLocation extends BaseEntity {
     @JoinColumn(name = "helper_seq")
     @NotNull
     private TblHelper helper;
+
+    @Column(name = "af_addr")
+    @Comment("시.도 구분자")
+    private String tblAddressFirst;
+
+    @Column(name = "as_addr")
+    @Comment("시.군.구 구분자")
+    private String tblAddressSecond;
+
+    @Column(name = "at_addr")
+    @Comment("읍.면.동 구분자")
+    private String tblAddressThird;
 }

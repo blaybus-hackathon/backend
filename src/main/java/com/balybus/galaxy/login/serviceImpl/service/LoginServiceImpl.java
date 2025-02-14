@@ -5,6 +5,7 @@ import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.response.ApiResponse;
 import com.balybus.galaxy.global.response.SuccessCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -63,6 +64,7 @@ public class LoginServiceImpl implements LoginService {
         TblUser savedMember = memberRepository.save(member);
 
         TblHelper helper = null;
+
         // 3. 요양 보호사 정보 저장
         if(signUpRequest.getRoleType() == RoleType.MEMBER) {
             helper = TblHelper.builder()
@@ -79,6 +81,7 @@ public class LoginServiceImpl implements LoginService {
                     .build();
             helperRepository.save(helper);
         }
+
         return TblHelperResponse.builder()
                 .name(helper.getName())
                 .phone(helper.getPhone())

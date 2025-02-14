@@ -3,13 +3,17 @@ package com.balybus.galaxy.helper.serviceImpl.service;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.domain.TblHelperExperience;
+import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
 import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
+import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
 import com.balybus.galaxy.helper.dto.response.HelperExperienceResponse;
+import com.balybus.galaxy.helper.dto.response.HelperWorkLocationReponse;
 import com.balybus.galaxy.helper.dto.response.HelperWorkTimeResponse;
 import com.balybus.galaxy.helper.repository.HelperExperienceRepository;
 import com.balybus.galaxy.helper.repository.HelperRepository;
+import com.balybus.galaxy.helper.repository.HelperWorkLocationRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkTimeRepository;
 import com.balybus.galaxy.helper.serviceImpl.HelperServiceImpl;
 import jakarta.transaction.Transactional;
@@ -26,8 +30,29 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 public class HelperService implements HelperServiceImpl {
 
     private final HelperRepository helperRepository;
+    private final HelperWorkLocationRepository helperWorkLocationRepository;
     private final HelperWorkTimeRepository helperWorkTimeRepository;
     private final HelperExperienceRepository helperExperienceRepository;
+
+    @Override
+    public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO) {
+        // 1. Helper 테이블 찾기, 없으면 예외 발생
+        TblHelper tblHelper = helperRepository.findById(helperWorkLocationDTO.getHelperId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        TblHelperWorkLocation tblHelperWorkLocation = TblHelperWorkLocation.builder()
+                .helper(tblHelper)
+                .tblAddressFirst(helperWorkLocationDTO.getTblAddressFirst())
+                .tblAddressSecond(helperWorkLocationDTO.getTblAddressSecond())
+                .tblAddressThird(helperWorkLocationDTO.getTblAddressThird())
+                .build();
+
+        TblHelperWorkLocation tblHelperWorkLocationSaved = helperWorkLocationRepository.save(tblHelperWorkLocation);
+
+        return HelperWorkLocationReponse.builder()
+                .helperName(tblHelperWorkLocationSaved.getHelper().getName())
+                .build();
+    }
 
     @Override
     public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO) {

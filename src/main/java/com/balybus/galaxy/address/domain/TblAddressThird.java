@@ -17,8 +17,4 @@ public class TblAddressThird {
 
     @Column(name = "at_name", nullable = false)
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "as_seq", nullable = false)
-    private TblAddressSecond addressSecond;
 }
