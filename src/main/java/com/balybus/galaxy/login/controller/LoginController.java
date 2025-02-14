@@ -34,12 +34,12 @@ public class LoginController {
     }
 
     @PutMapping("/sign-up")
-    public ResponseEntity<String> signUp(@RequestBody SignUpDTO signUpDTO) {
+    public ResponseEntity<SignUpDTO> signUp(@RequestBody SignUpDTO signUpDTO) {
         if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
             throw new BadRequestException(SIGNUP_INFO_NULL);
         }
         loginService.signUp(signUpDTO);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        return ResponseEntity.ok(signUpDTO);
     }
 
     /**
