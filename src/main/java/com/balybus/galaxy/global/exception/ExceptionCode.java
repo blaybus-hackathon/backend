@@ -32,6 +32,10 @@ public enum ExceptionCode {
 
     DUPLICATE_WORK_TIME(3009, "중복된 근무 가능 시간 주소가 존재합니다."),
 
+    // 4xxx 파일 업로드
+    UPLOAD_FAILED(4000, "파일 업로드에 실패하였습니다."),
+    FILE_NOT_FOUND(4001, "첨부파일을 찾을 수 없습니다."),
+
     // 9XXX
     INTERNAL_SEVER_ERROR(9999, "서버에서 에러가 발생하였습니다.");
 
