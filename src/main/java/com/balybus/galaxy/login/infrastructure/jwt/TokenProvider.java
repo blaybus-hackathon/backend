@@ -42,8 +42,8 @@ public class TokenProvider {
         return accessToken;
     }
 
-    public String refreshToken() {
-        return createToken(EMPTY_STRING, refreshExpirationTime);
+    public String refreshToken(String subject) {
+        return createToken(subject, refreshExpirationTime);
     }
 
     /**

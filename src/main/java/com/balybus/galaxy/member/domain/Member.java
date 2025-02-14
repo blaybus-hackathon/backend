@@ -43,7 +43,7 @@ public class Member {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void updateRrefreshToken(String refreshToken) {
+    public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
 }

@@ -4,7 +4,8 @@ import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
-import com.balybus.galaxy.login.serviceImpl.service.LoginService;
+import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
+import com.balybus.galaxy.member.dto.request.MemberRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL
 @RequestMapping("/api")
 public class LoginController {
 
-    private final LoginService loginService;
+    private final LoginServiceImpl loginService;
 
     @GetMapping("/access-token")
     public ResponseEntity<AccessTokenResponse> renewAccessToken() {
@@ -39,6 +40,16 @@ public class LoginController {
         }
         loginService.signUp(signUpDTO);
         return ResponseEntity.ok("회원가입이 완료되었습니다.");
+    }
+
+    /**
+     * 로그인
+     * @param dto MemberRequest.LoginDto
+     * @return ResponseEntity
+     */
+    @PostMapping("/sign-in")
+    public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
+        return ResponseEntity.ok().body(loginService.signIn(dto));
     }
 
 }
