@@ -15,14 +15,12 @@ import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkTimeDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
-import com.balybus.galaxy.helper.dto.response.AddressResponseDTO;
-import com.balybus.galaxy.helper.dto.response.HelperExperienceResponse;
-import com.balybus.galaxy.helper.dto.response.HelperWorkLocationReponse;
-import com.balybus.galaxy.helper.dto.response.HelperWorkTimeResponse;
+import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.repository.HelperExperienceRepository;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkLocationRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkTimeRepository;
+import com.balybus.galaxy.helper.serviceImpl.HelperService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,7 +35,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class HelperServiceImpl implements com.balybus.galaxy.helper.serviceImpl.HelperService {
+public class HelperServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
 
@@ -91,16 +89,28 @@ public class HelperServiceImpl implements com.balybus.galaxy.helper.serviceImpl.
     }
 
     @Override
-    public AddressResponseDTO getAllAddress() {
-        List<TblAddressFirst> tblAddressFirstList = tblAddressFirstRepository.findAll();
-        List<TblAddressSecond> tblAddressSecondList = tblAddressSecondRepository.findAll();
-        List<TblAddressThird> tblAddressThirdList = tblAddressThirdRepository.findAll();
+    public List<TblAddressFirstDTO> getFirstAddress() {
+        return tblAddressFirstRepository.findAll().stream()
+                .map(TblAddressFirstDTO::new)  // DTO로 변환
+                .collect(Collectors.toList());
+    }
 
-        return AddressResponseDTO.builder()
-                .addressFirstList(tblAddressFirstList)
-                .addressSecondList(tblAddressSecondList)
-                .addressThirdList(tblAddressThirdList)
-                .build();
+    @Override
+    public List<TblAddressThirdDTO> getThirdAddressBySecondId(Long asSeq) {
+        List<TblAddressThird> entities = tblAddressThirdRepository.findByAddressSecond_Id(asSeq);
+
+        return entities.stream()
+                .map(TblAddressThirdDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TblAddressSecondDTO> getAddressSecondByFirstId(Long afSeq) {
+        List<TblAddressSecond> entities = tblAddressSecondRepository.findByAddressFirst_Id(afSeq);
+
+        return entities.stream()
+                .map(TblAddressSecondDTO::new)
+                .collect(Collectors.toList());
     }
 
 
