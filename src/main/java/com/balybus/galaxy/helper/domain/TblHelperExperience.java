@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -37,9 +38,9 @@ public class TblHelperExperience extends BaseEntity {
     @Column(name = "he_start_date")
     @Comment("근무시작일")
     @NotNull
-    private Date heStartDate;
+    private LocalDateTime heStartDate;
 
     @Column(name = "he_end_date")
     @Comment("근무종료일")
-    private Date heEndDate;
+    private LocalDateTime heEndDate;
 }
