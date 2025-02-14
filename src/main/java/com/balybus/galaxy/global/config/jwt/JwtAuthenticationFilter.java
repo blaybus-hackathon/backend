@@ -1,7 +1,6 @@
 package com.balybus.galaxy.global.config.jwt;
 
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
-import com.balybus.galaxy.member.dto.response.MemberResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

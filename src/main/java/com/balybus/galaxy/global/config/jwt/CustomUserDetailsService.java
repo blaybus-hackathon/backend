@@ -1,8 +1,6 @@
 package com.balybus.galaxy.global.config.jwt;
 
-import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.TblUser;
-import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
