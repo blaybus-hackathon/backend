@@ -18,6 +18,8 @@ public class SignUpDTO {
     private String phone;
     private String addressDetail;
     private String essentialCertNo;
+    private String socialCertNo;
+    private String nurseCertNo;
     private boolean carOwnYn;
     private boolean eduYn;
     private int wage;

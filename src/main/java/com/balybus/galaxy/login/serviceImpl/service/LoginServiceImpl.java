@@ -71,6 +71,8 @@ public class LoginServiceImpl implements LoginService {
                     .phone(signUpRequest.getPhone())
                     .addressDetail(signUpRequest.getAddressDetail())
                     .essentialCertNo(signUpRequest.getEssentialCertNo())
+                    .socialCertNo(signUpRequest.getSocialCertNo())
+                    .nurseCertNo(signUpRequest.getNurseCertNo())
                     .carOwnYn(signUpRequest.isCarOwnYn())
                     .eduYn(signUpRequest.isEduYn())
                     .wage(signUpRequest.getWage())
