@@ -33,6 +33,11 @@ public class LoginController {
         return ResponseEntity.ok().body(new RefreshTokenResponse(refreshToken));
     }
 
+    /**
+     * TBL_HELPER
+     * @param signUpDTO
+     * @return
+     */
     @PutMapping("/sign-up")
     public ResponseEntity<SignUpDTO> signUp(@RequestBody SignUpDTO signUpDTO) {
         if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
@@ -41,6 +46,7 @@ public class LoginController {
         loginService.signUp(signUpDTO);
         return ResponseEntity.ok(signUpDTO);
     }
+
 
     /**
      * 로그인

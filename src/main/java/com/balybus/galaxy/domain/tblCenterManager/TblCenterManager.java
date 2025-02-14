@@ -2,7 +2,7 @@ package com.balybus.galaxy.domain.tblCenterManager;
 
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
-import com.balybus.galaxy.member.domain.Member;
+import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +26,7 @@ public class TblCenterManager extends BaseEntity {
     @OneToOne
     @Comment(value="유저 구분자")
     @JoinColumn(name="user_seq", nullable = false)
-    private Member member;      //유저 구분자
+    private TblUser member;      //유저 구분자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Comment(value="센터 구분자")
