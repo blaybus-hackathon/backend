@@ -36,7 +36,7 @@ public class LoginController {
     }
 
     /**
-     * TBL_HELPER 회원 가입
+     * 요양 보호사 회원 가입
      * @param signUpDTO
      * @return
      */
