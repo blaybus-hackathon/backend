@@ -35,9 +35,13 @@ public class TblHelperWorkTime extends BaseEntity {
     @NotNull
     private String startTime;
 
-    @Column(name = "htw_end_time")
+    @Column(name = "hwt_end_time")
     @Comment("종료시간")
     @NotNull
     private String endTime;
+
+    @Column(name = "hwt_nego")
+    @Comment("근무 협의 여부")
+    private Boolean negotiation;
 
 }

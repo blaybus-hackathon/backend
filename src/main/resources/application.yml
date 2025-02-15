@@ -2,3 +2,14 @@ spring:
   profiles:
     active: dev
     include: db, oauth, jwt
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+cors:
+  allowed:
+    origins: http://13.124.151.164:8080
