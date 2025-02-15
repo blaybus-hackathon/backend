@@ -4,7 +4,6 @@ import com.balybus.galaxy.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
