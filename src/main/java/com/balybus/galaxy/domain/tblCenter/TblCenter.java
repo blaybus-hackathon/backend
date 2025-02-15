@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Getter
 @Builder
