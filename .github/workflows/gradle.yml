@@ -73,7 +73,8 @@ jobs:
         envs: GITHUB_SHA
         script: |
           cd /home/ubuntu
-          sudo docker rm -f $(docker ps -qa)
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus:latest
-          docker-compose up -d
-          docker image prune -f
+          sudo docker rm -f $(docker ps -qa)  # 모든 컨테이너 종료
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus:latest  # 최신 이미지 가져오기
+          docker-compose down  # 기존 컨테이너 종료 및 네트워크 정리
+          docker-compose up -d --force-recreate --no-deps  # 강제 재생성 및 컨테이너 실행
+          docker image prune -f  # 사용하지 않는 이미지 정리
