@@ -53,6 +53,7 @@ jobs:
           echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           
           JAR_FILE=$(ls build/libs/*.jar | head -n 1)
+          echo "Using JAR_FILE: $JAR_FILE"
           
           docker build --no-cache \
               --build-arg JAR_FILE=$JAR_FILE \
