@@ -1,5 +1,8 @@
 package com.balybus.galaxy.helper.domain;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
+import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -26,15 +29,21 @@ public class TblHelperWorkLocation extends BaseEntity {
     @NotNull
     private TblHelper helper;
 
-    @Column(name = "af_addr")
     @Comment("시.도 구분자")
-    private String tblAddressFirst;
+    @ManyToOne
+    @NotNull
+    @JoinColumn(name = "af_seq", nullable = false)
+    private TblAddressFirst tblAddressFirst;
 
-    @Column(name = "as_addr")
     @Comment("시.군.구 구분자")
-    private String tblAddressSecond;
+    @ManyToOne
+    @JoinColumn(name = "as_seq", nullable = false)
+    @NotNull
+    private TblAddressSecond tblAddressSecond;
 
-    @Column(name = "at_addr")
     @Comment("읍.면.동 구분자")
-    private String tblAddressThird;
+    @ManyToOne
+    @JoinColumn(name = "at_seq", nullable = false)
+    @NotNull
+    private TblAddressThird tblAddressThird;
 }

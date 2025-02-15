@@ -21,7 +21,12 @@ public class TblAddressSecond {
     @Comment("시.군.구 구분자")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "af_seq", nullable = false)
+    @Comment("시.도 구분자")
+    private TblAddressFirst addressFirst;
 
-    @Column(name = "as_name")
+    @Column(name = "as_name", nullable = false, length = 50)
+    @Comment("시.군.구 명")
     private String name;
 }
