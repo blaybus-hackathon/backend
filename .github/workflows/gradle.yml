@@ -22,11 +22,25 @@ jobs:
         java-version: '17'
         distribution: 'adopt'
 
-    - name: Make application.properties
+    - name: Make application.yml
       run: |
-          cd ./src/main/resources
-          touch ./application.properties
-          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+        cd ./src/main/resources 
+        touch ./application.yml 
+        echo "${{ secrets.YML }}" > ./application.yml
+      shell: bash
+
+    - name: Make application-db.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-db.yml 
+        echo "${{ secrets.YML_DB }}" > ./application-db.yml
+      shell: bash
+
+    - name: Make application-jwt.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-jwt.yml 
+        echo "${{ secrets.YML_JWT }}" > ./application-jwt.yml
       shell: bash
 
     - name: Build with Gradle
@@ -37,8 +51,9 @@ jobs:
     - name: Docker build & push to docker repo
       run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO }}/directors-dev .
-          docker push ${{ secrets.DOCKER_REPO }}/directors-dev
+          docker build --no-cache -t ${{ secrets.DOCKER_REPO }}/blaybus .
+          docker tag ${{ secrets.DOCKER_REPO }}/blaybus ${{ secrets.DOCKER_REPO }}/blaybus:latest
+          docker push ${{ secrets.DOCKER_REPO }}/blaybus:latest
 
     - name: Deploy to server
       uses: appleboy/ssh-action@master
@@ -48,8 +63,8 @@ jobs:
         username: ubuntu
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
-      script: |
-        sudo docker rm -f $(docker ps -qa)
-        sudo docker pull ${{ secrets.DOCKER_REPO }}/directors-dev
-        docker-compose up -d
-        docker image prune -f
+        script: |
+          sudo docker rm -f $(docker ps -qa)
+          sudo docker pull ${{ secrets.DOCKER_REPO }}/blaybus:latest
+          docker-compose up -d
+          docker image prune -f
