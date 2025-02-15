@@ -54,24 +54,4 @@ public class TblCenter extends BaseEntity {
     @Comment(value="한줄 소개")
     @Column(length = 100)
     private String centerIntroduce;     //한줄 소개
-
-
-    @Column(name = "create_datetime", nullable = false, updatable = false)
-    @Comment("생성일시")
-    private LocalDateTime createdAt;
-
-    @Column(name = "update_datetime", nullable = false)
-    @Comment("수정일시")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = Optional.ofNullable(createdAt).orElse(LocalDateTime.now());
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

@@ -7,6 +7,8 @@ import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
+import com.balybus.galaxy.manager.DTO.TblManagerResponseDTO;
+import com.balybus.galaxy.manager.DTO.TblManagerSignUpDTO;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +26,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/sign")
 public class LoginController {
 
     private final LoginServiceImpl loginService;
@@ -42,25 +44,11 @@ public class LoginController {
     }
 
     /**
-     * 요양 보호사 회원 가입
-     * @param signUpDTO SignUpDTO
-     * @return ResponseEntity<TblHelperResponse>
-     */
-    @PutMapping("/sign-up")
-    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
-        if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
-            throw new BadRequestException(SIGNUP_INFO_NULL);
-        }
-        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
-        return ResponseEntity.ok(helperResponse);
-    }
-
-    /**
      * 로그인
      * @param dto MemberRequest.LoginDto
      * @return ResponseEntity
      */
-    @PostMapping("/sign-in")
+    @PostMapping("/in")
     @Operation(summary = "로그인 API", description = "사용자가 아이디와 비밀번호로 로그인합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
@@ -70,6 +58,32 @@ public class LoginController {
     })
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
         return ResponseEntity.ok().body(loginService.signIn(dto));
+    }
+
+
+    /**
+     * 요양 보호사 회원 가입
+     * @param signUpDTO SignUpDTO
+     * @return ResponseEntity<TblHelperResponse>
+     */
+    @PutMapping("/up/helper")
+    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
+        if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
+            throw new BadRequestException(SIGNUP_INFO_NULL);
+        }
+        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
+        return ResponseEntity.ok(helperResponse);
+    }
+
+
+    /**
+     * 관리자(센터직원) 회원 가입
+     * @param signUpDTO TblManagerSignUpDTO
+     * @return ResponseEntity<TblManagerResponseDTO>
+     */
+    @PostMapping("/up/manager")
+    public ResponseEntity<TblManagerResponseDTO> managerInfo(@RequestBody TblManagerSignUpDTO signUpDTO) {
+        return ResponseEntity.ok(loginService.registerManager(signUpDTO));
     }
 
 }

@@ -22,9 +22,9 @@ public abstract class BaseEntity {
     @CreatedDate
     @Comment(value="생성 시간")
     @Column(updatable = false)
-    private LocalDateTime createDate; // 생성 시간
+    private LocalDateTime createDatetime; // 생성 시간
 
     @LastModifiedDate
     @Comment(value="수정 시간")
-    private LocalDateTime updateDate; // 수정 시간
+    private LocalDateTime updateDatetime; // 수정 시간
 }
