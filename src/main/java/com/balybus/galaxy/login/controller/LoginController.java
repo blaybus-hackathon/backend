@@ -65,7 +65,7 @@ public class LoginController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
                     content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
-            @ApiResponse(responseCode = "402", description = "아이디/비밀번호 불일치",
+            @ApiResponse(responseCode = "4002", description = "아이디/비밀번호 불일치",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
