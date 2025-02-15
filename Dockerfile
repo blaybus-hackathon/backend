@@ -1,12 +1,4 @@
-FROM openjdk:17-jdk-alpine
-LABEL authors="manun"
-
-ENV TZ=Asia/Seoul
-ENV SPRING_PROFILES_ACTIVE=dev
-
-WORKDIR /app
-
-ARG JAR_FILE=build/libs/*SNAPSHOT.jar
+FROM openjdk:17
+ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
-
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=dev", "/app.jar"]
