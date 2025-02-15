@@ -1,5 +1,11 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
+import com.balybus.galaxy.address.domain.TblAddressThird;
+import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
+import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
+import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
@@ -33,6 +39,9 @@ public class LoginServiceImpl implements LoginService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final HelperRepository helperRepository;
+    private final TblAddressFirstRepository tblAddressFirstRepository;
+    private final TblAddressSecondRepository tblAddressSecondRepository;
+    private final TblAddressThirdRepository tblAddressThirdRepository;
 
 
     public String renewAccessToken() {

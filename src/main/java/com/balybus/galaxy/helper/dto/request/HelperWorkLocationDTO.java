@@ -2,6 +2,8 @@ package com.balybus.galaxy.helper.dto.request;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -10,7 +12,7 @@ import lombok.*;
 @ToString
 public class HelperWorkLocationDTO {
     private Long HelperId;
-    private String tblAddressFirst;
-    private String tblAddressSecond;
-    private String tblAddressThird;
+    private List<Long> addressFirstIds; // 시.도
+    private List<Long> addressSecondIds; // 시.군.구
+    private List<Long> addressThirdIds; // 읍.면.동
 }
