@@ -14,6 +14,7 @@ import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
@@ -42,12 +43,8 @@ public class LoginServiceImpl implements LoginService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final HelperRepository helperRepository;
-    private final TblAddressFirstRepository tblAddressFirstRepository;
-    private final TblAddressSecondRepository tblAddressSecondRepository;
-    private final TblAddressThirdRepository tblAddressThirdRepository;
 
-
-    public String renewAccessToken() {
+    public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.generateAccessToken("");
     }
 
