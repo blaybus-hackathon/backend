@@ -62,7 +62,7 @@ public class SecurityConfig {
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
 
         config.setExposedHeaders(Arrays.asList("*"));
 
