@@ -1,0 +1,78 @@
+name: CD with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+
+    - name: Make application.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application.yml 
+        echo "${{ secrets.YML }}" > ./application.yml
+      shell: bash
+
+    - name: Make application-db.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-db.yml 
+        echo "${{ secrets.YML_DB }}" > ./application-db.yml
+      shell: bash
+
+    - name: Make application-jwt.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-jwt.yml 
+        echo "${{ secrets.YML_JWT }}" > ./application-jwt.yml
+      shell: bash
+
+    - name: Build with Gradle
+      run: |
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test
+
+    - name: Docker build & push to docker repo
+      run: |
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          
+          # 🔹 실행 가능한 JAR 파일을 가져오기 위해 수정
+          JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
+          
+          # 🔹 빌드 시 실행 가능한 JAR 사용
+          docker build --no-cache --build-arg JAR_FILE=$JAR_FILE -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus .
+              
+          # 🔹 Docker Hub에 푸시
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
+
+
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
+      id: deploy
+      with:
+        host: ${{ secrets.HOST }}
+        username: ubuntu
+        key: ${{ secrets.KEY }}
+        envs: GITHUB_SHA
+        script: |
+          sudo docker rm -f $(docker ps -qa)
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus:latest
+          docker-compose up -d
+          docker image prune -f

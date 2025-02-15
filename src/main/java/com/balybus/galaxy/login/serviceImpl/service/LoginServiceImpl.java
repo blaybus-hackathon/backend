@@ -8,10 +8,7 @@ import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.global.response.ApiResponse;
-import com.balybus.galaxy.global.response.SuccessCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
@@ -102,7 +99,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     @Transactional
-    public ApiResponse<?> signIn(MemberRequest.SignInDto signInDto) {
+    public MemberResponse.SignInDto signIn(MemberRequest.SignInDto signInDto) {
         if (signInDto != null) {
             // 1. 사용자 조회
             Optional<TblUser> userOpt = memberRepository.findByEmail(signInDto.getUserId());
@@ -116,23 +113,22 @@ public class LoginServiceImpl implements LoginService {
                     login.updateRefreshToken(refreshToken);
 
                     // 4. 조회 결과 전달
-                    return ApiResponse.SUCCESS(SuccessCode.LOGIN_SUCCESS,
-                            MemberResponse.SignInDto.builder()
-                                    .accessToken(accessToken)
-                                    .refreshToken(refreshToken)
-                                    .userAuth(login.getUserAuth())
-                                    .build());
+                    return MemberResponse.SignInDto.builder()
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .userAuth(login.getUserAuth())
+                            .build();
                 } else {
                     log.error("로그인 실패 : 아이디, 비밀번호 불일치, 사용자 ID {}", signInDto.getUserId());
-                    return ApiResponse.ERROR(ExceptionCode.LOGIN_FAIL); // 비밀번호 불일치 시 로그인 실패
+                    throw new BadRequestException(ExceptionCode.LOGIN_FAIL); // 비밀번호 불일치 시 로그인 실패
                 }
             } else {
                 log.error("로그인 실패 : 존재하지 않는 사용자, 사용자 ID {}", signInDto.getUserId());
-                return ApiResponse.ERROR(ExceptionCode.LOGIN_FAIL);  // 존재하지 않는 사용자인 경우 Error
+                throw new BadRequestException(ExceptionCode.LOGIN_FAIL);  // 존재하지 않는 사용자인 경우 Error
             }
         } else {
             log.error("로그인 실패 : LoginDto가 비어 있습니다.");
-            return ApiResponse.ERROR(ExceptionCode.INVALID_REQUEST); // LoginDto 값 비어 있을 때
+            throw new BadRequestException(ExceptionCode.LOGIN_FAIL); // LoginDto 값 비어 있을 때
         }
     }
 
