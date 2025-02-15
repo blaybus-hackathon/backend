@@ -55,6 +55,7 @@ jobs:
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
 
+
     - name: Deploy to server
       uses: appleboy/ssh-action@master
       id: deploy
