@@ -2,7 +2,7 @@ package com.balybus.galaxy.global.utils;
 
 import com.balybus.galaxy.domain.tblImg.TblImg;
 import com.balybus.galaxy.domain.tblImg.TblImgRepository;
-import com.balybus.galaxy.global.exception.CustomException;
+import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +71,7 @@ public class FileUploadUtils {
                                 .build());
             } catch (IllegalStateException | IOException e) {
                 log.info(">>>>>>> fileUpload 오류 :: ", e);
-                throw new CustomException(ExceptionCode.UPLOAD_FAILED);
+                throw new BadRequestException(ExceptionCode.UPLOAD_FAILED);
             }
         }
 
@@ -94,7 +94,7 @@ public class FileUploadUtils {
             String uploadedFilePath = Paths.get(archive, entity.getImgUuid()).toString();
             return Files.readAllBytes(new File(uploadedFilePath).toPath());
         } catch (IOException e) {
-            throw new CustomException(ExceptionCode.FILE_NOT_FOUND);
+            throw new BadRequestException(ExceptionCode.FILE_NOT_FOUND);
         }
     }
 
@@ -105,7 +105,7 @@ public class FileUploadUtils {
     public void deleteFile(Long fileSeq) {
         // 1. 삭제 요청한 데이터가 있는지 확인
         TblImg fileEntity = photoFileRepository.findById(fileSeq)
-                .orElseThrow(() -> new CustomException(ExceptionCode.FILE_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ExceptionCode.FILE_NOT_FOUND));
 
         // 2. 데이터 삭제
         deleteFile(fileEntity);
