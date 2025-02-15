@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Builder
@@ -21,6 +23,10 @@ public class TblCenter extends BaseEntity {
     @Comment(value="센터 구분자")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;            //구분자
+
+    @Column(name = "img_seq")
+    @Comment("이미지 구분자")
+    private Long imgSeq;        //이미지 구분자
 
     @Comment(value="센터명")
     @Column(length = 50, nullable = false)
@@ -50,4 +56,22 @@ public class TblCenter extends BaseEntity {
     private String centerIntroduce;     //한줄 소개
 
 
+    @Column(name = "create_datetime", nullable = false, updatable = false)
+    @Comment("생성일시")
+    private LocalDateTime createdAt;
+
+    @Column(name = "update_datetime", nullable = false)
+    @Comment("수정일시")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Optional.ofNullable(createdAt).orElse(LocalDateTime.now());
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
