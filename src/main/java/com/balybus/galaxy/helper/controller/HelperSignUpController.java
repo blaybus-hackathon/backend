@@ -7,6 +7,7 @@ import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/sign-up")
 public class HelperSignUpController {
 
@@ -38,6 +40,7 @@ public class HelperSignUpController {
     @GetMapping("/get-first-addr")
     public ResponseEntity<List<TblAddressFirstDTO>> getFirstAddress() {
         List<TblAddressFirstDTO> addressList = helperService.getFirstAddress();
+        log.info(addressList.toString());
         return ResponseEntity.ok(addressList);
     }
 

@@ -34,6 +34,7 @@ public class LoginController {
     @GetMapping("/token/access-token")
     public ResponseEntity<AccessTokenResponse> renewAccessToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
         String accessToken = loginService.renewAccessToken(refreshTokenDTO);
+        log.info(accessToken);
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
 
