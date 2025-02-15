@@ -25,12 +25,13 @@ import java.util.Arrays;
 @Slf4j
 public class SecurityConfig {
 
+    private final TokenProvider tokenProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)

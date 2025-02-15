@@ -1,17 +1,16 @@
 package com.balybus.galaxy.helper.controller;
 
+import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
-import com.balybus.galaxy.helper.dto.response.AddressResponseDTO;
-import com.balybus.galaxy.helper.dto.response.HelperExperienceResponse;
-import com.balybus.galaxy.helper.dto.response.HelperWorkLocationReponse;
-import com.balybus.galaxy.helper.dto.response.HelperWorkTimeResponse;
+import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,11 +35,23 @@ public class HelperSignUpController {
      * 근무 희망 지역 리스트 반환
      * @return
      */
-    @GetMapping("/get-all-addr")
-    public ResponseEntity<AddressResponseDTO> getFirstAddress() {
-        return ResponseEntity.ok(helperService.getAllAddress());
+    @GetMapping("/get-first-addr")
+    public ResponseEntity<List<TblAddressFirstDTO>> getFirstAddress() {
+        List<TblAddressFirstDTO> addressList = helperService.getFirstAddress();
+        return ResponseEntity.ok(addressList);
     }
 
+    @GetMapping("/second/{afSeq}")
+    public ResponseEntity<List<TblAddressSecondDTO>> getAddressSecond(@PathVariable Long afSeq) {
+        List<TblAddressSecondDTO> addressSeconds = helperService.getAddressSecondByFirstId(afSeq);
+        return ResponseEntity.ok(addressSeconds);
+    }
+
+    @GetMapping("/third/{asSeq}")
+    public ResponseEntity<List<TblAddressThirdDTO>> getAddressThird(@PathVariable Long asSeq) {
+        List<TblAddressThirdDTO> thirdAddresses = helperService.getThirdAddressBySecondId(asSeq);
+        return ResponseEntity.ok(thirdAddresses);
+    }
     ////////////
 
     @PostMapping("/helper-work-time")
