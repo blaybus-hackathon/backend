@@ -51,7 +51,13 @@ jobs:
     - name: Docker build & push to docker repo
       run: |
           echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          docker build --no-cache -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus .
+          
+          JAR_FILE=$(ls build/libs/*.jar | head -n 1)
+          
+          docker build --no-cache \
+              --build-arg JAR_FILE=$JAR_FILE \
+              -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus .
+              
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
 
