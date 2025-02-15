@@ -1,4 +1,4 @@
 spring:
   profiles:
     active: dev
-    include: db, oauth, jwt
+    include: db, oauth, jwt, mail
