@@ -2,7 +2,6 @@ package com.balybus.galaxy.login.controller;
 
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ErrorResponse;
-import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
@@ -44,8 +43,8 @@ public class LoginController {
 
     /**
      * 요양 보호사 회원 가입
-     * @param signUpDTO
-     * @return
+     * @param signUpDTO SignUpDTO
+     * @return ResponseEntity<TblHelperResponse>
      */
     @PutMapping("/sign-up")
     public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
