@@ -1,6 +1,8 @@
 package com.balybus.galaxy.login.controller;
 
 import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
@@ -30,8 +32,8 @@ public class LoginController {
     private final LoginServiceImpl loginService;
 
     @GetMapping("/token/access-token")
-    public ResponseEntity<AccessTokenResponse> renewAccessToken() {
-        String accessToken = loginService.renewAccessToken();
+    public ResponseEntity<AccessTokenResponse> renewAccessToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
+        String accessToken = loginService.renewAccessToken(refreshTokenDTO);
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
 
