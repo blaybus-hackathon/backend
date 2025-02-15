@@ -23,13 +23,13 @@ public class LoginController {
 
     private final LoginServiceImpl loginService;
 
-    @GetMapping("/access-token")
+    @GetMapping("/token/access-token")
     public ResponseEntity<AccessTokenResponse> renewAccessToken() {
         String accessToken = loginService.renewAccessToken();
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
 
-    @GetMapping("/refresh-token")
+    @GetMapping("/token/refresh-token")
     public ResponseEntity<RefreshTokenResponse> refreshToken() {
         String refreshToken = loginService.getRefreshToken();
         return ResponseEntity.ok().body(new RefreshTokenResponse(refreshToken));
