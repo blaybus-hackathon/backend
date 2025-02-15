@@ -1,5 +1,7 @@
 package com.balybus.galaxy.login.controller;
 
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -7,8 +9,6 @@ import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
-import com.balybus.galaxy.manager.DTO.TblManagerResponseDTO;
-import com.balybus.galaxy.manager.DTO.TblManagerSignUpDTO;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,11 +78,11 @@ public class LoginController {
 
     /**
      * 관리자(센터직원) 회원 가입
-     * @param signUpDTO TblManagerSignUpDTO
-     * @return ResponseEntity<TblManagerResponseDTO>
+     * @param signUpDTO CenterManagerRequestDto
+     * @return ResponseEntity<CenterManagerResponseDto>
      */
     @PostMapping("/up/manager")
-    public ResponseEntity<TblManagerResponseDTO> managerInfo(@RequestBody TblManagerSignUpDTO signUpDTO) {
+    public ResponseEntity<CenterManagerResponseDto> managerInfo(@RequestBody CenterManagerRequestDto signUpDTO) {
         return ResponseEntity.ok(loginService.registerManager(signUpDTO));
     }
 

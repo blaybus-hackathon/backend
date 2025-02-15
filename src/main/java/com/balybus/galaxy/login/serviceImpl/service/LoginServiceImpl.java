@@ -7,6 +7,8 @@ import com.balybus.galaxy.domain.tblCenter.TblCenter;
 import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
@@ -16,8 +18,6 @@ import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import com.balybus.galaxy.login.serviceImpl.LoginService;
-import com.balybus.galaxy.manager.DTO.TblManagerResponseDTO;
-import com.balybus.galaxy.manager.DTO.TblManagerSignUpDTO;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
@@ -158,11 +158,11 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 관리자 회원가입
-     * @param dto TblManagerSignUpDTO
-     * @return TblManagerResponseDTO
+     * @param dto CenterManagerRequestDto
+     * @return CenterManagerResponseDto
      */
     @Transactional
-    public TblManagerResponseDTO registerManager(TblManagerSignUpDTO dto) {
+    public CenterManagerResponseDto registerManager(CenterManagerRequestDto dto) {
         // 1. 센터 정보 확인
         Optional<TblCenter> centerOpt = centerRepository.findById(dto.getCenterSeq());
         if(centerOpt.isEmpty())
@@ -181,7 +181,7 @@ public class LoginServiceImpl implements LoginService {
                         .build());
 
         // 4. ResponseDTO 반환
-        return TblManagerResponseDTO.builder()
+        return CenterManagerResponseDto.builder()
                 .id(manager.getId())  // 관리자 구분자
                 .userSeq(manager.getMember().getId())  // 유저 구분자
                 .centerSeq(manager.getCenter().getId())  // 센터 구분자
