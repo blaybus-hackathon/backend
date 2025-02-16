@@ -41,7 +41,7 @@ public class TempController {
     })
     public ResponseEntity<?> uploadImg(@AuthenticationPrincipal UserDetails userDetails,
                                        ImgRequestDto.UploadImg dto) {
-        return ResponseEntity.ok().body(imgService.uploadImg(userDetails, dto));
+        return ResponseEntity.ok().body(imgService.uploadImg(dto.getPhotoFiles()));
     }
 
     @PostMapping("/authentication-mail")
