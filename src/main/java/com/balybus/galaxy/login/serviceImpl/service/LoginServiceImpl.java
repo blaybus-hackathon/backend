@@ -1,16 +1,20 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
-import com.balybus.galaxy.address.domain.TblAddressSecond;
-import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblCenter.TblCenter;
+import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
@@ -39,39 +43,54 @@ public class LoginServiceImpl implements LoginService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final MemberRepository memberRepository;
     private final HelperRepository helperRepository;
+
+    private final TblCenterRepository centerRepository;
+    private final TblCenterManagerRepository centerManagerRepository;
+
     private final TblAddressFirstRepository tblAddressFirstRepository;
     private final TblAddressSecondRepository tblAddressSecondRepository;
     private final TblAddressThirdRepository tblAddressThirdRepository;
 
-
-    public String renewAccessToken() {
-        return tokenProvider.generateAccessToken("");
+    public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
+        return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
     }
 
     public String getRefreshToken() {
         return tokenProvider.refreshToken("");
     }
 
-    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
+    /**
+     * 이메일 유효셩 검사 및 아이디 비밀번호 등록
+     * @param email String:이메일(아이디)
+     * @param pw String:비밀번호
+     * @param roleType RoleTyp(Enum):권한
+     * @return TblUser
+     */
+    private TblUser signUpLogin(String email, String pw, RoleType roleType) {
         // 1. email 중복성 검사
-        if(memberRepository.findByEmail(signUpRequest.getEmail()).isPresent()) {
+        if(memberRepository.findByEmail(email).isPresent())
             throw new BadRequestException(LOGIN_ID_EXIST);
-        }
 
-        // 1.2 비밀번호 암호화
-        String encryptedPassword = bCryptPasswordEncoder.encode(signUpRequest.getPassword());
+        // 2. 비밀번호 암호화
+        String encryptedPassword = bCryptPasswordEncoder.encode(pw);
 
-        // 2. 기본 회원 정보 저장
+        // 3. 기본 회원 정보 저장
         TblUser member = TblUser.builder()
-                .email(signUpRequest.getEmail())
+                .email(email)
                 .password(encryptedPassword)
-                .userAuth(signUpRequest.getRoleType())
+                .userAuth(roleType)
                 .build();
-        TblUser savedMember = memberRepository.save(member);
+
+        return memberRepository.save(member);
+    }
+
+    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
+        // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
+        TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType());
 
         TblHelper helper = null;
 
-        // 3. 요양 보호사 정보 저장
+        // 2. 요양 보호사 정보 저장
         if(signUpRequest.getRoleType() == RoleType.MEMBER) {
             helper = TblHelper.builder()
                     .user(savedMember)
@@ -133,6 +152,42 @@ public class LoginServiceImpl implements LoginService {
             log.error("로그인 실패 : LoginDto가 비어 있습니다.");
             throw new BadRequestException(ExceptionCode.LOGIN_FAIL); // LoginDto 값 비어 있을 때
         }
+    }
+
+
+
+    /**
+     * 관리자 회원가입
+     * @param dto CenterManagerRequestDto
+     * @return CenterManagerResponseDto
+     */
+    @Transactional
+    public CenterManagerResponseDto registerManager(CenterManagerRequestDto dto) {
+        // 1. 센터 정보 확인
+        Optional<TblCenter> centerOpt = centerRepository.findById(dto.getCenterSeq());
+        if(centerOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.CENTER_NOT_FOUND);
+
+        // 2. 이메일 유효셩 검사 및 관리자 아이디 비밀번호 등록
+        TblUser savedMember = signUpLogin(dto.getEmail(), dto.getPassword(), RoleType.MANAGER);
+
+        // 3. 관리자 정보 등록
+        TblCenterManager manager = centerManagerRepository.save(
+                TblCenterManager.builder()
+                        .member(savedMember)            // 유저
+                        .center(centerOpt.get())        // 센터
+                        .cmPosition(dto.getPosition())  // 직책
+                        .cmName(dto.getName())          // 직원명
+                        .build());
+
+        // 4. ResponseDTO 반환
+        return CenterManagerResponseDto.builder()
+                .id(manager.getId())  // 관리자 구분자
+                .userSeq(manager.getMember().getId())  // 유저 구분자
+                .centerSeq(manager.getCenter().getId())  // 센터 구분자
+                .position(manager.getCmPosition())  // 직책
+                .name(manager.getCmName())  // 직원명
+                .build();
     }
 
 }

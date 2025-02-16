@@ -1,6 +1,10 @@
 package com.balybus.galaxy.login.controller;
 
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
@@ -24,35 +28,22 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/sign")
 public class LoginController {
 
     private final LoginServiceImpl loginService;
 
-    @GetMapping("/access-token")
-    public ResponseEntity<AccessTokenResponse> renewAccessToken() {
-        String accessToken = loginService.renewAccessToken();
+    @GetMapping("/token/access-token")
+    public ResponseEntity<AccessTokenResponse> renewAccessToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
+        String accessToken = loginService.renewAccessToken(refreshTokenDTO);
+        log.info(accessToken);
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
 
-    @GetMapping("/refresh-token")
+    @GetMapping("/token/refresh-token")
     public ResponseEntity<RefreshTokenResponse> refreshToken() {
         String refreshToken = loginService.getRefreshToken();
         return ResponseEntity.ok().body(new RefreshTokenResponse(refreshToken));
-    }
-
-    /**
-     * 요양 보호사 회원 가입
-     * @param signUpDTO SignUpDTO
-     * @return ResponseEntity<TblHelperResponse>
-     */
-    @PutMapping("/sign-up")
-    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
-        if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
-            throw new BadRequestException(SIGNUP_INFO_NULL);
-        }
-        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
-        return ResponseEntity.ok(helperResponse);
     }
 
     /**
@@ -60,7 +51,7 @@ public class LoginController {
      * @param dto MemberRequest.LoginDto
      * @return ResponseEntity
      */
-    @PostMapping("/sign-in")
+    @PostMapping("/in")
     @Operation(summary = "로그인 API", description = "사용자가 아이디와 비밀번호로 로그인합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "로그인 성공",
@@ -70,6 +61,32 @@ public class LoginController {
     })
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
         return ResponseEntity.ok().body(loginService.signIn(dto));
+    }
+
+
+    /**
+     * 요양 보호사 회원 가입
+     * @param signUpDTO SignUpDTO
+     * @return ResponseEntity<TblHelperResponse>
+     */
+    @PutMapping("/up/helper")
+    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
+        if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
+            throw new BadRequestException(SIGNUP_INFO_NULL);
+        }
+        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
+        return ResponseEntity.ok(helperResponse);
+    }
+
+
+    /**
+     * 관리자(센터직원) 회원 가입
+     * @param signUpDTO CenterManagerRequestDto
+     * @return ResponseEntity<CenterManagerResponseDto>
+     */
+    @PostMapping("/up/manager")
+    public ResponseEntity<CenterManagerResponseDto> managerInfo(@RequestBody CenterManagerRequestDto signUpDTO) {
+        return ResponseEntity.ok(loginService.registerManager(signUpDTO));
     }
 
 }

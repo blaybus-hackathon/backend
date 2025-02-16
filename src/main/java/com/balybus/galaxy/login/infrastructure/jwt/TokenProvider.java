@@ -1,5 +1,6 @@
 package com.balybus.galaxy.login.infrastructure.jwt;
 
+import com.balybus.galaxy.global.exception.BadRequestException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+
+import static com.balybus.galaxy.global.exception.ExceptionCode.INVALID_REFRESH_TOKEN;
 
 @Service
 public class TokenProvider {
@@ -40,12 +43,19 @@ public class TokenProvider {
      * @return
      */
     public String generateAccessToken(String subject) {
-        final String accessToken = createToken(subject, accessExpirationTime);
-        return accessToken;
+        return createToken(subject, accessExpirationTime);
     }
 
     public String refreshToken(String subject) {
         return createToken(subject, refreshExpirationTime);
+    }
+
+    public String renewAccessToken(String refreshToken) {
+        if(!validateToken(refreshToken)) {
+            throw new BadRequestException(INVALID_REFRESH_TOKEN);
+        }
+        String username = getUsername(refreshToken);
+        return generateAccessToken(username);
     }
 
     /**

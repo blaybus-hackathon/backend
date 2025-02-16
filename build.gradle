@@ -13,6 +13,17 @@ java {
     }
 }
 
+bootJar {
+    archiveClassifier = ''
+    bootJar.enabled= true
+    jar.enabled = false
+}
+
+jar {
+    enabled = false
+}
+
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -53,6 +64,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin
+    implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '3.4.2'
 
     /* mail */
     implementation 'org.springframework.boot:spring-boot-starter-mail'
