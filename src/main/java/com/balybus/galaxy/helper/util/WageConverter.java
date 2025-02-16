@@ -5,34 +5,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 @Converter
-public class StringListConverter implements AttributeConverter<List<String>, String> {
+public class WageConverter implements AttributeConverter<Map<Integer, String>, String> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(List<String> attribute) {
+    public String convertToDatabaseColumn(Map<Integer, String> attribute) {
         if (attribute == null || attribute.isEmpty()) {
-            return "[]";  // ✅ 빈 리스트라도 기본 값 저장
+            return "{}";  // ✅ 기본 값 저장 (빈 JSON 객체)
         }
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (Exception e) {
-            throw new RuntimeException("Error converting list to JSON", e);
+            throw new RuntimeException("Error converting map to JSON", e);
         }
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String dbData) {
+    public Map<Integer, String> convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isEmpty()) {
-            return Collections.emptyList();  // ✅ null이거나 빈 문자열이면 빈 리스트 반환
+            return Collections.emptyMap();  // ✅ null이면 빈 맵 반환
         }
         try {
-            return objectMapper.readValue(dbData, new TypeReference<List<String>>() {});
+            return objectMapper.readValue(dbData, new TypeReference<Map<Integer, String>>() {});
         } catch (Exception e) {
-            throw new RuntimeException("Error converting JSON to list", e);
+            throw new RuntimeException("Error converting JSON to map", e);
         }
     }
 }

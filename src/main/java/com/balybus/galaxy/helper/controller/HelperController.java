@@ -1,10 +1,6 @@
 package com.balybus.galaxy.helper.controller;
 
-import com.balybus.galaxy.global.exception.BadRequestException;
-import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
+import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +15,48 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/sign-up")
-public class HelperSignUpController {
+@RequestMapping("/api")
+public class HelperController {
 
     private final HelperServiceImpl helperService;
+
+    /**
+     * 요양 보호사 정보 모두 보기
+     * @param userDetails
+     * @return
+     */
+    @GetMapping("/get-helper-info")
+    public ResponseEntity<HelperResponse> getHelperInfo(@AuthenticationPrincipal UserDetails userDetails) {
+        HelperResponse helperResponse = helperService.getAllHelperInfo(userDetails);
+        return ResponseEntity.ok(helperResponse);
+    }
+
+    /**
+     * 희망 급여 업데이트
+     * @param userDetails
+     * @param wageUpdateDTO
+     * @return
+     */
+    @PutMapping("/update-wage")
+    public ResponseEntity<WageUpdateResponse> updateWage(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody WageUpdateDTO wageUpdateDTO) {
+        WageUpdateResponse wageUpdateResponse = helperService.updateWage(userDetails, wageUpdateDTO);
+        return ResponseEntity.ok(wageUpdateResponse);
+    }
+
+    /**
+     * 요양 보호사 프로필 업데이트
+     * @param helperProfileDTO
+     * @param userDetails
+     * @return
+     */
+    @PutMapping("/update-profile")
+    public ResponseEntity<String> updateProfile(@RequestBody HelperProfileDTO helperProfileDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        helperService.updateProfile(userDetails, helperProfileDTO);
+        return ResponseEntity.ok("프로필이 정상적으로 업데이트 되었습니다.");
+    }
+
 
     ///////////////////////////////////////
 
@@ -45,8 +79,8 @@ public class HelperSignUpController {
      * @return
      */
     @GetMapping("/get-first-addr")
-    public ResponseEntity<List<TblAddressFirstDTO>> getFirstAddress() {
-        List<TblAddressFirstDTO> addressList = helperService.getFirstAddress();
+    public ResponseEntity<List<TblAddressFirstResponse>> getFirstAddress() {
+        List<TblAddressFirstResponse> addressList = helperService.getFirstAddress();
         log.info(addressList.toString());
         return ResponseEntity.ok(addressList);
     }
@@ -57,8 +91,8 @@ public class HelperSignUpController {
      * @return
      */
     @GetMapping("/second/{afSeq}")
-    public ResponseEntity<List<TblAddressSecondDTO>> getAddressSecond(@PathVariable Long afSeq) {
-        List<TblAddressSecondDTO> addressSeconds = helperService.getAddressSecondByFirstId(afSeq);
+    public ResponseEntity<List<TblAddressSecondResponse>> getAddressSecond(@PathVariable Long afSeq) {
+        List<TblAddressSecondResponse> addressSeconds = helperService.getAddressSecondByFirstId(afSeq);
         return ResponseEntity.ok(addressSeconds);
     }
 
@@ -68,13 +102,19 @@ public class HelperSignUpController {
      * @return
      */
     @GetMapping("/third/{asSeq}")
-    public ResponseEntity<List<TblAddressThirdDTO>> getAddressThird(@PathVariable Long asSeq) {
-        List<TblAddressThirdDTO> thirdAddresses = helperService.getThirdAddressBySecondId(asSeq);
+    public ResponseEntity<List<TblAddressThirdResponse>> getAddressThird(@PathVariable Long asSeq) {
+        List<TblAddressThirdResponse> thirdAddresses = helperService.getThirdAddressBySecondId(asSeq);
         return ResponseEntity.ok(thirdAddresses);
     }
 
     //////////////////////////////////////
 
+    /**
+     * 요양 보호사 근무 가능 시간 저장 -> 근무 가능 기간 저장 로직 필요
+     * @param helperWorkTimeDTO
+     * @param userDetails
+     * @return
+     */
     @PostMapping("/helper-work-time")
     public ResponseEntity<HelperWorkTimeResponse> workTime(
             @RequestBody HelperWorkTimeRequestDTO helperWorkTimeDTO,
@@ -84,6 +124,12 @@ public class HelperSignUpController {
         return ResponseEntity.ok(helperWorkTimeResponse);
     }
 
+    /**
+     * 요양 보호사 경력 저장
+     * @param helperExperienceDTO
+     * @param userDetails
+     * @return
+     */
     @PostMapping("/helper-exp")
     public ResponseEntity<HelperExperienceResponse> helperExp(
             @RequestBody HelperExperienceDTO helperExperienceDTO,

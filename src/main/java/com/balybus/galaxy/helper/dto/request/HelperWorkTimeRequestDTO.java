@@ -5,7 +5,6 @@ import lombok.*;
 import java.util.List;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -13,4 +12,5 @@ import java.util.List;
 public class HelperWorkTimeRequestDTO {
     private List<HelperWorkTimeDTO> workTimes;
     private Boolean negotiation;
+    private List<Integer> workTerm;
 }
