@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,12 +19,13 @@ public class SignUpDTO {
     private String name;
     private String phone;
     private String addressDetail;
-    private String essentialCertNo;
-    private String socialCertNo;
+    private String essentialCertNo; // 요양 보호사
+    private String careCertNo;
     private String nurseCertNo;
+    private String postPartumCertNo;
+    private List<String> helperOtherCerts;
     private boolean carOwnYn;
     private boolean eduYn;
-    private int wage;
 
     public static boolean hasNullDataBeforeSignUp(SignUpDTO dto) {
         return dto.getEmail() == null ||

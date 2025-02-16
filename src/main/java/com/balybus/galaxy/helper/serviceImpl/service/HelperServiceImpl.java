@@ -1,6 +1,5 @@
 package com.balybus.galaxy.helper.serviceImpl.service;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
 import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
@@ -11,23 +10,23 @@ import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.domain.TblHelperExperience;
 import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
-import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkTimeDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
+import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.repository.HelperExperienceRepository;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkLocationRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkTimeRepository;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
+import com.balybus.galaxy.member.domain.TblUser;
+import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.*;
@@ -38,6 +37,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 public class HelperServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
+    private final MemberRepository memberRepository;
 
     private final HelperWorkLocationRepository helperWorkLocationRepository;
     private final HelperWorkTimeRepository helperWorkTimeRepository;
@@ -47,19 +47,89 @@ public class HelperServiceImpl implements HelperService {
     private final TblAddressSecondRepository tblAddressSecondRepository;
     private final TblAddressThirdRepository tblAddressThirdRepository;
 
-    /**
-     * 사용자가 선택한 주소를 반환
-     * @param helperWorkLocationDTO
-     * @return
-     */
     @Override
-    public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO) {
-        // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperWorkLocationDTO.getHelperId())
+    public HelperResponse getAllHelperInfo(UserDetails userDetails) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        // 2. dto 리스트 값과 대응하는 테이블 데이터 찾기
-        List<TblAddressFirst> addressFirstList = tblAddressFirstRepository.findAllById(helperWorkLocationDTO.getAddressFirstIds());
+        return HelperResponse.builder()
+                .id(tblHelper.getId())
+                .userEmail(tblUser.getEmail())
+                .name(tblHelper.getName())
+                .phone(tblHelper.getPhone())
+                .addressDetail(tblHelper.getAddressDetail())
+                .essentialCertNo(tblHelper.getEssentialCertNo())
+                .careCertNo(tblHelper.getCareCertNo())
+                .nurseCertNo(tblHelper.getNurseCertNo())
+                .postPartumCertNo(tblHelper.getPostPartumCertNo())
+                .helperOtherCerts(tblHelper.getHelperOtherCerts())
+                .carOwnYn(tblHelper.isCarOwnYn())
+                .eduYn(tblHelper.isEduYn())
+                .wage(tblHelper.getWage())
+                .build();
+    }
+
+    @Override
+    public void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
+        tblHelper.setEssentialCertNo(helperProfileDTO.getEssentialCertNo());
+        tblHelper.setStrengths(helperProfileDTO.getStrengths());
+        tblHelper.setCareCertNo(helperProfileDTO.getCareCertNo());
+        tblHelper.setNurseCertNo(helperProfileDTO.getNurseCertNo());
+        tblHelper.setPostPartumCertNo(helperProfileDTO.getPostPartumCertNo());
+        tblHelper.setHelperOtherCerts(helperProfileDTO.getHelperOtherCerts());
+
+        helperRepository.save(tblHelper);
+    }
+
+    @Override
+    public WageUpdateResponse updateWage(UserDetails userDetails, WageUpdateDTO wageUpdateDTO) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        Map<Integer, String> helperWage = new HashMap<>();
+        helperWage.put(wageUpdateDTO.getUnit(), wageUpdateDTO.getWage());
+
+        tblHelper.setWage(helperWage);
+        tblHelper.setWageNegotiation(wageUpdateDTO.getWageNegotiation());
+
+        helperRepository.save(tblHelper);
+
+        return WageUpdateResponse.builder()
+                .email(tblUser.getEmail())
+                .wage(wageUpdateDTO.getWage())
+                .build();
+    }
+
+    @Override
+    public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        List<com.balybus.galaxy.address.domain.TblAddressFirst> addressFirstList = tblAddressFirstRepository.findAllById(helperWorkLocationDTO.getAddressFirstIds());
         List<TblAddressSecond> addressSecondList = tblAddressSecondRepository.findAllById(helperWorkLocationDTO.getAddressSecondIds());
         List<TblAddressThird> addressThirds = tblAddressThirdRepository.findAllById(helperWorkLocationDTO.getAddressThirdIds());
 
@@ -89,70 +159,75 @@ public class HelperServiceImpl implements HelperService {
     }
 
     @Override
-    public List<TblAddressFirstDTO> getFirstAddress() {
+    public List<TblAddressFirstResponse> getFirstAddress() {
         return tblAddressFirstRepository.findAll().stream()
-                .map(TblAddressFirstDTO::new)  // DTO로 변환
+                .map(TblAddressFirstResponse::new)  // DTO로 변환
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TblAddressThirdDTO> getThirdAddressBySecondId(Long asSeq) {
+    public List<TblAddressThirdResponse> getThirdAddressBySecondId(Long asSeq) {
         List<TblAddressThird> entities = tblAddressThirdRepository.findByAddressSecond_Id(asSeq);
 
         return entities.stream()
-                .map(TblAddressThirdDTO::new)
+                .map(TblAddressThirdResponse::new)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TblAddressSecondDTO> getAddressSecondByFirstId(Long afSeq) {
+    public List<TblAddressSecondResponse> getAddressSecondByFirstId(Long afSeq) {
         List<TblAddressSecond> entities = tblAddressSecondRepository.findByAddressFirst_Id(afSeq);
 
         return entities.stream()
-                .map(TblAddressSecondDTO::new)
+                .map(TblAddressSecondResponse::new)
                 .collect(Collectors.toList());
     }
 
-
     @Override
-    public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO) {
-        // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperWorkTimeRequestDTO.getHelperId())
+    public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        // 2. 기존에 등록된 WorkTime 조회
-        List<TblHelperWorkTime> existingWorkTimes = helperWorkTimeRepository.findByHelper(tblHelper);
-
-        // 3. 새로운 데이터 중 기존 데이터와 중복되지 않는 것만 필터링
+        // 1. 중복되지 않는 새로운 데이터만 필터링
         List<TblHelperWorkTime> newWorkTimes = helperWorkTimeRequestDTO.getWorkTimes().stream()
-                .filter(workTimeDTO -> existingWorkTimes.stream()
-                        .noneMatch(existing -> existing.getDate().equals(workTimeDTO.getDay()) &&
-                                existing.getStartTime().equals(workTimeDTO.getStartTime()) &&
-                                existing.getEndTime().equals(workTimeDTO.getEndTime())))
-                .map(workTimeDTO -> TblHelperWorkTime.builder()
+                .filter(dto -> !helperWorkTimeRepository.existsByHelperAndDateAndStartTimeAndEndTime(
+                        tblHelper, dto.getDay(), dto.getStartTime(), dto.getEndTime()))
+                .map(dto -> TblHelperWorkTime.builder()
                         .helper(tblHelper)
-                        .date(workTimeDTO.getDay())
-                        .startTime(workTimeDTO.getStartTime())
-                        .endTime(workTimeDTO.getEndTime())
+                        .date(dto.getDay())
+                        .startTime(dto.getStartTime())
+                        .endTime(dto.getEndTime())
                         .negotiation(helperWorkTimeRequestDTO.getNegotiation())
+                        .workTerm(helperWorkTimeRequestDTO.getWorkTerm())
                         .build())
                 .collect(Collectors.toList());
 
-        // 4. 새로운 데이터만 저장
+        // 2. 저장할 데이터가 존재할 때만 저장
         if (!newWorkTimes.isEmpty()) {
             helperWorkTimeRepository.saveAll(newWorkTimes);
+            return HelperWorkTimeResponse.builder()
+                    .helperName(tblHelper.getName())
+                    .build();
         }
-
-        return HelperWorkTimeResponse.builder()
-                .helperName(tblHelper.getName())
-                .build();
+        throw new BadRequestException(DUPLICATE_WORK_TIME);
     }
 
 
+
     @Override
-    public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO) {
+    public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO, UserDetails userDetails) {
         // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperExperienceDTO.getHelperId())
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
         // 1-2 Helper테이블이 1개 이상의 Experience 테이블을 가지고 있으면 중복 처리로 에러 발생

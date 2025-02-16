@@ -33,6 +33,8 @@ public enum ExceptionCode {
 
     DUPLICATE_WORK_TIME(3009, "중복된 근무 가능 시간 주소가 존재합니다."),
 
+    MEMBER_NOT_FOUND(3010, "로그인한 회원을 찾을 수 없습니다."),
+
     // 4xxx 로그인
     LOGIN_ID_EXIST(4000, "로그인 아이디가 이미 존재합니다."),
     SIGNUP_INFO_NULL(4001, "회원 가입 정보를 확인해주세요."),
