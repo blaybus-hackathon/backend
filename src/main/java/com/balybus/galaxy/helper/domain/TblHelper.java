@@ -3,6 +3,8 @@ package com.balybus.galaxy.helper.domain;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.helper.util.StringListConverter;
 import com.balybus.galaxy.helper.util.WageConverter;
+import com.balybus.galaxy.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +20,7 @@ import java.util.Map;
 @Builder
 @Getter
 @Setter
-public class TblHelper extends BaseEntity {
+public class TblHelper extends BaseEntity implements ChangeProfileImg {
 
     @Id
     @Column(name = "helper_seq")
@@ -30,6 +32,11 @@ public class TblHelper extends BaseEntity {
     @Comment("유저 구분자")
     @JoinColumn(name = "user_seq", nullable = false)
     private TblUser user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @Comment("이미지 구분자")
+    @JoinColumn(name = "img_seq")
+    private TblImg img;
 
     @Column(name = "helper_name", length = 10)
     @Comment("요양보호사 이름")
@@ -91,4 +98,14 @@ public class TblHelper extends BaseEntity {
     @Comment("요양 보호사 강점")
     @Convert(converter = StringListConverter.class)
     private List<String> strengths;
+
+
+    /* ==================================================
+     * UPDATE
+     * ================================================== */
+    @Override
+    public TblImg getImg() { return this.img; }
+
+    @Override
+    public void updateImg(TblImg img) { this.img = img; }
 }
