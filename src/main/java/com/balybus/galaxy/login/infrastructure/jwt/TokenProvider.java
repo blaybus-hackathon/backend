@@ -1,10 +1,9 @@
 package com.balybus.galaxy.login.infrastructure.jwt;
 
+import com.balybus.galaxy.global.config.jwt.ExpiredTokenException;
+import com.balybus.galaxy.global.config.jwt.InvalidTokenException;
 import com.balybus.galaxy.global.exception.BadRequestException;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,12 +88,20 @@ public class TokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token);
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        } catch (ExpiredJwtException e) { // 🔹 만료된 토큰
+            throw new ExpiredTokenException("만료된 토큰입니다. 다시 로그인해주세요.");
+        } catch (UnsupportedJwtException e) { // 지원되지 않는 토큰
+            throw new InvalidTokenException("지원되지 않는 JWT 토큰입니다.");
+        } catch (MalformedJwtException e) { // 토큰이 잘못된 형식일 때
+            throw new InvalidTokenException("잘못된 형식의 JWT 토큰입니다.");
+        } catch (JwtException e) { // 그외 JWT 관련 예외
+            throw new InvalidTokenException("유효하지 않은 JWT 토큰 형식입니다.");
+        } catch (IllegalArgumentException e) { // 🔹 토큰이 비어있거나 잘못된 경우
+            throw new InvalidTokenException("JWT 토큰이 비어있거나 잘못되었습니다.");
         }
     }
 
