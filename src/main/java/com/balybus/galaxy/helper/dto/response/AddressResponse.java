@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
-public class AddressResponseDTO {
+public class AddressResponse {
     private List<TblAddressFirst> addressFirstList;
 }

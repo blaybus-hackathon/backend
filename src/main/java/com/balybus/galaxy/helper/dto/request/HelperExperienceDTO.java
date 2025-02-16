@@ -13,14 +13,12 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class HelperExperienceDTO {
-    private Long helperId;
     private String field;
     private LocalDateTime heStartDate;
     private LocalDateTime heEndDate;
 
     public static boolean hasNullHelperExperienceRequestDTO(HelperExperienceDTO helperExperienceDTO) {
-        return helperExperienceDTO.getHelperId() == null
-                || helperExperienceDTO.getField() == null
+        return helperExperienceDTO.getField() == null
                 || helperExperienceDTO.getHeStartDate() == null
                 || helperExperienceDTO.getHeEndDate() == null;
     }

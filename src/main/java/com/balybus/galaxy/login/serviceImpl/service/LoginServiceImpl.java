@@ -98,11 +98,12 @@ public class LoginServiceImpl implements LoginService {
                     .phone(signUpRequest.getPhone())
                     .addressDetail(signUpRequest.getAddressDetail())
                     .essentialCertNo(signUpRequest.getEssentialCertNo())
-                    .socialCertNo(signUpRequest.getSocialCertNo())
+                    .careCertNo(signUpRequest.getCareCertNo())
                     .nurseCertNo(signUpRequest.getNurseCertNo())
+                    .postPartumCertNo(signUpRequest.getPostPartumCertNo())
+                    .helperOtherCerts(signUpRequest.getHelperOtherCerts())
                     .carOwnYn(signUpRequest.isCarOwnYn())
                     .eduYn(signUpRequest.isEduYn())
-                    .wage(signUpRequest.getWage())
                     .build();
             helperRepository.save(helper);
         }

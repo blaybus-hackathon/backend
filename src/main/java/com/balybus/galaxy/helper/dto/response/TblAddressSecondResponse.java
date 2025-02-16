@@ -1,14 +1,14 @@
 package com.balybus.galaxy.helper.dto.response;
 
-import com.balybus.galaxy.address.domain.TblAddressThird;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
 import lombok.Getter;
 
 @Getter
-public class TblAddressThirdDTO {
+public class TblAddressSecondResponse {
     private Long id;
     private String name;
 
-    public TblAddressThirdDTO(TblAddressThird entity) {
+    public TblAddressSecondResponse(TblAddressSecond entity) {
         this.id = entity.getId();
         this.name = entity.getName();
     }

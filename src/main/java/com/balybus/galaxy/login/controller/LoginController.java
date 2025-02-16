@@ -33,6 +33,11 @@ public class LoginController {
 
     private final LoginServiceImpl loginService;
 
+    /**
+     * 엑세스 토큰 재발급
+     * @param refreshTokenDTO
+     * @return 액세스 토큰
+     */
     @GetMapping("/token/access-token")
     public ResponseEntity<AccessTokenResponse> renewAccessToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
         String accessToken = loginService.renewAccessToken(refreshTokenDTO);
@@ -40,6 +45,10 @@ public class LoginController {
         return ResponseEntity.ok().body(new AccessTokenResponse(accessToken));
     }
 
+    /**
+     * 레프레시 토큰 재발급
+     * @return 리프레시 토큰
+     */
     @GetMapping("/token/refresh-token")
     public ResponseEntity<RefreshTokenResponse> refreshToken() {
         String refreshToken = loginService.getRefreshToken();
