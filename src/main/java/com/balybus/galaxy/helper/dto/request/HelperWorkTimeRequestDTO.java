@@ -11,7 +11,6 @@ import java.util.List;
 @Builder
 @ToString
 public class HelperWorkTimeRequestDTO {
-    private Long helperId;
     private List<HelperWorkTimeDTO> workTimes;
     private Boolean negotiation;
 }

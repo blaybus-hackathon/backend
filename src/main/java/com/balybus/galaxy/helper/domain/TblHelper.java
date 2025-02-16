@@ -1,15 +1,14 @@
 package com.balybus.galaxy.helper.domain;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
-import com.balybus.galaxy.address.domain.TblAddressSecond;
-import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.helper.util.StringListConverter;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -45,13 +44,22 @@ public class TblHelper extends BaseEntity {
     @Comment("요양 보호사 자격증 번호")
     private String essentialCertNo;
 
-    @Column(name = "helper_social_cert_no", length = 7, nullable = false)
-    @Comment("사회복지사 자격증 번호")
-    private String socialCertNo;
+    @Column(name = "helper_care_cert_no", length = 11, nullable = false)
+    @Comment("간병사 자격증 번호")
+    private String careCertNo;
 
-    @Column(name = "helper_nurse_cert_no", length = 9, nullable = false)
-    @Comment("간호조무사 자격증 번호")
+    @Column(name = "helper_nurse_cert_no", length = 11, nullable = false)
+    @Comment("병원 동행 매니저 자격증 번호")
     private String nurseCertNo;
+
+    @Column(name = "helper_post_partum_cert_no", length = 11, nullable = false)
+    @Comment("산후 관리사 자격증 번호")
+    private String postPartumCertNo;
+
+    @Column(name = "helper_other_certs", length = 500)
+    @Convert(converter = StringListConverter.class)
+    @Comment("기타 자격증 (간호 조무사, 간호사, 생활 지원사 등)")
+    private List<String> helperOtherCerts;
 
     @Column(name = "helper_car_yn")
     @NotNull
@@ -63,8 +71,7 @@ public class TblHelper extends BaseEntity {
     @Comment("요양보호사 치매 교육 이수 여부")
     private boolean eduYn;
 
-    @Column(nullable = false)
-    @NotNull
+    @Column(name = "helper_wage")
     @Comment("희망급여(시급)")
     private Integer wage;
 }

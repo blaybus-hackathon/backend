@@ -21,9 +21,13 @@ import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkLocationRepository;
 import com.balybus.galaxy.helper.repository.HelperWorkTimeRepository;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
+import com.balybus.galaxy.member.domain.TblUser;
+import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
@@ -38,6 +42,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 public class HelperServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
+    private final MemberRepository memberRepository;
 
     private final HelperWorkLocationRepository helperWorkLocationRepository;
     private final HelperWorkTimeRepository helperWorkTimeRepository;
@@ -53,9 +58,15 @@ public class HelperServiceImpl implements HelperService {
      * @return
      */
     @Override
-    public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO) {
-        // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperWorkLocationDTO.getHelperId())
+    public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails) {
+        // ✅ 현재 로그인한 사용자의 ID 가져오기
+        String username = userDetails.getUsername();
+
+        // ✅ helperId를 데이터베이스에서 조회 (예: TblHelperRepository에서 조회)
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUser(tblUser)
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
         // 2. dto 리스트 값과 대응하는 테이블 데이터 찾기
@@ -115,9 +126,16 @@ public class HelperServiceImpl implements HelperService {
 
 
     @Override
-    public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO) {
+    public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails) {
         // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperWorkTimeRequestDTO.getHelperId())
+        // ✅ 현재 로그인한 사용자의 ID 가져오기
+        String username = userDetails.getUsername();
+
+        // ✅ helperId를 데이터베이스에서 조회 (예: TblHelperRepository에서 조회)
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUser(tblUser)
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
         // 2. 기존에 등록된 WorkTime 조회
@@ -150,9 +168,16 @@ public class HelperServiceImpl implements HelperService {
 
 
     @Override
-    public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO) {
+    public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO, UserDetails userDetails) {
         // 1. Helper 테이블 찾기, 없으면 예외 발생
-        TblHelper tblHelper = helperRepository.findById(helperExperienceDTO.getHelperId())
+        // ✅ 현재 로그인한 사용자의 ID 가져오기
+        String username = userDetails.getUsername();
+
+        // ✅ helperId를 데이터베이스에서 조회 (예: TblHelperRepository에서 조회)
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUser(tblUser)
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
         // 1-2 Helper테이블이 1개 이상의 Experience 테이블을 가지고 있으면 중복 처리로 에러 발생
