@@ -14,6 +14,7 @@ import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
@@ -50,9 +51,8 @@ public class LoginServiceImpl implements LoginService {
     private final TblAddressSecondRepository tblAddressSecondRepository;
     private final TblAddressThirdRepository tblAddressThirdRepository;
 
-
-    public String renewAccessToken() {
-        return tokenProvider.generateAccessToken("");
+    public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
+        return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
     }
 
     public String getRefreshToken() {
