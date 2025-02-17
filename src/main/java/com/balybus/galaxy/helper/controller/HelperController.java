@@ -21,7 +21,7 @@ public class HelperController {
     private final HelperServiceImpl helperService;
 
     /**
-     * 요양 보호사 정보 모두 보기
+     * 현재 로그인한 요양 보호사 정보 모두 보기
      * @param userDetails
      * @return
      */
@@ -110,7 +110,7 @@ public class HelperController {
     //////////////////////////////////////
 
     /**
-     * 요양 보호사 근무 가능 시간 저장 -> 근무 가능 기간 저장 로직 필요
+     * 요양 보호사 근무 가능 시간 저장
      * @param helperWorkTimeDTO
      * @param userDetails
      * @return
@@ -137,5 +137,11 @@ public class HelperController {
     ) {
         HelperExperienceResponse helperExperienceResponse = helperService.experienceSignUp(helperExperienceDTO, userDetails);
         return ResponseEntity.ok(helperExperienceResponse);
+    }
+
+    @PostMapping("/search-helper")
+    public ResponseEntity<HelperSearchResponse> searchHelper(@RequestBody HelperSearchDTO helperSearchDTO) {
+        HelperSearchResponse helperSearchResponse = helperService.helperSearch(helperSearchDTO);
+        return ResponseEntity.ok(helperSearchResponse);
     }
 }

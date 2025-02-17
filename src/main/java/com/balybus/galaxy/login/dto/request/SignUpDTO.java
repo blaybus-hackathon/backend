@@ -21,7 +21,7 @@ public class SignUpDTO {
     private Integer gender;
     private String birthday;
     private String addressDetail;
-    private String essentialCertNo; // 요양 보호사
+    private String essentialCertNo;
     private String careCertNo;
     private String nurseCertNo;
     private String postPartumCertNo;
