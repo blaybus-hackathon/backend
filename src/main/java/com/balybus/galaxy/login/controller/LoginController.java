@@ -3,6 +3,7 @@ package com.balybus.galaxy.login.controller;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
@@ -21,6 +22,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL;
@@ -56,7 +59,7 @@ public class LoginController {
     }
 
     /**
-     * 로그인
+     * 로그인 API
      * @param dto MemberRequest.LoginDto
      * @return ResponseEntity
      */
@@ -70,6 +73,25 @@ public class LoginController {
     })
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
         return ResponseEntity.ok().body(loginService.signIn(dto));
+    }
+
+    /**
+     * 회원가입시 이메일 인증 API
+     * @param dto MailRequestDto.AuthenticationMail
+     * @return ResponseEntity<?>
+     */
+    @PostMapping("/authentication-mail")
+    @Operation(summary = "회원가입시 이메일 인증 API",
+            description = "주체(요양보호사, 관리자, 어르신)의 프로필 이미지를 업로드하고 서버에 저장하는 기능을 제공합니다. " +
+                    "이미지 파일은 multipart/form-data로 전송해야 하며, 성공적으로 업로드되면 이미지 구분자(imgSeq)가 반환됩니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필 이미지 변경 성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
+            @ApiResponse(responseCode = "4000", description = "사용자정의에러코드:등록된 이메일이 존재합니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> authenticationMail(@RequestBody MailRequestDto.AuthenticationMail dto) {
+        return ResponseEntity.ok(loginService.authenticationMail(dto));
     }
 
 
