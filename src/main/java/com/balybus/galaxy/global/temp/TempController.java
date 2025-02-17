@@ -1,4 +1,4 @@
-package com.balybus.galaxy.global.config.jwt;
+package com.balybus.galaxy.global.temp;
 
 import com.balybus.galaxy.domain.tblImg.TblImgServiceImpl;
 import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
@@ -13,15 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/protected")
-public class ProtectedController {
+public class TempController {
+    private final TempService tempService;
     private final TblImgServiceImpl imgService;
 
     @GetMapping("/user")
@@ -43,6 +41,12 @@ public class ProtectedController {
     })
     public ResponseEntity<?> uploadImg(@AuthenticationPrincipal UserDetails userDetails,
                                        ImgRequestDto.UploadImg dto) {
-        return ResponseEntity.ok().body(imgService.uploadImg(userDetails, dto));
+        return ResponseEntity.ok().body(imgService.uploadImg(dto.getPhotoFiles()));
+    }
+
+    @PostMapping("/authentication-mail")
+    public ResponseEntity<?> authenticationMail(@AuthenticationPrincipal UserDetails userDetails) {
+        tempService.authenticationMail(userDetails.getUsername());
+        return ResponseEntity.ok("SUCCESS");
     }
 }

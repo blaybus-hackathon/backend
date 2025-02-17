@@ -10,10 +10,10 @@ public enum ExceptionCode {
     // 1xxx
     INVALID_REQUEST(1000, "올바르지 않은 요청입니다."),
 
-    // 2xxx 성공코드가 2xx로 사용되므로 에러코드로 사용하지 않겠습니다.
-//    LOGIN_ID_EXIST(2000, "로그인 아이디가 이미 존재합니다."),
-//    SIGNUP_INFO_NULL(2001, "회원 가입 정보를 확인해주세요."),
-//    LOGIN_FAIL(2002, "아이디/비밀번호를 확인해주세요."),
+
+
+
+
     INVALID_REFRESH_TOKEN(2003, "리프레쉬 토큰을 확인해주세요."),
 
     // 3xxx 요양 보호사
@@ -33,18 +33,30 @@ public enum ExceptionCode {
 
     DUPLICATE_WORK_TIME(3009, "중복된 근무 가능 시간 주소가 존재합니다."),
 
+    MEMBER_NOT_FOUND(3010, "로그인한 회원을 찾을 수 없습니다."),
+
+    AGE_CAL_EXCEPTION(3011, "요양 보호사 나이 계산 중 알 수 없는 에러가 발생 했습니다."),
+
     // 4xxx 로그인
     LOGIN_ID_EXIST(4000, "로그인 아이디가 이미 존재합니다."),
     SIGNUP_INFO_NULL(4001, "회원 가입 정보를 확인해주세요."),
     LOGIN_FAIL(4002, "아이디/비밀번호를 확인해주세요."),
     CENTER_NOT_FOUND(4003, "센터 정보를 찾을 수 없습니다."),
+    UNAUTHORIZED(4005, "권한이 없습니다."),
 
     // 5xxx 서버에러
     INTERNAL_SEVER_ERROR(5000, "서버에서 에러가 발생하였습니다."),
 
     // 6xxx 파일 업로드
     UPLOAD_FAILED(6000, "파일 업로드에 실패하였습니다."),
-    FILE_NOT_FOUND(6001, "첨부파일을 찾을 수 없습니다.");
+    FILE_NOT_FOUND(6001, "첨부파일을 찾을 수 없습니다."),
+    TOO_MUCH_FILE(6002, "1개의 파일만 등록 가능합니다."),
+    NOT_FOUND_TARGET(6003, "주체 정보를 찾을 수 없습니다."),
+
+
+    // 7xxx 관리자
+    NOT_FOUND_MANAGER(3000, "해당 관리자 정보를 찾을 수 없습니다."),
+    ;
 
 
     private final int code;
