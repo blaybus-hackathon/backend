@@ -12,7 +12,7 @@ import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.repository.HelperRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -96,6 +96,8 @@ public class LoginServiceImpl implements LoginService {
                     .user(savedMember)
                     .name(signUpRequest.getName())
                     .phone(signUpRequest.getPhone())
+                    .gender(signUpRequest.getGender())
+                    .birthday(signUpRequest.getBirthday())
                     .addressDetail(signUpRequest.getAddressDetail())
                     .essentialCertNo(signUpRequest.getEssentialCertNo())
                     .socialCertNo(signUpRequest.getSocialCertNo())

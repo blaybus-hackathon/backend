@@ -2,6 +2,7 @@ package com.balybus.galaxy.helper.controller;
 
 import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
+import com.balybus.galaxy.helper.dto.request.HelperSearchRequest;
 import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
 import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
 import com.balybus.galaxy.helper.dto.response.*;
@@ -67,5 +68,11 @@ public class HelperSignUpController {
     public ResponseEntity<HelperExperienceResponse> helperExp(@RequestBody HelperExperienceDTO helperExperienceDTO) {
         HelperExperienceResponse helperExperienceResponse = helperService.experienceSignUp(helperExperienceDTO);
         return ResponseEntity.ok(helperExperienceResponse);
+    }
+
+    @PostMapping("/search-helpers")
+    public ResponseEntity<HelperSearchResponse> searchHelpers(@RequestBody HelperSearchRequest helperSearchRequest) {
+        HelperSearchResponse helperSearchResponse = helperService.searchHelpers(helperSearchRequest);
+        return ResponseEntity.ok(helperSearchResponse);
     }
 }

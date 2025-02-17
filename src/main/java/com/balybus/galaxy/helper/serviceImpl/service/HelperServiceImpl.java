@@ -11,15 +11,12 @@ import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.domain.TblHelperExperience;
 import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
-import com.balybus.galaxy.helper.dto.request.HelperExperienceDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkLocationDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkTimeDTO;
-import com.balybus.galaxy.helper.dto.request.HelperWorkTimeRequestDTO;
+import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
-import com.balybus.galaxy.helper.repository.HelperExperienceRepository;
-import com.balybus.galaxy.helper.repository.HelperRepository;
-import com.balybus.galaxy.helper.repository.HelperWorkLocationRepository;
-import com.balybus.galaxy.helper.repository.HelperWorkTimeRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperExperienceRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperWorkLocationRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperWorkTimeRepository;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -197,5 +194,22 @@ public class HelperServiceImpl implements HelperService {
         }
     }
 
+    @Override
+    public HelperSearchResponse searchHelpers(HelperSearchRequest helperSearchRequest) {
+        // 1) DB 조회(동적 쿼리) -> 결과 List<TblHelper> 가져옴
+        List<TblHelper> helpers = helperRepository.searchHelpers(
+                helperSearchRequest
+        );
+
+        // 2) 결과를 response 형태로 매핑
+        //    여기서는 단순 예시로, HelperSearchResponse에
+        //    helpers를 그대로 담는다고 가정
+        HelperSearchResponse response = HelperSearchResponse.builder()
+                // 필요하다면 DTO 변환 과정을 거치세요.
+                // 예: .helpers(helpers.stream().map(HelperDTO::new).toList())
+                .build();
+
+        return response;
+    }
 
 }

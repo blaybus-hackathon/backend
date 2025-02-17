@@ -11,9 +11,9 @@ public enum ExceptionCode {
     INVALID_REQUEST(1000, "올바르지 않은 요청입니다."),
 
     // 2xxx 성공코드가 2xx로 사용되므로 에러코드로 사용하지 않겠습니다.
-    LOGIN_ID_EXIST(2000, "로그인 아이디가 이미 존재합니다."),
-    SIGNUP_INFO_NULL(2001, "회원 가입 정보를 확인해주세요."),
-    LOGIN_FAIL(2002, "아이디/비밀번호를 확인해주세요."),
+//    LOGIN_ID_EXIST(2000, "로그인 아이디가 이미 존재합니다."),
+//    SIGNUP_INFO_NULL(2001, "회원 가입 정보를 확인해주세요."),
+//    LOGIN_FAIL(2002, "아이디/비밀번호를 확인해주세요."),
     INVALID_REFRESH_TOKEN(2003, "리프레쉬 토큰을 확인해주세요."),
 
     // 3xxx 요양 보호사

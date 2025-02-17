@@ -37,6 +37,14 @@ public class TblHelper extends BaseEntity {
     @Comment("요양보호사 연락처")
     private String phone;
 
+    @Column(name = "helper_gender")
+    @Comment("요양 보호사 성별")
+    private Integer gender; // 0이면 남성, 1이면 여성
+
+    @Column(name = "helper_birthday")
+    @Comment("요양 보호사 생년월일")
+    private String birthday;
+
     @Column(name = "helper_address_detail", length = 255)
     @Comment("상세 주소")
     private String addressDetail;

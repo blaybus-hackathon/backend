@@ -16,6 +16,8 @@ public class SignUpDTO {
     private RoleType roleType;
     private String name;
     private String phone;
+    private Integer gender;
+    private String birthday;
     private String addressDetail;
     private String essentialCertNo;
     private String socialCertNo;
