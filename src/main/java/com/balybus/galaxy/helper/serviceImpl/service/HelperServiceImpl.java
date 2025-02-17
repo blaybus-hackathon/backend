@@ -13,7 +13,6 @@ import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.repositoryImpl.HelperExperienceRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
 import com.balybus.galaxy.helper.repositoryImpl.HelperWorkLocationRepository;
 import com.balybus.galaxy.helper.repositoryImpl.HelperWorkTimeRepository;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
@@ -36,7 +35,7 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 @Transactional
 public class HelperServiceImpl implements HelperService {
 
-    private final HelperRepository helperRepository;
+    private final com.balybus.galaxy.helper.repository.HelperRepository helperRepository;
     private final MemberRepository memberRepository;
 
     private final HelperWorkLocationRepository helperWorkLocationRepository;
