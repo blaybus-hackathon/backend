@@ -1,7 +1,6 @@
 package com.balybus.galaxy.global.config;
 
 import com.balybus.galaxy.global.config.jwt.JwtAuthenticationFilter;
-import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -37,8 +36,9 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/sign-up", "/api/sign-in").permitAll()
+                        .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in").permitAll()
 //                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/sign/**").permitAll()
                         .requestMatchers("/api/token/**").permitAll()
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()

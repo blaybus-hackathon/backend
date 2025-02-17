@@ -67,6 +67,11 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-maven-plugin
     implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '3.4.2'
+
+    /* mail */
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
 }
 
 tasks.named('test') {

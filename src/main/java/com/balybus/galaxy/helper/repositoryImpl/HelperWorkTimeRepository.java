@@ -12,5 +12,10 @@ public interface HelperWorkTimeRepository extends JpaRepository<TblHelperWorkTim
 
     // 특정 요양보호사의 근무 시간 목록 조회
     List<TblHelperWorkTime> findByHelper(TblHelper helper);
+
+    // 같은 날짜, 시간, 기간을 가진 WorkTime이 존재하는지 확인
+    boolean existsByHelperAndDateAndStartTimeAndEndTime(
+            TblHelper helper, Integer date, String startTime, String endTime);
 }
+
 

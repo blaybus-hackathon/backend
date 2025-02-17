@@ -1,10 +1,14 @@
 package com.balybus.galaxy.helper.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.helper.util.StringListConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -44,4 +48,8 @@ public class TblHelperWorkTime extends BaseEntity {
     @Comment("근무 협의 여부")
     private Boolean negotiation;
 
+    @Column(name = "hwt_work_term")
+    @Convert(converter = StringListConverter.class)
+    @Comment("근무 가능 기간")
+    private List<Integer> workTerm = new ArrayList<>();
 }
