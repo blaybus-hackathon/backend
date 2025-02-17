@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -16,8 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class HelperProfileDTO {
     private String introduce;
-
-    private List<String> careExperience;
+    private Boolean careExperience;
 
     @Size(max = 3, message = "나만의 강점은 최대 3개까지만 선택할 수 있습니다.")
     private List<String> strengths;
