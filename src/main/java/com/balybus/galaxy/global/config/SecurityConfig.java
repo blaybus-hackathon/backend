@@ -24,7 +24,6 @@ import java.util.Arrays;
 @Slf4j
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
