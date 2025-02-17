@@ -73,22 +73,37 @@ public class LoginController {
     }
 
     /**
-     * 회원가입시 이메일 인증 API
+     * 회원가입시 이메일 인증코드 발급 및 전송 API
      * @param dto MailRequestDto.AuthenticationMail
      * @return ResponseEntity<?>
      */
     @PostMapping("/authentication-mail")
-    @Operation(summary = "회원가입시 이메일 인증 API",
-            description = "주체(요양보호사, 관리자, 어르신)의 프로필 이미지를 업로드하고 서버에 저장하는 기능을 제공합니다. " +
-                    "이미지 파일은 multipart/form-data로 전송해야 하며, 성공적으로 업로드되면 이미지 구분자(imgSeq)가 반환됩니다.")
+    @Operation(summary = "회원가입시 이메일 인증코드 발급 및 전송 API",
+            description = "이메일 인증코드를 생성 및 인증코드를 이메일로 전송합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "프로필 이미지 변경 성공",
+            @ApiResponse(responseCode = "200", description = "인증코드 발급 및 전송 성공",
                     content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
-            @ApiResponse(responseCode = "4000", description = "사용자정의에러코드:등록된 이메일이 존재합니다.",
+            @ApiResponse(responseCode = "4000", description = "사용자정의에러코드:등록된 이메일 사용자가 존재합니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> authenticationMail(@RequestBody MailRequestDto.AuthenticationMail dto) {
         return ResponseEntity.ok(loginService.authenticationMail(dto));
+    }
+
+    /**
+     * 회원가입시 이메일 인증코드 일치 여부 확인 API
+     * @param dto MailRequestDto.CheckAuthenticationCode
+     * @return ResponseEntity<?>
+     */
+    @PostMapping("/check-code")
+    @Operation(summary = "회원가입시 이메일 인증코드 일치 여부 확인 API",
+            description = "인증코드가 일치하는지 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "인증결과 전송",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class)))
+    })
+    public ResponseEntity<?> checkAuthenticationCode(@RequestBody MailRequestDto.CheckAuthenticationCode dto) {
+        return ResponseEntity.ok(loginService.checkAuthenticationCode(dto));
     }
 
 

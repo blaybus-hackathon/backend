@@ -9,4 +9,10 @@ public class MailResponseDto {
     public static class AuthenticationMail{
         private Long mailSeq;
     }
+
+    @Getter
+    @Builder
+    public static class CheckAuthenticationCode{
+        private boolean checker;
+    }
 }

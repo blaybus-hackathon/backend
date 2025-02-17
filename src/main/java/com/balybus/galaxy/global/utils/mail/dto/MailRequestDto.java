@@ -9,4 +9,11 @@ public class MailRequestDto {
     public static class AuthenticationMail{
         private String email;
     }
+    @Getter
+    @Builder
+    public static class CheckAuthenticationCode{
+        private Long amSeq;
+        private String email;
+        private String code;
+    }
 }

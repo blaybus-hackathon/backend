@@ -11,4 +11,6 @@ public interface LoginService {
     String getRefreshToken();
     MemberResponse.SignInDto signIn(MemberRequest.SignInDto loginDto);
     MailResponseDto.AuthenticationMail authenticationMail(MailRequestDto.AuthenticationMail dto);
+    MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto);
+
 }

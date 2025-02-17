@@ -107,7 +107,7 @@ public class LoginServiceImpl implements LoginService {
 
 
     /**
-     * 회원가입시 이메일 인증 API
+     * 회원가입시 이메일 인증코드 발급 및 전송 API
      * @param dto MailRequestDto.AuthenticationMail
      * @return MailResponseDto.AuthenticationMail
      */
@@ -145,6 +145,25 @@ public class LoginServiceImpl implements LoginService {
 
         log.info("save AuthenticationMail");
         return MailResponseDto.AuthenticationMail.builder().mailSeq(amSeq).build();
+    }
+
+    /**
+     * 회원가입시 이메일 인증코드 일치 여부 확인 API
+     * @param dto MailRequestDto.CheckAuthenticationCode
+     * @return MailResponseDto.CheckAuthenticationCode
+     */
+    @Override
+    @Transactional
+    public MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto) {
+        //1. 전송테이블에서 seq, 이메일, 인증코드로 데이터 조회
+        Optional<TblAuthenticationMail> mailOpt = authenticationMailRepository.findByIdAndEmailAndCode(dto.getAmSeq(), dto.getEmail(), dto.getCode());
+        boolean checker = mailOpt.isPresent();
+
+        //2. 조회 결과가 있는 경우, 메일 데이터 삭제
+        if(checker) authenticationMailRepository.delete(mailOpt.get());
+
+        //3. 조회된 데이터가 존재 여부 반환
+        return MailResponseDto.CheckAuthenticationCode.builder().checker(checker).build();
     }
 
     private String createAuthenticationCode(){
