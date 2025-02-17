@@ -270,23 +270,4 @@ public class HelperServiceImpl implements HelperService {
             throw new BadRequestException(INTERNAL_SEVER_ERROR);
         }
     }
-
-    @Override
-    public HelperSearchResponse searchHelpers(HelperSearchRequest helperSearchRequest) {
-        // 1) DB 조회(동적 쿼리) -> 결과 List<TblHelper> 가져옴
-        List<TblHelper> helpers = helperRepository.searchHelpers(
-                helperSearchRequest
-        );
-
-        // 2) 결과를 response 형태로 매핑
-        //    여기서는 단순 예시로, HelperSearchResponse에
-        //    helpers를 그대로 담는다고 가정
-        HelperSearchResponse response = HelperSearchResponse.builder()
-                // 필요하다면 DTO 변환 과정을 거치세요.
-                // 예: .helpers(helpers.stream().map(HelperDTO::new).toList())
-                .build();
-
-        return response;
-    }
-
 }
