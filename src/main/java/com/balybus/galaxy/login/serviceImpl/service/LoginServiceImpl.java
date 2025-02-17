@@ -1,8 +1,5 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
-import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
-import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
-import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailRepository;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;

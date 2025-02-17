@@ -4,7 +4,6 @@ import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
-import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -22,8 +21,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL;

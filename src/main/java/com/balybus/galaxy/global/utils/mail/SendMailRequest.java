@@ -1,9 +1,7 @@
 package com.balybus.galaxy.global.utils.mail;
 
-import jdk.security.jarsigner.JarSigner;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @Getter

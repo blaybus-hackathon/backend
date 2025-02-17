@@ -1,6 +1,5 @@
 package com.balybus.galaxy.domain.tblAuthenticationMail;
 
-import com.balybus.galaxy.domain.tblImg.TblImg;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
