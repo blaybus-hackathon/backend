@@ -96,6 +96,8 @@ public class LoginServiceImpl implements LoginService {
                     .user(savedMember)
                     .name(signUpRequest.getName())
                     .phone(signUpRequest.getPhone())
+                    .gender(signUpRequest.getGender())
+                    .birthday(signUpRequest.getBirthday())
                     .addressDetail(signUpRequest.getAddressDetail())
                     .essentialCertNo(signUpRequest.getEssentialCertNo())
                     .careCertNo(signUpRequest.getCareCertNo())

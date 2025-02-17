@@ -46,6 +46,13 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양보호사 연락처")
     private String phone;
 
+    @Column(name = "helper_age")
+    @Comment("요양보호사 성별")
+    private Integer gender;
+
+    @Column(name = "helper_birthday")
+    private String birthday;
+
     @Column(name = "helper_address_detail", length = 255)
     @Comment("상세 주소")
     private String addressDetail;
@@ -98,6 +105,10 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양 보호사 강점")
     @Convert(converter = StringListConverter.class)
     private List<String> strengths;
+
+    @Column(name = "helper_exp")
+    @Comment("간병경력")
+    private Boolean is_experienced;
 
 
     /* ==================================================

@@ -16,4 +16,5 @@ public interface HelperService {
     public List<TblAddressSecondResponse> getAddressSecondByFirstId(Long afSeq);
     public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails);
     public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO, UserDetails userDetails);
+    public HelperSearchResponse helperSearch(HelperSearchDTO helperSearchDTO);
 }

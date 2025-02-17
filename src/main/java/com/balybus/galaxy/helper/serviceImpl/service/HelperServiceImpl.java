@@ -26,6 +26,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -85,6 +88,7 @@ public class HelperServiceImpl implements HelperService {
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
         tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
+        tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
         tblHelper.setEssentialCertNo(helperProfileDTO.getEssentialCertNo());
         tblHelper.setStrengths(helperProfileDTO.getStrengths());
         tblHelper.setCareCertNo(helperProfileDTO.getCareCertNo());
@@ -217,8 +221,6 @@ public class HelperServiceImpl implements HelperService {
         throw new BadRequestException(DUPLICATE_WORK_TIME);
     }
 
-
-
     @Override
     public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO, UserDetails userDetails) {
         // 1. Helper 테이블 찾기, 없으면 예외 발생
@@ -229,6 +231,9 @@ public class HelperServiceImpl implements HelperService {
 
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        tblHelper.setIs_experienced(true);
+        helperRepository.save(tblHelper);
 
         // 1-2 Helper테이블이 1개 이상의 Experience 테이블을 가지고 있으면 중복 처리로 에러 발생
         int countExperience = helperExperienceRepository.countByHelperAndFieldAndHeStartDateAndHeEndDate(
@@ -272,5 +277,140 @@ public class HelperServiceImpl implements HelperService {
         }
     }
 
+    @Override
+    public HelperSearchResponse helperSearch(HelperSearchDTO helperSearchDTO) {
+        List<TblHelper> helpers = helperRepository.findAll();
 
+        List<HelperSearchResponse.HelperSearchInfo> helperSearchInfos = helpers.stream()
+                .map(helper -> {
+                    boolean[] checkInfo = new boolean[4];
+
+                    String genderStr = "";
+                    // 성별 계산
+                    if(!helperSearchDTO.getGenders().isEmpty() && helperSearchDTO.getGenders().contains(helper.getGender())) {
+                        checkInfo[0] = true;
+                        if(helper.getGender() == 0 && helperSearchDTO.getGenders().contains(0)) {
+                            genderStr = "남자";
+                        }
+                        else if(helper.getGender() == 1 && helperSearchDTO.getGenders().contains(1)) {
+                            genderStr = "여자";
+                        }
+                    }
+
+                    // 나이, 계산
+                    String ageGroup = "알 수 없음";
+                    if (helper.getBirthday() != null && !helperSearchDTO.getAges().isEmpty()) {
+                        try {
+                            LocalDate birthDate = LocalDate.parse(helper.getBirthday());
+                            int age = Period.between(birthDate, LocalDate.now()).getYears();
+                            if (age >= 20 && age < 30) {
+                                ageGroup = "20대";
+                                checkInfo[1] = true;
+                            }
+                            else if (age >= 30 && age < 40) {
+                                checkInfo[1] = true;
+                                ageGroup = "30대";
+                            }
+                            else if (age >= 40 && age < 50) {
+                                checkInfo[1] = true;
+                                ageGroup = "40대";
+                            }
+                            else if (age >= 50) {
+                                checkInfo[1] = true;
+                                ageGroup = "50대 이상";
+                            }
+                        } catch (Exception e) {
+                            throw new BadRequestException(AGE_CAL_EXCEPTION);
+                        }
+                    }
+
+                    // 경력
+                    String experience = "신입";
+                    if (helper.getIs_experienced() != null && helper.getIs_experienced() && !helperSearchDTO.getExperiences().isEmpty()) {
+                        List<TblHelperExperience> experiences = helperExperienceRepository.findByHelper(helper);
+
+                        if (!experiences.isEmpty()) {
+                            long totalYears = experiences.stream()
+                                    .filter(exp -> exp.getHeEndDate() != null && exp.getHeStartDate() != null)
+                                    .mapToLong(exp -> {
+                                        long years = ChronoUnit.YEARS.between(
+                                                exp.getHeStartDate().toLocalDate(),
+                                                exp.getHeEndDate().toLocalDate()
+                                        );
+                                        return Math.max(0, years);
+                                    })
+                                    .sum();
+
+                            if (totalYears == 1) {
+                                experience = "1년";
+                                checkInfo[2] = true;
+                            } else if (totalYears >= 3 && totalYears <= 5) {
+                                experience = "3~5년";
+                                checkInfo[2] = true;
+                            } else if (totalYears > 5) {
+                                experience = "5년 이상";
+                                checkInfo[2] = true;
+                            }
+                            else if(totalYears < 1) {
+                                experience = "신입";
+                                checkInfo[2] = true;
+                            }
+                        }
+                    }
+
+                    // 근무 가능 기간
+                    String workTerm = "정보 없음";
+                    List<TblHelperWorkTime> workTimes = helperWorkTimeRepository.findByHelper(helper);
+
+                    if (!workTimes.isEmpty() && !helperSearchDTO.getTerms().isEmpty()) {
+                        long size = workTimes.size();
+                        long maxWorkTermValue = 0;
+                        for(int i=0; i<size; i++) {
+                            TblHelperWorkTime workTime = workTimes.get(i);
+                            if(workTime.getWorkTerm() != null && !workTime.getWorkTerm().isEmpty()) {
+                                long size2 = workTime.getWorkTerm().size();
+                                for(int j=0; j<size2; j++) {
+                                    maxWorkTermValue = Math.max(maxWorkTermValue, Integer.parseInt(String.valueOf(workTime.getWorkTerm().get(j))));
+                                }
+                            }
+                        }
+
+                        if (maxWorkTermValue <= 3) {
+                            workTerm = "6개월";
+                            checkInfo[3] = true;
+                        } else if (maxWorkTermValue == 4) {
+                            workTerm = "1년";
+                            checkInfo[3] = true;
+                        } else if (maxWorkTermValue == 5) {
+                            workTerm = "2년";
+                            checkInfo[3] = true;
+                        } else {
+                            workTerm = "2년 이상";
+                            checkInfo[3] = true;
+                        }
+                    }
+
+                    TblUser tblUser = memberRepository.findById(helper.getUser().getId())
+                            .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+
+                    if(checkInfo[0] || checkInfo[1] || checkInfo[2] || checkInfo[3]) {
+                        return HelperSearchResponse.HelperSearchInfo.builder()
+                                .email(tblUser.getEmail())
+                                .name(helper.getName())
+                                .gender(genderStr)
+                                .age(ageGroup)
+                                .experience(experience)
+                                .workTerm(workTerm)
+                                .introduce(helper.getIntroduce())
+                                .build();
+                    }
+                    return null;
+                })
+                .collect(Collectors.toList());
+
+            return HelperSearchResponse.builder()
+                .helperSearchInfos(helperSearchInfos)
+                .build();
+    }
 }
