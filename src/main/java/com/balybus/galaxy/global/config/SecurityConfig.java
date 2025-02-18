@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity
+@EnableWebSecurity()
 @Slf4j
 public class SecurityConfig {
 
@@ -36,14 +36,14 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in").permitAll()
+                                .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in").permitAll()
 //                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/api/sign/**").permitAll()
-                        .requestMatchers("/api/token/**").permitAll()
-                        .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/api/sign/**").permitAll()
+                                .requestMatchers("/api/token/**").permitAll()
+                                .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

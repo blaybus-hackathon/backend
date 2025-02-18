@@ -74,6 +74,7 @@ public class HelperServiceImpl implements HelperService {
                 .carOwnYn(tblHelper.isCarOwnYn())
                 .eduYn(tblHelper.isEduYn())
                 .wage(tblHelper.getWage())
+                .wageState(tblHelper.getWageState())
                 .build();
     }
 
@@ -108,10 +109,9 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        Map<Integer, String> helperWage = new HashMap<>();
-        helperWage.put(wageUpdateDTO.getUnit(), wageUpdateDTO.getWage());
 
-        tblHelper.setWage(helperWage);
+        tblHelper.setWage(wageUpdateDTO.getWage());
+        tblHelper.setWageState(wageUpdateDTO.getWageState());
         tblHelper.setWageNegotiation(wageUpdateDTO.getWageNegotiation());
 
         helperRepository.save(tblHelper);
