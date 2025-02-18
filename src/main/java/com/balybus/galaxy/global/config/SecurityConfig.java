@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in", "http://3.37.158.7:8080/", "http://3.37.158.7:8080", "http://localhost:8080/").permitAll()
 //                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/sign/**").permitAll()
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/api").permitAll()
                         .requestMatchers("/api/token/**").permitAll()
                         .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
@@ -59,8 +59,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(Arrays.asList("*"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOrigins(Arrays.asList(
+                "http://3.37.158.7",
+                "http://3.37.158.7:80",
+                "http://localhost:5173"
+        ));        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         config.setExposedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
