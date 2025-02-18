@@ -43,6 +43,13 @@ jobs:
         echo "${{ secrets.YML_JWT }}" > ./application-jwt.yml
       shell: bash
 
+    - name: Make application-mail.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-mail.yml 
+        echo "${{ secrets.YML_MAIL }}" > ./application-mail.yml
+      shell: bash
+
     - name: Build with Gradle
       run: |
           chmod +x ./gradlew
