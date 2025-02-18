@@ -66,6 +66,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(Arrays.asList(
                 "http://3.37.158.7",
                 "http://3.37.158.7:80",
+                "http://3.37.158.7:8080",
                 "http://localhost:5173"
         ));        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
