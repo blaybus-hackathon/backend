@@ -47,7 +47,7 @@ jobs:
       run: |
         cd ./src/main/resources 
         touch ./application-mail.yml 
-        echo "${{ secrets.YML_MAIL }}" > ./application-mail.yml
+        echo "${{ secrets.YML_MAIL }}" | sed 's/\\n/\n/g' > ./application-mail.yml
       shell: bash
 
     - name: Build with Gradle
