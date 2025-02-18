@@ -1,87 +1,106 @@
-package com.balybus.galaxy.patient.serviceimpl.service;
+package com.balybus.galaxy.patient.serviceImpl.service;
 
-import com.balybus.galaxy.patient.DTO.TblPatientResponseDTO;
-import com.balybus.galaxy.patient.DTO.TblPatientSignUpDTO;
-import com.balybus.galaxy.patient.DTO.TblPatientLoginDTO;
+import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
+import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
+import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.patient.domain.TblPatient;
+import com.balybus.galaxy.patient.dto.request.TblPatientDTO;
+import com.balybus.galaxy.patient.dto.response.TblPatientResponse;
 import com.balybus.galaxy.patient.repository.TblPatientRepository;
+import com.balybus.galaxy.patient.serviceImpl.PatientService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class TblPatientServiceImpl {
+public class TblPatientServiceImpl implements PatientService {
 
     private final TblPatientRepository patientRepository;
+    private final TblCenterManagerRepository managerRepository;
+    private final TblAddressFirstRepository addressFirstRepository;
+    private final TblAddressSecondRepository addressSecondRepository;
+    private final TblAddressThirdRepository addressThirdRepository;
 
-    public TblPatientResponseDTO registerPatient(TblPatientSignUpDTO signUpDTO) {
-        // 어르신 이름 중복 체크
-        if (patientRepository.findByName(signUpDTO.getName()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 어르신 이름입니다.");
-        }
+    /**
+     *  환자 등록
+     */
+    @Override
+    public TblPatientResponse registerPatient(TblPatientDTO patientDto) {
+        TblCenterManager manager = managerRepository.findById(patientDto.getManagerSeq())
+                .orElseThrow(() -> new RuntimeException("센터 관리자 정보를 찾을 수 없습니다."));
 
-        // 어르신 엔티티 저장
         TblPatient patient = TblPatient.builder()
-                .managerSeq(signUpDTO.getManagerSeq())
-                .longTermCareGradeSeq(signUpDTO.getLongTermCareGradeSeq())
-                .guardianInfoSeq(signUpDTO.getGuardianInfoSeq())
-                .tblPatientFirst(signUpDTO.getTblPatientFirst())
-                .tblPatientSecond(signUpDTO.getTblPatientSecond())
-                .tblPatientThrid(signUpDTO.getTblPatientThrid())
-                .name(signUpDTO.getName())
-                .birthDate(signUpDTO.getBirthDate())
-                .gender(signUpDTO.getGender())
-                .weight(signUpDTO.getWeight())
-                .diseases(signUpDTO.getDiseases())
+                .manager(manager)
+                .tblAddressFirst(addressFirstRepository.findById(Long.valueOf(patientDto.getTblPatientFirst()))
+                        .orElseThrow(() -> new RuntimeException("시.도 구분자를 찾을 수 없습니다.")))
+                .tblAddressSecond(addressSecondRepository.findById(Long.valueOf(patientDto.getTblPatientSecond()))
+                        .orElseThrow(() -> new RuntimeException("시.군.구 구분자를 찾을 수 없습니다.")))
+                .tblAddressThird(addressThirdRepository.findById(Long.valueOf(patientDto.getTblPatientThrid()))
+                        .orElseThrow(() -> new RuntimeException("읍.면.동 구분자를 찾을 수 없습니다.")))
+                .name(patientDto.getName())
+                .birthDate(patientDto.getBirthDate())
+                .gender(Integer.parseInt(patientDto.getGender()))
+                .weight(patientDto.getWeight())
+                .diseases(patientDto.getDiseases())
                 .build();
 
         TblPatient savedPatient = patientRepository.save(patient);
-
-        // ResponseDTO 반환
-        return TblPatientResponseDTO.builder()
-                .id(savedPatient.getId())
-                .managerSeq(savedPatient.getManagerSeq())
-                .longTermCareGradeSeq(savedPatient.getLongTermCareGradeSeq())
-                .guardianInfoSeq(savedPatient.getGuardianInfoSeq())
-                .tblPatientFirst(savedPatient.getTblPatientFirst())
-                .tblPatientSecond(savedPatient.getTblPatientSecond())
-                .tblPatientThrid(savedPatient.getTblPatientThrid())
-                .name(savedPatient.getName())
-                .birthDate(savedPatient.getBirthDate())
-                .gender(savedPatient.getGender())
-                .weight(savedPatient.getWeight())
-                .diseases(savedPatient.getDiseases())
-                .createdAt(savedPatient.getCreatedAt())
-                .updatedAt(savedPatient.getUpdatedAt())
-                .build();
+        return convertToResponse(savedPatient);
     }
 
-    public TblPatientResponseDTO loginPatient(TblPatientLoginDTO loginDTO) {
-        // 어르신 이름과 생년월일로 로그인 확인
-        TblPatient patient = patientRepository.findByName(loginDTO.getName())
-                .orElseThrow(() -> new RuntimeException("어르신을 찾을 수 없습니다."));
+    /**
+     *  환자 정보 수정
+     */
+    @Override
+    public TblPatientResponse updatePatient(Long id, TblPatientDTO patientDto) {
+        TblPatient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("환자를 찾을 수 없습니다. ID: " + id));
 
-        if (!patient.getBirthDate().equals(loginDTO.getBirthDate())) {
-            throw new RuntimeException("생년월일이 일치하지 않습니다.");
-        }
+        TblCenterManager manager = managerRepository.findById(patientDto.getManagerSeq())
+                .orElseThrow(() -> new RuntimeException("센터 관리자 정보를 찾을 수 없습니다."));
 
-        return TblPatientResponseDTO.builder()
+        // 기존 환자 데이터를 새로운 값으로 변경
+        TblPatient updatedPatient = TblPatient.builder()
                 .id(patient.getId())
-                .managerSeq(patient.getManagerSeq())
-                .longTermCareGradeSeq(patient.getLongTermCareGradeSeq())
-                .guardianInfoSeq(patient.getGuardianInfoSeq())
-                .tblPatientFirst(patient.getTblPatientFirst())
-                .tblPatientSecond(patient.getTblPatientSecond())
-                .tblPatientThrid(patient.getTblPatientThrid())
+                .manager(manager)
+                .tblAddressFirst(addressFirstRepository.findById(Long.valueOf(patientDto.getTblPatientFirst()))
+                        .orElseThrow(() -> new RuntimeException("시.도 구분자를 찾을 수 없습니다.")))
+                .tblAddressSecond(addressSecondRepository.findById(Long.valueOf(patientDto.getTblPatientSecond()))
+                        .orElseThrow(() -> new RuntimeException("시.군.구 구분자를 찾을 수 없습니다.")))
+                .tblAddressThird(addressThirdRepository.findById(Long.valueOf(patientDto.getTblPatientThrid()))
+                        .orElseThrow(() -> new RuntimeException("읍.면.동 구분자를 찾을 수 없습니다.")))
+                .name(patientDto.getName())
+                .birthDate(patientDto.getBirthDate())
+                .gender(Integer.parseInt(patientDto.getGender()))
+                .weight(patientDto.getWeight())
+                .diseases(patientDto.getDiseases())
+                .build();
+
+        TblPatient savedPatient = patientRepository.save(updatedPatient);
+        return convertToResponse(savedPatient);
+    }
+
+    /**
+     * Response DTO로 변환
+     */
+    private TblPatientResponse convertToResponse(TblPatient patient) {
+        return TblPatientResponse.builder()
+                .id(patient.getId())
+                .managerSeq(patient.getManager().getId())
+                .tblPatientFirst(patient.getTblAddressFirst().toString())
+                .tblPatientSecond(patient.getTblAddressSecond().toString())
+                .tblPatientThrid(patient.getTblAddressThird().toString())
                 .name(patient.getName())
                 .birthDate(patient.getBirthDate())
-                .gender(patient.getGender())
+                .gender(String.valueOf(patient.getGender()))
                 .weight(patient.getWeight())
                 .diseases(patient.getDiseases())
-                .createdAt(patient.getCreatedAt())
-                .updatedAt(patient.getUpdatedAt())
+                .createdAt(patient.getCreateDatetime())
+                .updatedAt(patient.getUpdateDatetime())
                 .build();
     }
 }
