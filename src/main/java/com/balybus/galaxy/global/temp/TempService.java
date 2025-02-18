@@ -1,5 +1,6 @@
 package com.balybus.galaxy.global.temp;
 
+import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
 import jakarta.mail.MessagingException;
@@ -31,12 +32,15 @@ public class TempService {
      * @param tempPassword String
      */
     private void sendingMail(String userEmail, String tempPassword){
-        SendMailRequest request = new SendMailRequest();
-        request.setToMail(userEmail);
-        request.setTitle("[돌봄워크] "+"이메일 인증");
-        request.setFromName("은하수 개발단");
+        SendMailRequest request = SendMailRequest.builder()
+                .toMail(userEmail)
+                .title("Test :: 제목")
+                .fromName("Test :: 은하수 개발단")
+                .contentType(ContentType.AUTHENTICATION)
+                .content(tempPassword)
+                .build();
         try {
-            sendMailUtils.sendMail(request, tempPassword);
+            sendMailUtils.sendMail(request);
         } catch (UnsupportedEncodingException | MessagingException e) {
             throw new RuntimeException(e);
         }
