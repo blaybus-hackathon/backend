@@ -110,6 +110,10 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("간병경력")
     private Boolean is_experienced;
 
+    @Column(name = "helper_time_negotiation")
+    @Comment("요일 시간 가능 여부")
+    private Boolean timeNegotiation;
+
 
     /* ==================================================
      * UPDATE

@@ -5,7 +5,6 @@ import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblImg.TblImg;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,22 +15,40 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor
 @Builder
 @Getter
-public class TblPatient extends BaseEntity {
+public class TblPatientLog extends BaseEntity {
+
     @Id
-    @Column(name = "patient_seq")
+    @Column(name = "pl_seq")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Comment("어르신 구분자")
+    @Comment("어르신 공고 구분자")
     private Long id;
+
+    @Comment("복리후생(TblCare)")
+    @Column(name = "care_seq_welfare", nullable = false)
+    private int welfare;
+
+    @Column(name = "pl_wage_negotiation")
+    @Comment("급여 협의 여부")
+    private Boolean wageNegotiation;
+
+    @Column(name = "pl_wage_state")
+    @Comment("1:시급, 2:일급, 3:주급 구분")
+    private int wageState;
+
+    @Column(name = "pl_wage")
+    @Comment("급여")
+    private int wage;
+
+    // TblPatient 데이블 공통 사항
+    @ManyToOne
+    @JoinColumn(name = "patient_seq", nullable = false)
+    @Comment("어르신 구분자")
+    private TblPatient patient;
 
     @ManyToOne
     @JoinColumn(name = "manager_seq", nullable = false)
     @Comment("관리자 구분자")
     private TblCenterManager manager;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @Comment("이미지 구분자")
-    @JoinColumn(name = "img_seq")
-    private TblImg img;
 
     @ManyToOne
     @NotNull
@@ -91,27 +108,27 @@ public class TblPatient extends BaseEntity {
 
 
 
-    @Column(name = "patient_name", nullable = false, length = 100)
+    @Column(name = "pl_name", nullable = false, length = 100)
     @Comment("어르신 이름")
     private String name;
 
-    @Column(name = "patient_birth", nullable = false)
+    @Column(name = "pl_birth", nullable = false)
     @Comment("생년월일")
     private String birthDate;
 
-    @Column(name = "patient_weight")
+    @Column(name = "pl_weight")
     @Comment("몸무게")
     private Double weight;
 
-    @Column(name = "patient_diseases", length = 255)
+    @Column(name = "pl_diseases", length = 255)
     @Comment("보유 질병/질환")
     private String diseases;
 
-    @Column(name = "patient_time_negotiation")
+    @Column(name = "pl_time_negotiation")
     @Comment("돌봄 요일 시간 협의 여부")
     private Boolean timeNegotiation;
 
-    @Column(name = "patient_request_contents", length = 255)
+    @Column(name = "pl_request_contents", length = 255)
     @Comment("기타 요청 사항")
     private String requestContents;
 
