@@ -1,5 +1,6 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
+import com.balybus.galaxy.domain.tblCenter.dto.CenterDto;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailRepository;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
@@ -240,6 +241,18 @@ public class LoginServiceImpl implements LoginService {
                 .phone(helper.getPhone())
                 .addressDetail(helper.getAddressDetail())
                 .build();
+    }
+
+    /**
+     * 센터 등록
+     * @param centerDto CenterDto
+     * @return CenterDto
+     */
+    @Override
+    @Transactional
+    public CenterDto registerCenter(CenterDto centerDto) {
+        TblCenter center = centerRepository.save(centerDto.toEntity());
+        return CenterDto.fromEntity(center);
     }
 
     /**
