@@ -1,8 +1,7 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
-import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
-import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
-import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
+import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailRepository;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
 import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
@@ -11,6 +10,11 @@ import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.global.utils.mail.ContentType;
+import com.balybus.galaxy.global.utils.mail.SendMailRequest;
+import com.balybus.galaxy.global.utils.mail.SendMailUtils;
+import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
+import com.balybus.galaxy.global.utils.mail.dto.MailResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
@@ -23,13 +27,16 @@ import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Optional;
+import java.util.Random;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.LOGIN_ID_EXIST;
 
@@ -41,15 +48,13 @@ public class LoginServiceImpl implements LoginService {
 
     private final TokenProvider tokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final SendMailUtils sendMailUtils;
+
     private final MemberRepository memberRepository;
     private final HelperRepository helperRepository;
-
     private final TblCenterRepository centerRepository;
     private final TblCenterManagerRepository centerManagerRepository;
-
-    private final TblAddressFirstRepository tblAddressFirstRepository;
-    private final TblAddressSecondRepository tblAddressSecondRepository;
-    private final TblAddressThirdRepository tblAddressThirdRepository;
+    private final TblAuthenticationMailRepository authenticationMailRepository;
 
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
@@ -59,63 +64,6 @@ public class LoginServiceImpl implements LoginService {
         return tokenProvider.refreshToken("");
     }
 
-    /**
-     * 이메일 유효셩 검사 및 아이디 비밀번호 등록
-     * @param email String:이메일(아이디)
-     * @param pw String:비밀번호
-     * @param roleType RoleTyp(Enum):권한
-     * @return TblUser
-     */
-    private TblUser signUpLogin(String email, String pw, RoleType roleType) {
-        // 1. email 중복성 검사
-        if(memberRepository.findByEmail(email).isPresent())
-            throw new BadRequestException(LOGIN_ID_EXIST);
-
-        // 2. 비밀번호 암호화
-        String encryptedPassword = bCryptPasswordEncoder.encode(pw);
-
-        // 3. 기본 회원 정보 저장
-        TblUser member = TblUser.builder()
-                .email(email)
-                .password(encryptedPassword)
-                .userAuth(roleType)
-                .build();
-
-        return memberRepository.save(member);
-    }
-
-    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
-        // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
-        TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType());
-
-        TblHelper helper = null;
-
-        // 2. 요양 보호사 정보 저장
-        if(signUpRequest.getRoleType() == RoleType.MEMBER) {
-            helper = TblHelper.builder()
-                    .user(savedMember)
-                    .name(signUpRequest.getName())
-                    .phone(signUpRequest.getPhone())
-                    .gender(signUpRequest.getGender())
-                    .birthday(signUpRequest.getBirthday())
-                    .addressDetail(signUpRequest.getAddressDetail())
-                    .essentialCertNo(signUpRequest.getEssentialCertNo())
-                    .careCertNo(signUpRequest.getCareCertNo())
-                    .nurseCertNo(signUpRequest.getNurseCertNo())
-                    .postPartumCertNo(signUpRequest.getPostPartumCertNo())
-                    .helperOtherCerts(signUpRequest.getHelperOtherCerts())
-                    .carOwnYn(signUpRequest.isCarOwnYn())
-                    .eduYn(signUpRequest.isEduYn())
-                    .build();
-            helperRepository.save(helper);
-        }
-
-        return TblHelperResponse.builder()
-                .name(helper.getName())
-                .phone(helper.getPhone())
-                .addressDetail(helper.getAddressDetail())
-                .build();
-    }
 
     /**
      * 로그인
@@ -158,6 +106,141 @@ public class LoginServiceImpl implements LoginService {
     }
 
 
+    /**
+     * 회원가입시 이메일 인증코드 발급 및 전송 API
+     * @param dto MailRequestDto.AuthenticationMail
+     * @return MailResponseDto.AuthenticationMail
+     */
+    @Override
+    @Transactional
+    public MailResponseDto.AuthenticationMail authenticationMail(MailRequestDto.AuthenticationMail dto) {
+        //1. 등록된 이메일 인지 확인
+        if(memberRepository.findByEmail(dto.getEmail()).isPresent())
+            throw new BadRequestException(LOGIN_ID_EXIST);
+
+        //2. 인증코드 생성
+        String code = createAuthenticationCode();
+
+        //3. 인증코드 이메일 전송
+        SendMailRequest request = SendMailRequest.builder()
+                .toMail(dto.getEmail())
+                .title("이메일 인증")
+                .fromName("은하수 개발단")
+                .contentType(ContentType.AUTHENTICATION)
+                .content(code)
+                .build();
+        try {
+            sendMailUtils.sendMail(request);
+        } catch (UnsupportedEncodingException | MessagingException e) {
+            throw new RuntimeException(e);
+        }
+
+        //4. 인증코드 저장
+        Optional<TblAuthenticationMail> entityOpt = authenticationMailRepository.findByEmail(dto.getEmail());
+        TblAuthenticationMail entity = entityOpt.orElseGet(() -> TblAuthenticationMail.builder()
+                                                                        .email(dto.getEmail())
+                                                                        .build());
+        entity.updateCode(code);
+        Long amSeq = authenticationMailRepository.save(entity).getId();
+
+        log.info("save AuthenticationMail");
+        return MailResponseDto.AuthenticationMail.builder().mailSeq(amSeq).build();
+    }
+
+    /**
+     * 회원가입시 이메일 인증코드 일치 여부 확인 API
+     * @param dto MailRequestDto.CheckAuthenticationCode
+     * @return MailResponseDto.CheckAuthenticationCode
+     */
+    @Override
+    @Transactional
+    public MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto) {
+        //1. 전송테이블에서 seq, 이메일, 인증코드로 데이터 조회
+        Optional<TblAuthenticationMail> mailOpt = authenticationMailRepository.findByIdAndEmailAndCode(dto.getAmSeq(), dto.getEmail(), dto.getCode());
+        boolean checker = mailOpt.isPresent();
+
+        //2. 조회 결과가 있는 경우, 메일 데이터 삭제
+        if(checker) authenticationMailRepository.delete(mailOpt.get());
+
+        //3. 조회된 데이터가 존재 여부 반환
+        return MailResponseDto.CheckAuthenticationCode.builder().checker(checker).build();
+    }
+
+    private String createAuthenticationCode(){
+        int length = 5;
+        String characters = "1234567890";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            sb.append(characters.charAt(index));
+        }
+        return sb.toString();
+    }
+
+
+    /**
+     * 이메일 유효셩 검사 및 아이디 비밀번호 등록
+     * @param email String:이메일(아이디)
+     * @param pw String:비밀번호
+     * @param roleType RoleTyp(Enum):권한
+     * @return TblUser
+     */
+    private TblUser signUpLogin(String email, String pw, RoleType roleType) {
+        // 1. email 중복성 검사
+        if(memberRepository.findByEmail(email).isPresent())
+            throw new BadRequestException(LOGIN_ID_EXIST);
+
+        // 2. 비밀번호 암호화
+        String encryptedPassword = bCryptPasswordEncoder.encode(pw);
+
+        // 3. 기본 회원 정보 저장
+        TblUser member = TblUser.builder()
+                .email(email)
+                .password(encryptedPassword)
+                .userAuth(roleType)
+                .build();
+
+        return memberRepository.save(member);
+    }
+
+    /**
+     * 요양보호사 회원가입
+     * @param signUpRequest SignUpDTO
+     * @return TblHelperResponse
+     */
+    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
+        // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
+        TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType());
+
+        TblHelper helper = null;
+
+        // 2. 요양 보호사 정보 저장
+        if(signUpRequest.getRoleType() == RoleType.MEMBER) {
+            helper = TblHelper.builder()
+                    .user(savedMember)
+                    .name(signUpRequest.getName())
+                    .phone(signUpRequest.getPhone())
+                    .gender(signUpRequest.getGender())
+                    .birthday(signUpRequest.getBirthday())
+                    .addressDetail(signUpRequest.getAddressDetail())
+                    .essentialCertNo(signUpRequest.getEssentialCertNo())
+                    .careCertNo(signUpRequest.getCareCertNo())
+                    .nurseCertNo(signUpRequest.getNurseCertNo())
+                    .postPartumCertNo(signUpRequest.getPostPartumCertNo())
+                    .helperOtherCerts(signUpRequest.getHelperOtherCerts())
+                    .carOwnYn(signUpRequest.isCarOwnYn())
+                    .eduYn(signUpRequest.isEduYn())
+                    .build();
+            helperRepository.save(helper);
+        }
+
+        return TblHelperResponse.builder()
+                .name(helper.getName())
+                .phone(helper.getPhone())
+                .addressDetail(helper.getAddressDetail())
+                .build();
+    }
 
     /**
      * 관리자 회원가입
