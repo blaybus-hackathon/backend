@@ -90,7 +90,6 @@ public class HelperServiceImpl implements HelperService {
         tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
         tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
         tblHelper.setEssentialCertNo(helperProfileDTO.getEssentialCertNo());
-        tblHelper.setStrengths(helperProfileDTO.getStrengths());
         tblHelper.setCareCertNo(helperProfileDTO.getCareCertNo());
         tblHelper.setNurseCertNo(helperProfileDTO.getNurseCertNo());
         tblHelper.setPostPartumCertNo(helperProfileDTO.getPostPartumCertNo());
