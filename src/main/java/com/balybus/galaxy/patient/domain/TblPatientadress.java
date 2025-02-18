@@ -15,7 +15,6 @@ public class TblPatientadress extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "patient_addr_seq")
     @Comment("어르신 주소 구분자")
     private Long id;
 
