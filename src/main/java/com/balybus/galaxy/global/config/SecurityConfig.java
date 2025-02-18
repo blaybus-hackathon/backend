@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in").permitAll()
+                        .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in", "http://3.37.158.7:8080/", "http://3.37.158.7:8080").permitAll()
 //                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/api/sign/**").permitAll()
                         .requestMatchers("/api/token/**").permitAll()

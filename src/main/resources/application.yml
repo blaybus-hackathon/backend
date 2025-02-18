@@ -12,4 +12,4 @@ springdoc:
 
 cors:
   allowed:
-    origins: http://13.124.151.164:8080
+    origins: http://13.124.151.164:8080, http://13.124.151.164:80, http://13.124.151.164:5173
