@@ -89,10 +89,13 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양보호사 치매 교육 이수 여부")
     private boolean eduYn;
 
+    @Column(name = "helper_wage_state")
+    @Comment("1:시급, 2:일급, 3:주급 구분")
+    private Integer wageState;
+
     @Column(name = "helper_wage")
-    @Convert(converter = WageConverter.class)
-    @Comment("희망급여(시급, 일급, 주급)")
-    private Map<Integer, String> wage;
+    @Comment("급여")
+    private Integer wage;
 
     @Column(name = "helper_wage_negotiation")
     @Comment("급여 협의 가능 여부")
@@ -101,11 +104,6 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Column(name = "helper_introduce", length = 255)
     @Comment("요양 보호사 자기 소개")
     private String introduce;
-
-//    @Column(name = "helper_strength")
-//    @Comment("요양 보호사 강점")
-//    @Convert(converter = StringListConverter.class)
-//    private List<String> strengths;
 
     @Column(name = "helper_exp")
     @Comment("간병경력")

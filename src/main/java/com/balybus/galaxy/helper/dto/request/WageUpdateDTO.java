@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class WageUpdateDTO {
-    private Integer unit;
-    private String wage;
+    private int wage;
+    private int wageState;
     private Boolean wageNegotiation;
 }

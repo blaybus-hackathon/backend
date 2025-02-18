@@ -11,9 +11,7 @@ springdoc:
     path: /v3/api-docs
     enabled: true
   packages-to-scan: com.balybus.galaxy
+
 cors:
   allowed:
     origins: http://3.37.158.7:8080, http://3.37.158.7:80, http://3.37.158.7:5173, http://3.37.158.7
-server:
-  servlet:
-    context-path: /api

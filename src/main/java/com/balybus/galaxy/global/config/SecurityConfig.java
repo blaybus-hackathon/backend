@@ -20,35 +20,30 @@ import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableWebSecurity
+@EnableWebSecurity()
 @Slf4j
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in", "http://3.37.158.7:8080/", "http://3.37.158.7:8080", "http://localhost:8080/", "http://3.37.158.7").permitAll()
+                                .requestMatchers("/api/sign-up", "/api/sign/up/helper", "/api/sign/in").permitAll()
 //                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/api/sign/**").permitAll()
-                        .requestMatchers("/api").permitAll()
-                        .requestMatchers("/api/token/**").permitAll()
-                        .requestMatchers("/swagger-ui.html").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-resources/**").permitAll()
-                        .requestMatchers("/webjars/**").permitAll()
-                        .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/api/sign/**").permitAll()
+                                .requestMatchers("/api/token/**").permitAll()
+                                .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -63,12 +58,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Arrays.asList(
-                "http://3.37.158.7",
-                "http://3.37.158.7:80",
-                "http://3.37.158.7:8080",
-                "http://localhost:5173"
-        ));        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         config.setExposedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
