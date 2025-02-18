@@ -52,4 +52,8 @@ public class TblCenter extends BaseEntity {
     @Comment(value="한줄 소개")
     @Column(length = 100)
     private String centerIntroduce;     //한줄 소개
+
+    public void updateCenterName(String centerName) {
+        this.centerName = centerName;
+    }
 }

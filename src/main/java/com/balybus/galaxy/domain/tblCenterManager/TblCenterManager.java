@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import javax.print.DocFlavor;
+
 @Getter
 @Builder
 @Entity
@@ -56,4 +58,8 @@ public class TblCenterManager extends BaseEntity implements ChangeProfileImg {
 
     @Override
     public void updateImg(TblImg img) { this.img = img; }
+
+    public void updateCenterManagerName(String name) {this.cmName = name;}
+
+    public void updateCmPosition(String cmPosition) {this.cmPosition = cmPosition;}
 }

@@ -55,7 +55,10 @@ public enum ExceptionCode {
 
 
     // 7xxx 관리자
-    NOT_FOUND_MANAGER(3000, "해당 관리자 정보를 찾을 수 없습니다."),
+    NOT_FOUND_MANAGER(7000, "해당 관리자 정보를 찾을 수 없습니다."),
+
+    // 8xxx 센터
+    NOT_FOUND_CENTER(8000, "해당 센터를 찾을 수 없습니다"),
     ;
 
 
