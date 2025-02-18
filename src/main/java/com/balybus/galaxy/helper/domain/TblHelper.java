@@ -107,6 +107,10 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Convert(converter = StringListConverter.class)
     private List<String> strengths;
 
+    @Column(name = "helper_exp")
+    @Comment("간병경력")
+    private Boolean is_experienced;
+
 
     /* ==================================================
      * UPDATE

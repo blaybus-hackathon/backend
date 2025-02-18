@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CommonServiceImpl {
+public class CommonServiceImpl implements CommonService {
 
     private final TblImgServiceImpl imgService;
 
@@ -42,6 +42,7 @@ public class CommonServiceImpl {
      * @param dto           ImgRequestDto.uploadUserImg
      * @return              ImgResponseDto.uploadUserImg
      */
+    @Override
     @Transactional
     public ImgResponseDto.uploadUserImg uploadUserImg(UserDetails userDetails, ImgRequestDto.uploadUserImg dto) {
         //1. 이미지 개수 검사

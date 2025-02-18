@@ -15,7 +15,7 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     @Override
     public String convertToDatabaseColumn(List<String> attribute) {
         if (attribute == null || attribute.isEmpty()) {
-            return "[]";  // ✅ 빈 리스트라도 기본 값 저장
+            return "[]";
         }
         try {
             return objectMapper.writeValueAsString(attribute);
@@ -27,7 +27,7 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isEmpty()) {
-            return Collections.emptyList();  // ✅ null이거나 빈 문자열이면 빈 리스트 반환
+            return Collections.emptyList();
         }
         try {
             return objectMapper.readValue(dbData, new TypeReference<List<String>>() {});

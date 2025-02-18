@@ -1,9 +1,10 @@
 package com.balybus.galaxy.login.controller;
 
+import com.balybus.galaxy.domain.tblCenter.dto.CenterDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
-import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -56,7 +57,7 @@ public class LoginController {
     }
 
     /**
-     * 로그인
+     * 로그인 API
      * @param dto MemberRequest.LoginDto
      * @return ResponseEntity
      */
@@ -70,6 +71,40 @@ public class LoginController {
     })
     public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
         return ResponseEntity.ok().body(loginService.signIn(dto));
+    }
+
+    /**
+     * 회원가입시 이메일 인증코드 발급 및 전송 API
+     * @param dto MailRequestDto.AuthenticationMail
+     * @return ResponseEntity<?>
+     */
+    @PostMapping("/authentication-mail")
+    @Operation(summary = "회원가입시 이메일 인증코드 발급 및 전송 API",
+            description = "이메일 인증코드를 생성 및 인증코드를 이메일로 전송합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "인증코드 발급 및 전송 성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
+            @ApiResponse(responseCode = "4000", description = "사용자정의에러코드:등록된 이메일 사용자가 존재합니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> authenticationMail(@RequestBody MailRequestDto.AuthenticationMail dto) {
+        return ResponseEntity.ok(loginService.authenticationMail(dto));
+    }
+
+    /**
+     * 회원가입시 이메일 인증코드 일치 여부 확인 API
+     * @param dto MailRequestDto.CheckAuthenticationCode
+     * @return ResponseEntity<?>
+     */
+    @PostMapping("/check-code")
+    @Operation(summary = "회원가입시 이메일 인증코드 일치 여부 확인 API",
+            description = "인증코드가 일치하는지 확인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "인증결과 전송",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class)))
+    })
+    public ResponseEntity<?> checkAuthenticationCode(@RequestBody MailRequestDto.CheckAuthenticationCode dto) {
+        return ResponseEntity.ok(loginService.checkAuthenticationCode(dto));
     }
 
 
@@ -87,6 +122,16 @@ public class LoginController {
         return ResponseEntity.ok(helperResponse);
     }
 
+    /**
+     * 센터 등록
+     * @param centerDto CenterDto
+     * @return ResponseEntity<CenterDto>
+     */
+    @PostMapping("/center-register")
+    public ResponseEntity<CenterDto> registerCenter(@RequestBody CenterDto centerDto) {
+        CenterDto registeredCenter = loginService.registerCenter(centerDto);
+        return ResponseEntity.ok(registeredCenter);
+    }
 
     /**
      * 관리자(센터직원) 회원 가입
