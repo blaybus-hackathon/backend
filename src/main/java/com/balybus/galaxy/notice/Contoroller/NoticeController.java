@@ -1,25 +1,27 @@
 package com.balybus.galaxy.notice.Contoroller;
 
 import com.balybus.galaxy.notice.dto.NoticeDto;
-import com.balybus.galaxy.notice.dto.ReNoticeDto;
+import com.balybus.galaxy.notice.serviceImpl.NoticeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
+@RequestMapping("/notice")
+@RequiredArgsConstructor
 public class NoticeController {
 
-    /*공지사항 등록*/
-    @PostMapping("/up/notice")
-    public ResponseEntity<NoticeDto> NoticeUp(@RequestBody NoticeDto){
-        return ResponseEntity.ok(NoticeUpService(NoticeDto));
+    private final NoticeService noticeService;
 
+    /* 공지사항 등록 */
+    @PostMapping("/up")
+    public ResponseEntity<NoticeDto> noticeUp(@RequestBody NoticeDto noticeDto) {
+        return ResponseEntity.ok(noticeService.saveNotice(noticeDto));
     }
 
-    /*공지사항 등록 수정*/
-    @PostMapping("/re/notice")
-    public ResponseEntity<ReNoticeDto> ReNotice(@RequestBody ReNoticeDto){
-        return ResponseEntity.ok(NoticeUpService(ReNoticeDto));
+    /* 공지사항 수정 */
+    @PostMapping("/re")
+    public ResponseEntity<NoticeDto> reNotice(@RequestBody NoticeDto noticeDto) {
+        return ResponseEntity.ok(noticeService.updateNotice(noticeDto));
     }
-
-
 }

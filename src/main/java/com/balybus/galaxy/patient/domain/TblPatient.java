@@ -3,6 +3,7 @@ package com.balybus.galaxy.patient.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 
@@ -31,15 +32,15 @@ public class TblPatient {
     @Comment("보호자 정보 구분자")
     private Long guardianInfoSeq;
 
-    @Column(name = "state_code", nullable = false)
+    @Column(name = "af_seq", nullable = false)
     @Comment("시도 구분자 (주소)")
     private String tblPatientFirst;
 
-    @Column(name = "city_code", nullable = false)
+    @Column(name = "as_seq", nullable = false)
     @Comment("시군구 구분자 (주소)")
     private String tblPatientSecond;
 
-    @Column(name = "district_code", nullable = false)
+    @Column(name = "at_seq", nullable = false)
     @Comment("읍면동 구분자 (주소)")
     private String tblPatientThrid;
 
