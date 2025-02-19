@@ -1,5 +1,10 @@
 package com.balybus.galaxy.global.utils.mail.dto.contents;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ContentDto<T> {
     private T content;
 
@@ -7,11 +12,4 @@ public class ContentDto<T> {
         this.content = content;
     }
 
-    public T getContent() {
-        return content;
-    }
-
-    public void setContent(T content) {
-        this.content = content;
-    }
 }

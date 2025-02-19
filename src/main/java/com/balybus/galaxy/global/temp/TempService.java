@@ -1,14 +1,10 @@
 package com.balybus.galaxy.global.temp;
 
-import com.balybus.galaxy.domain.tblMatching.TblMatching;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
 import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.global.utils.mail.dto.contents.MailMatchingDto;
-import com.balybus.galaxy.global.utils.matching.MatchingUtils;
-import com.balybus.galaxy.global.utils.matching.dto.MatchingResponseDto;
-import com.balybus.galaxy.helper.domain.TblHelper;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +26,6 @@ import java.util.Random;
 public class TempService {
 
     private final SendMailUtils sendMailUtils;
-    private final MatchingUtils matchingUtils;
 
     // 이메일 인증
     public void authenticationMail(String userEmail) {
