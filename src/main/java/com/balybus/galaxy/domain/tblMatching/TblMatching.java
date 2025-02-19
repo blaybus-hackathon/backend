@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
+import java.math.BigDecimal;
+
 @Getter
 @Builder
 @Entity
@@ -34,72 +36,72 @@ public class TblMatching extends BaseEntity {
     private TblHelper helper;           // 요양보호사 구분자
 
     @Comment("최종 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double totalScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalScore;
 
     @Comment("근무지 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double locationScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal locationScore;
 
     @Comment("근무시간 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double timeScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal timeScore;
 
     @Comment("근무요일 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double dateScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal dateScore;
 
     @Comment("근무종류 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double workType;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal workType;
 
     @Comment("복지 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double welfare;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal welfare;
 
     @Comment("장기요양등급 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double careLevel;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal careLevel;
 
     @Comment("치매증상 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double dementiaSymptom;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal dementiaSymptom;
 
     @Comment("동거인 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double inmateState;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal inmateState;
 
     @Comment("성별 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double gender;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal gender;
 
     @Comment("식사보조 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double serviceMeal;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal serviceMeal;
 
     @Comment("이동보조 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double serviceMobility;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal serviceMobility;
 
     @Comment("배변보조 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double serviceToilet;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal serviceToilet;
 
     @Comment("일상보조 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double serviceDaily;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal serviceDaily;
 
     @Comment("경력 점수")
-    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
-    private Integer helperExp;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal helperExp;
 
     @Comment("자격증 점수")
-    @Column(nullable = false, columnDefinition = "DOUBLE DEFAULT 0")
-    private Double certScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal certScore;
 
     @Comment("급여 점수")
-    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
-    private Integer wageScore;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal wageScore;
 
     @Comment("매칭상태")
     @Enumerated(EnumType.STRING)

@@ -18,8 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +49,31 @@ public class MatchingServiceImpl {
         for(TblMatching entity : bfMatchingList) entity.useNo();
 
         //3. 근무지 / 근무가능 시간 / 전문성 / 경력 / 자격증 개수 계산을 한 조회 를 해서 최대 10개의 요양보호사 데이터를 가져온다
-        List<MatchingResponseDto.Score> helperScoreList = helperRepository.findTop10HelperScores(plSeq);
+        List<Object[]> helperScoreObjectList = helperRepository.findTop10HelperScores(plSeq);
+        List<MatchingResponseDto.Score> helperScoreList = new ArrayList<>();
+        for(Object[] data : helperScoreObjectList) {
+            helperScoreList.add(MatchingResponseDto.Score.builder()
+                            .helperSeq((Long) data[0])
+                            .totalScore((BigDecimal) data[1])
+                            .locationScore((BigDecimal) data[2])
+                            .timeScore((BigDecimal) data[3])
+                            .dateScore((BigDecimal) data[4])
+                            .workType((BigDecimal) data[5])
+                            .welfare((BigDecimal) data[6])
+                            .careLevel((BigDecimal) data[7])
+                            .dementiaSymptom((BigDecimal) data[8])
+                            .inmateState((BigDecimal) data[9])
+                            .gender((BigDecimal) data[10])
+                            .serviceMeal((BigDecimal) data[11])
+                            .serviceMobility((BigDecimal) data[12])
+                            .serviceToilet((BigDecimal) data[13])
+                            .serviceDaily((BigDecimal) data[14])
+                            .wageScore((BigDecimal) data[15])
+                            .helperExp((BigDecimal) data[16])
+                            .certScore((BigDecimal) data[17])
+                            .build());
+        }
+
 
         //4. 매칭 테이블에 데이터 저장 - 데이터 저장시 기존에 공고-요양보호사가 같은 조건 데이터 존재 확인
         List<MailMatchingDto.HelperContentDto> mailContentList = new ArrayList<>(); // 메일 전송 요양보호사 정보 리스트
@@ -62,10 +88,12 @@ public class MatchingServiceImpl {
 
             TblMatching matching = dto.toEntity(bfOpt.orElse(null), helperEntity, plEntity);
             saveMatchingList.add(matching);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy:MM:dd");
             mailContentList.add(MailMatchingDto.HelperContentDto.builder()
                             .name(helperEntity.getName())
                             .gender(helperEntity.getGender() == 1 ? "남" : "여")
-                            .age(calculateAge(LocalDate.parse(helperEntity.getBirthday(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .age(calculateAge(LocalDate.parse(helperEntity.getBirthday(), formatter)))
                             .build());
         }
         matchingRepository.saveAll(saveMatchingList);
