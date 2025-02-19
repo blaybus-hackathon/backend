@@ -9,7 +9,7 @@ import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.global.utils.file.FileUploadUtils;
-import com.balybus.galaxy.helper.repository.HelperRepository;
+import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

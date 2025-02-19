@@ -1,6 +1,7 @@
 package com.balybus.galaxy.domain.tblCenter;
 
 import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.domain.tblImg.TblImg;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,9 +23,10 @@ public class TblCenter extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;            //구분자
 
-    @Column(name = "img_seq")
+    @OneToOne(fetch = FetchType.LAZY)
     @Comment("이미지 구분자")
-    private Long imgSeq;        //이미지 구분자
+    @JoinColumn(name = "img_seq")
+    private TblImg img;
 
     @Comment(value="센터명")
     @Column(length = 50, nullable = false)

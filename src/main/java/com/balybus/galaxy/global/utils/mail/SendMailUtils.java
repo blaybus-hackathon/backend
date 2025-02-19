@@ -1,5 +1,6 @@
 package com.balybus.galaxy.global.utils.mail;
 
+import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class SendMailUtils {
      * 메일을 전송합니다.
      * @param request 메일 데이터
      */
-    public void sendMail(SendMailRequest request) throws UnsupportedEncodingException, MessagingException {
+    public <T> void sendMail(SendMailRequest request, ContentDto<T> content) throws UnsupportedEncodingException, MessagingException {
         // 클래스 생성
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
@@ -42,7 +43,7 @@ public class SendMailUtils {
         mimeMessageHelper.setSubject(request.getTitle());
 
         //메일 내용
-        String html = createHtml(request.getContentType(), request.getContent());
+        String html = createHtml(request.getContentType(), content);
         mimeMessageHelper.setText(html, true); // 메일 본문 내용, HTML 여부
 
         // 메일 전송
@@ -53,7 +54,7 @@ public class SendMailUtils {
     /**
      * 타임리프를 사용하여 메일 내용을 생성합니다.
      */
-    private String createHtml(ContentType contentType, String content) {
+    private <T> String createHtml(ContentType contentType, ContentDto<T> content) {
         Context context = new Context();
         context.setVariable("content", content);
         return templateEngine.process(contentType.getUri(), context);

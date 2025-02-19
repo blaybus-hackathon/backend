@@ -49,4 +49,10 @@ public class TempController {
         tempService.authenticationMail(userDetails.getUsername());
         return ResponseEntity.ok("SUCCESS");
     }
+
+    @PostMapping("/matching-mail")
+    public ResponseEntity<?> matchingMail(@AuthenticationPrincipal UserDetails userDetails) {
+        tempService.matchingMail();
+        return ResponseEntity.ok("SUCCESS");
+    }
 }
