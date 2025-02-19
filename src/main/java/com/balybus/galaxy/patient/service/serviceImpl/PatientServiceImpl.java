@@ -100,7 +100,50 @@ public class PatientServiceImpl implements PatientService {
     @Override
     @Transactional
     public PatientResponseDto.UpdatePatientInfo updatePatientInfo(UserDetails userDetails, PatientRequestDto.UpdatePatientInfo dto) {
-        return null;
+        //1. 관리자 정보 조회
+        //1-1. 로그인 테이블 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+
+        //1-2. 관리자 테이블 조회
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
+        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        TblCenterManager centerManager = centerManagerOpt.get();
+
+        //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정
+        //2-1. 어르신 데이터 조회
+        Optional<TblPatient> patientOpt = patientRepository.findById(dto.getPatientSeq());
+        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
+
+        //2-2. 주소 정보 검증
+        Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
+        if(firstOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+        Optional<TblAddressSecond> secondOpt = addressSecondRepository.findById(dto.getAsSeq());
+        if(secondOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+        Optional<TblAddressThird> thirdOpt = addressThirdRepository.findById(dto.getAtSeq());
+        if(thirdOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+
+        //2-3. 데이터 수정
+        TblPatient patient = patientOpt.get();
+        patient.basicUpdate(dto, firstOpt.get(), secondOpt.get(), thirdOpt.get());
+
+        //3. 어르신 돌봄 시간 요일 조회 및 삭제
+        List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
+        patientTimeRepository.deleteAll(patientTimeList);
+
+        //4. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
+        List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+        for(PatientRequestDto.savePatientTimeInfo ptDto : dto.getTimeList())
+            savePatientTimeList.add(ptDto.toEntity(patient));
+
+        patientTimeRepository.saveAll(savePatientTimeList);
+
+        //5. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
+        return PatientResponseDto.UpdatePatientInfo.builder()
+                .patientSeq(patient.getId())
+                .name(patient.getName())
+                .birthYear(patient.getBirthDate().substring(4))
+                .build();
     }
 
     /**

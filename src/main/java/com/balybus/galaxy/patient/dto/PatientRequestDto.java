@@ -84,9 +84,7 @@ public class PatientRequestDto {
 
     @Data
     public static class UpdatePatientInfo{
-        private Long id;              //어르신 구분자
-        private Long managerSeq;      // 관리자 구분자
-        private Long imgSeq;          // 이미지 구분자
+        private Long patientSeq;      //어르신 구분자
         private Long afSeq;           // 광역시.도 구분자
         private Long asSeq;           // 시.군.구 구분자
         private Long atSeq;           // 읍.면.동 구분자
@@ -105,6 +103,8 @@ public class PatientRequestDto {
         private String diseases;      // 보유 질병/질환
         private Boolean timeNegotiation;    // 돌봄 요일 시간 협의 여부
         private String requestContents;     // 기타 요청 사항
+
+        List<savePatientTimeInfo> timeList; // 돌봄요일 리스트 : 선택한 요일에 대한 데이터만 리스트에 넣어서 전달.
 
     }
 

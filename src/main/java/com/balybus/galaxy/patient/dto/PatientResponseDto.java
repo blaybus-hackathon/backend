@@ -12,8 +12,12 @@ public class PatientResponseDto {
         private String birthYear;   // 생년월일 중 연도 반환
     }
 
+    @Getter
+    @Builder
     public static class UpdatePatientInfo{
-
+        private Long patientSeq;    // 어르신 정보 구분자 값
+        private String name;        // 이름
+        private String birthYear;   // 생년월일 중 연도 반환
     }
 
     public static class RecruitHelper{

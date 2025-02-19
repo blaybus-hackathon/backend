@@ -28,14 +28,14 @@ public class PatientController {
     }
 
     @PostMapping("/update")
-    @Operation(summary = "어르신 정보 수정")
+    @Operation(summary = "어르신 정보 수정 API")
     public ResponseEntity<?> updatePatientInfo(@AuthenticationPrincipal UserDetails userDetails,
                                                @RequestBody PatientRequestDto.UpdatePatientInfo dto) {
         return ResponseEntity.ok().body(patientService.updatePatientInfo(userDetails, dto));
     }
 
     @PostMapping("/recruit-helper")
-    @Operation(summary = "어르신 요양보호사 공고 등록")
+    @Operation(summary = "어르신 요양보호사 공고 등록 API")
     public ResponseEntity<?> recruitHelper(@AuthenticationPrincipal UserDetails userDetails,
                                            @RequestBody PatientRequestDto.RecruitHelper dto) {
         return ResponseEntity.ok().body(patientService.recruitHelper(userDetails, dto));
