@@ -12,8 +12,8 @@ public interface HelperService {
     public WageUpdateResponse updateWage(UserDetails userDetails, WageUpdateDTO wageUpdateDTO);
     public HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails);
     public List<TblAddressFirstResponse> getFirstAddress();
-    public List<TblAddressThirdResponse> getThirdAddressBySecondId(Long asSeq);
-    public List<TblAddressSecondResponse> getAddressSecondByFirstId(Long afSeq);
+    public List<TblAddressThirdResponse> getThirdAddressBySecondId(AddressThirdDTO addressThirdDTO);
+    public List<TblAddressSecondResponse> getAddressSecondByFirstId(AddressSecondDTO addressSecondDTO);
     public HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails);
     public HelperExperienceResponse experienceSignUp(HelperExperienceDTO helperExperienceDTO, UserDetails userDetails);
     public HelperSearchResponse helperSearch(HelperSearchDTO helperSearchDTO);

@@ -164,13 +164,18 @@ public class HelperServiceImpl implements HelperService {
     @Override
     public List<TblAddressFirstResponse> getFirstAddress() {
         return tblAddressFirstRepository.findAll().stream()
-                .map(TblAddressFirstResponse::new)  // DTO로 변환
+                .map(TblAddressFirstResponse::new)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<TblAddressThirdResponse> getThirdAddressBySecondId(Long asSeq) {
-        List<TblAddressThird> entities = tblAddressThirdRepository.findByAddressSecond_Id(asSeq);
+    public List<TblAddressThirdResponse> getThirdAddressBySecondId(AddressThirdDTO addressThirdDTO) {
+        List<TblAddressThird> entities = new ArrayList<>();
+
+        for(int i=0; i<addressThirdDTO.getSecondCities().size(); i++) {
+            List<TblAddressThird> tempList = tblAddressThirdRepository.findByAddressSecond_Id((long)addressThirdDTO.getSecondCities().get(i));
+            entities.addAll(tempList);
+        }
 
         return entities.stream()
                 .map(TblAddressThirdResponse::new)
@@ -178,8 +183,12 @@ public class HelperServiceImpl implements HelperService {
     }
 
     @Override
-    public List<TblAddressSecondResponse> getAddressSecondByFirstId(Long afSeq) {
-        List<TblAddressSecond> entities = tblAddressSecondRepository.findByAddressFirst_Id(afSeq);
+    public List<TblAddressSecondResponse> getAddressSecondByFirstId(AddressSecondDTO addressSecondDTO) {
+        List<TblAddressSecond> entities = new ArrayList<>();
+        for(int i=0; i<addressSecondDTO.getFirstCities().size(); i++) {
+            List<TblAddressSecond> tempList = tblAddressSecondRepository.findByAddressFirst_Id((long)addressSecondDTO.getFirstCities().get(i));
+            entities.addAll(tempList);
+        }
 
         return entities.stream()
                 .map(TblAddressSecondResponse::new)

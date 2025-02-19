@@ -78,7 +78,7 @@ public class HelperController {
      * 광역시.도 근무 희망지 반환
      * @return
      */
-    @GetMapping("/get-first-addr")
+    @PostMapping("/get-first-addr")
     public ResponseEntity<List<TblAddressFirstResponse>> getFirstAddress() {
         List<TblAddressFirstResponse> addressList = helperService.getFirstAddress();
         log.info(addressList.toString());
@@ -87,23 +87,21 @@ public class HelperController {
 
     /**
      * 시.군.구 근무 희망지 반환
-     * @param afSeq
      * @return
      */
-    @GetMapping("/second/{afSeq}")
-    public ResponseEntity<List<TblAddressSecondResponse>> getAddressSecond(@PathVariable Long afSeq) {
-        List<TblAddressSecondResponse> addressSeconds = helperService.getAddressSecondByFirstId(afSeq);
+    @PostMapping("/second-info")
+    public ResponseEntity<List<TblAddressSecondResponse>> getAddressSecond(@RequestBody AddressSecondDTO addressSecondDTO) {
+        List<TblAddressSecondResponse> addressSeconds = helperService.getAddressSecondByFirstId(addressSecondDTO);
         return ResponseEntity.ok(addressSeconds);
     }
 
     /**
      * 읍.면.동 근무 희망지 반환
-     * @param asSeq
      * @return
      */
-    @GetMapping("/third/{asSeq}")
-    public ResponseEntity<List<TblAddressThirdResponse>> getAddressThird(@PathVariable Long asSeq) {
-        List<TblAddressThirdResponse> thirdAddresses = helperService.getThirdAddressBySecondId(asSeq);
+    @PostMapping("/third-info")
+    public ResponseEntity<List<TblAddressThirdResponse>> getAddressThird(@RequestBody AddressThirdDTO addressThirdDTO) {
+        List<TblAddressThirdResponse> thirdAddresses = helperService.getThirdAddressBySecondId(addressThirdDTO);
         return ResponseEntity.ok(thirdAddresses);
     }
 
