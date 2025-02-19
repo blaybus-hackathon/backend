@@ -3,7 +3,7 @@ package com.balybus.galaxy.domain.tblMatching.dto;
 import com.balybus.galaxy.domain.tblMatching.MatchState;
 import com.balybus.galaxy.domain.tblMatching.TblMatching;
 import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.patient.domain.TblPatientLog;
+import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
