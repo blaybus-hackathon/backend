@@ -33,7 +33,7 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                         + (d.wage_score * 5)) as total_score,
                     d.location_score,	-- 0~1 / 4로 나눔
                     d.time_score,		-- 0~1 / 주 단위 요청 시간으로 나눔
-                    d.date_score,		-- 0~1 / 7로 나눔	
+                    d.date_score,		-- 0~1 / 7로 나눔
                     d.work_type,		-- 0~1 / 선택된 개수로 나눔
                     d.welfare,			-- 0~1 / 선택된 개수로 나눔
                     d.care_level,		-- 0~1 / 선택된 개수로 나눔
@@ -46,7 +46,7 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                     d.service_daily,		-- 0~1 / 선택된 개수로 나눔
                     d.wage_score,		-- 0,1 / 계산된 시금,주급,일급 기준으로 해당 금액보다 적거나 같으면 1, 아니면 0
                     d.helper_exp,		-- 0,1 / 신규:0 경력:1
-                    d.cert_score		-- 0~1 / 4로 나눔	
+                    d.cert_score		-- 0~1 / 4로 나눔
                 from (select
                     c.*,
                     th2.helper_exp,

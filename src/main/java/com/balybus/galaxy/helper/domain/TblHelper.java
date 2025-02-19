@@ -2,7 +2,6 @@ package com.balybus.galaxy.helper.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.helper.util.StringListConverter;
-import com.balybus.galaxy.helper.util.WageConverter;
 import com.balybus.galaxy.domain.tblImg.TblImg;
 import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.member.domain.TblUser;
@@ -12,7 +11,6 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

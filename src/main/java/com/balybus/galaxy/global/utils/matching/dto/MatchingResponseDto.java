@@ -1,5 +1,9 @@
 package com.balybus.galaxy.global.utils.matching.dto;
 
+import com.balybus.galaxy.domain.tblMatching.MatchState;
+import com.balybus.galaxy.domain.tblMatching.TblMatching;
+import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.patient.domain.TblPatientLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +14,7 @@ public class MatchingResponseDto {
     @Setter
     @NoArgsConstructor
     public static class Score {
+        private Long matchingSeq;
         private Long helperSeq;
         private Double totalScore;
         private Double locationScore;
@@ -52,6 +57,34 @@ public class MatchingResponseDto {
             this.helperExp = helperExp;
             this.certScore = certScore;
             this.wageScore = wageScore;
+        }
+
+        // toEntity
+        public TblMatching toEntity(TblMatching bfMatching, TblPatientLog patientLog){
+            return TblMatching.builder()
+                    .id(bfMatching == null ? null : bfMatching.getId())
+                    .patientLog(patientLog)
+                    .helper(TblHelper.builder().id(this.helperSeq).build())
+                    .totalScore(this.totalScore)
+                    .locationScore(this.locationScore)
+                    .timeScore(this.timeScore)
+                    .dateScore(this.dateScore)
+                    .workType(this.workType)
+                    .welfare(this.welfare)
+                    .careLevel(this.careLevel)
+                    .dementiaSymptom(this.dementiaSymptom)
+                    .inmateState(this.inmateState)
+                    .gender(this.gender)
+                    .serviceMeal(this.serviceMeal)
+                    .serviceMobility(this.serviceMobility)
+                    .serviceToilet(this.serviceToilet)
+                    .serviceDaily(this.serviceDaily)
+                    .helperExp(this.helperExp)
+                    .certScore(this.certScore)
+                    .wageScore(this.wageScore)
+                    .matchState(bfMatching == null ? MatchState.INIT : bfMatching.getMatchState())
+                    .useYn(true)
+                    .build();
         }
     }
 }
