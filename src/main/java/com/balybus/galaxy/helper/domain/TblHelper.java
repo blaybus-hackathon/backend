@@ -46,30 +46,31 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양보호사 연락처")
     private String phone;
 
-    @Column(name = "helper_age")
+    @Column(name = "helper_gender")
     @Comment("요양보호사 성별")
     private Integer gender;
 
     @Column(name = "helper_birthday")
+    @Comment("요양보호사 생년월일")
     private String birthday;
 
     @Column(name = "helper_address_detail", length = 255)
     @Comment("상세 주소")
     private String addressDetail;
 
-    @Column(name = "helper_essential_cert_no", length = 11, nullable = false)
+    @Column(name = "helper_essential_cert_no", length = 11)
     @Comment("요양 보호사 자격증 번호")
     private String essentialCertNo;
 
-    @Column(name = "helper_care_cert_no", length = 11, nullable = false)
+    @Column(name = "helper_care_cert_no", length = 11)
     @Comment("간병사 자격증 번호")
     private String careCertNo;
 
-    @Column(name = "helper_nurse_cert_no", length = 11, nullable = false)
+    @Column(name = "helper_nurse_cert_no", length = 11)
     @Comment("병원 동행 매니저 자격증 번호")
     private String nurseCertNo;
 
-    @Column(name = "helper_post_partum_cert_no", length = 11, nullable = false)
+    @Column(name = "helper_post_partum_cert_no", length = 11)
     @Comment("산후 관리사 자격증 번호")
     private String postPartumCertNo;
 
@@ -88,23 +89,21 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양보호사 치매 교육 이수 여부")
     private boolean eduYn;
 
+    @Column(name = "helper_wage_state")
+    @Comment("1:시급, 2:일급, 3:주급 구분")
+    private Integer wageState;
+
     @Column(name = "helper_wage")
-    @Convert(converter = WageConverter.class)
-    @Comment("희망급여(시급, 일급, 주급)")
-    private Map<Integer, String> wage;
+    @Comment("급여")
+    private Integer wage;
 
     @Column(name = "helper_wage_negotiation")
     @Comment("급여 협의 가능 여부")
     private Boolean wageNegotiation;
 
-    @Column(name = "helper_introduce")
+    @Column(name = "helper_introduce", length = 255)
     @Comment("요양 보호사 자기 소개")
     private String introduce;
-
-    @Column(name = "helper_strength")
-    @Comment("요양 보호사 강점")
-    @Convert(converter = StringListConverter.class)
-    private List<String> strengths;
 
     @Column(name = "helper_exp")
     @Comment("간병경력")

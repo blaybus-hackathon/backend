@@ -43,6 +43,13 @@ jobs:
         echo "${{ secrets.YML_JWT }}" > ./application-jwt.yml
       shell: bash
 
+    - name: Make application-mail.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-mail.yml 
+        echo "${{ secrets.YML_MAIL }}" | sed 's/\\n/\n/g' > ./application-mail.yml
+      shell: bash
+
     - name: Build with Gradle
       run: |
           chmod +x ./gradlew
@@ -72,7 +79,28 @@ jobs:
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
         script: |
-          sudo docker rm -f $(docker ps -qa)
+          cd /home/ubuntu
+
+          # ✅ 실행 중인 모든 컨테이너 정리
+          echo "🛑 Stopping all running containers..."
+          sudo docker rm -f $(docker ps -qa) || true
+          
+          # ✅ 최신 이미지 가져오기
+          echo "🚀 Pulling the latest Docker image..."
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus:latest
-          docker-compose up -d
+          
+          # ✅ 기존 컨테이너 종료 및 네트워크 정리
+          echo "🛑 Stopping and removing existing containers..."
+          docker-compose down
+          
+          # ✅ 최신 이미지 적용 (docker-compose pull 강제 적용)
+          echo "🚀 Updating to the latest image..."
+          docker-compose pull
+          
+          # ✅ 컨테이너 실행 (강제 재생성)
+          echo "🚀 Starting the new container..."
+          docker-compose up -d --build --force-recreate --no-deps
+
+          # ✅ 사용하지 않는 이미지 정리
+          echo "🧹 Cleaning up old images..."
           docker image prune -f

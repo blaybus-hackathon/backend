@@ -9,5 +9,6 @@ import lombok.*;
 @Builder
 public class WageUpdateResponse {
     private String email;
-    private String wage;
+    private int wage;
+    private int wageState;
 }
