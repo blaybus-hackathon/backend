@@ -1,4 +1,4 @@
-package com.balybus.galaxy.patient.DTO;
+package com.balybus.galaxy.patient.dto;
 
 import lombok.Builder;
 import lombok.Getter;

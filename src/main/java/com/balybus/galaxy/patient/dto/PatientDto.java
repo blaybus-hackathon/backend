@@ -1,5 +1,6 @@
 package com.balybus.galaxy.patient.dto;
 
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.domain.TblPatient;
 import lombok.*;
 
@@ -26,7 +27,7 @@ public class PatientDto {
     public static PatientDto fromEntity(TblPatient patient) {
         return PatientDto.builder()
                 .id(patient.getId())
-                .managerSeq(patient.getManagerSeq())
+                .managerSeq(patient.getManager().getId())
                 .longTermCareGradeSeq(patient.getLongTermCareGradeSeq())
                 .guardianInfoSeq(patient.getGuardianInfoSeq())
                 .name(patient.getName())
@@ -34,14 +35,14 @@ public class PatientDto {
                 .gender(patient.getGender())
                 .weight(patient.getWeight())
                 .diseases(patient.getDiseases())
-                .createdAt(patient.getCreatedAt())
-                .updatedAt(patient.getUpdatedAt())
+                .createdAt(patient.getCreateDatetime())
+                .updatedAt(patient.getUpdateDatetime())
                 .build();
     }
 
     public TblPatient toEntity() {
         return TblPatient.builder()
-                .managerSeq(this.managerSeq)
+                .manager(TblCenterManager.builder().id(this.managerSeq).build())
                 .longTermCareGradeSeq(this.longTermCareGradeSeq)
                 .guardianInfoSeq(this.guardianInfoSeq)
                 .name(this.name)
