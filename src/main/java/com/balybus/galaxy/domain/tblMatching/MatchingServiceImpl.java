@@ -1,13 +1,11 @@
-package com.balybus.galaxy.global.utils.matching;
+package com.balybus.galaxy.domain.tblMatching;
 
-import com.balybus.galaxy.domain.tblMatching.TblMatching;
-import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
 import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.global.utils.mail.dto.contents.MailMatchingDto;
-import com.balybus.galaxy.global.utils.matching.dto.MatchingResponseDto;
+import com.balybus.galaxy.domain.tblMatching.dto.MatchingResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.patient.domain.TblPatientLog;
@@ -30,7 +28,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MatchingUtils {
+public class MatchingServiceImpl {
     private final TblMatchingRepository matchingRepository;
     private final TblPatientLogRepository patientLogRepository;
     private final HelperRepository helperRepository;

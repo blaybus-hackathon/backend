@@ -1,4 +1,4 @@
-package com.balybus.galaxy.global.utils.matching.dto;
+package com.balybus.galaxy.domain.tblMatching.dto;
 
 import com.balybus.galaxy.domain.tblMatching.MatchState;
 import com.balybus.galaxy.domain.tblMatching.TblMatching;
