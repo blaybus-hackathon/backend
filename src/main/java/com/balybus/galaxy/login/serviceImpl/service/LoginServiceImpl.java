@@ -13,6 +13,7 @@ import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
+import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
@@ -127,10 +128,10 @@ public class LoginServiceImpl implements LoginService {
                 .title("이메일 인증")
                 .fromName("은하수 개발단")
                 .contentType(ContentType.AUTHENTICATION)
-                .content(code)
                 .build();
+        ContentDto<String> contentDto = new ContentDto<>(code);
         try {
-            sendMailUtils.sendMail(request);
+            sendMailUtils.sendMail(request, contentDto);
         } catch (UnsupportedEncodingException | MessagingException e) {
             throw new RuntimeException(e);
         }

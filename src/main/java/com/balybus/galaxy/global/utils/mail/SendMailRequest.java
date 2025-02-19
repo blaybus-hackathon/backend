@@ -12,7 +12,6 @@ public class SendMailRequest {
     private final String toMail; //받는 메일
     private final String title; //제목
     private final ContentType contentType; //이메일 html uri
-    private final String content; //내용
 
     public static class SendMailRequestBuilder {
         public SendMailRequestBuilder title(String title) {

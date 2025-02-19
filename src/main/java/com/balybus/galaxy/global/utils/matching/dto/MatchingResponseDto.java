@@ -60,11 +60,11 @@ public class MatchingResponseDto {
         }
 
         // toEntity
-        public TblMatching toEntity(TblMatching bfMatching, TblPatientLog patientLog){
+        public TblMatching toEntity(TblMatching bfMatching, TblHelper helperEntity, TblPatientLog patientLog){
             return TblMatching.builder()
                     .id(bfMatching == null ? null : bfMatching.getId())
                     .patientLog(patientLog)
-                    .helper(TblHelper.builder().id(this.helperSeq).build())
+                    .helper(helperEntity)
                     .totalScore(this.totalScore)
                     .locationScore(this.locationScore)
                     .timeScore(this.timeScore)
