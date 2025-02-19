@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // permitAll uri 패턴 검사
     private boolean checkUri(String requestUri) {
         List<String> uriPatterns = List.of(
+                "/",
                 "/api/sign/**", "/api/token/**", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
                 "/img/**", "/css/**", "/static/js/**", "/docs/**"
         );

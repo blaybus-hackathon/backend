@@ -26,5 +26,6 @@ public class HelperResponse {
     private List<String> helperOtherCerts;
     private boolean carOwnYn;
     private boolean eduYn;
-    private Map<Integer, String> wage;
+    private int wage;
+    private int wageState;
 }
