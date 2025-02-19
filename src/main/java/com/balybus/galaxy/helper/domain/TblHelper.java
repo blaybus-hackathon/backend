@@ -46,7 +46,7 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
 
     @Column(name = "helper_gender")
     @Comment("요양보호사 성별")
-    private Integer gender;
+    private Integer gender; // 0이면 남성, 1이면 여성
 
     @Column(name = "helper_birthday")
     @Comment("요양보호사 생년월일")
