@@ -1,6 +1,5 @@
 package com.balybus.galaxy.helper.repositoryImpl;
 
-import com.balybus.galaxy.domain.tblMatching.dto.MatchingResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

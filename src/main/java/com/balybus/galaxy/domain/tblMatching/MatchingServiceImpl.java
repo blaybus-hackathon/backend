@@ -49,7 +49,7 @@ public class MatchingServiceImpl {
         for(TblMatching entity : bfMatchingList) entity.useNo();
 
         //3. 근무지 / 근무가능 시간 / 전문성 / 경력 / 자격증 개수 계산을 한 조회 를 해서 최대 10개의 요양보호사 데이터를 가져온다
-        List<Object[]> helperScoreObjectList = helperRepository.findTop10HelperScores(plSeq);;
+        List<Object[]> helperScoreObjectList = helperRepository.findTop10HelperScores(plSeq);
         List<MatchingResponseDto.Score> helperScoreList = new ArrayList<>();
         for(Object[] data : helperScoreObjectList) {
             helperScoreList.add(MatchingResponseDto.Score.builder()
