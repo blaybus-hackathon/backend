@@ -42,15 +42,15 @@ public class TblPatientLog extends BaseEntity {
 
     @Column(name = "pl_time_wage")
     @Comment("시급")
-    private int timeWage;
+    private double timeWage;
 
     @Column(name = "pl_day_wage")
     @Comment("일급")
-    private int dayWage;
+    private double dayWage;
 
     @Column(name = "pl_week_wage")
     @Comment("주급")
-    private int weekWage;
+    private double weekWage;
 
     // TblPatient 데이블 공통 사항
     @ManyToOne
