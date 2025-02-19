@@ -142,4 +142,7 @@ public class HelperController {
         HelperSearchResponse helperSearchResponse = helperService.helperSearch(helperSearchDTO);
         return ResponseEntity.ok(helperSearchResponse);
     }
+
+    @PostMapping("/save-care")
+    public ResponseEntity<> saveCare(@RequestBody )
 }
