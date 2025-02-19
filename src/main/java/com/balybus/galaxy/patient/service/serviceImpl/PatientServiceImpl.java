@@ -94,7 +94,7 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDto.SavePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(4))
+                .birthYear(patient.getBirthDate().substring(0, 4))
                 .build();
     }
 
@@ -151,7 +151,7 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDto.UpdatePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(4))
+                .birthYear(patient.getBirthDate().substring(0, 4))
                 .build();
     }
 
@@ -218,7 +218,14 @@ public class PatientServiceImpl implements PatientService {
         patientTimeRepository.saveAll(savePatientTimeList);
         patientTimeLogRepository.saveAll(savePatientTimeLogList);
 
-        return null;
+        //5. 요양보호사 추천 리스트 매칭
+
+
+        return PatientResponseDto.RecruitHelper.builder()
+                .patientSeq(patient.getId())
+                .name(patient.getName())
+                .birthYear(patient.getBirthDate().substring(0, 4))
+                .build();
     }
 
     private Map<String, Double> calWage(int wageState, int wage, List<PatientRequestDto.savePatientTimeInfo> timeList){
