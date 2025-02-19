@@ -9,6 +9,7 @@ public enum ExceptionCode {
 
     // 1xxx
     INVALID_REQUEST(1000, "올바르지 않은 요청입니다."),
+    INVALID_ADDRESS(1001, "주소값이 잘못 설정되었습니다."),
 
 
 

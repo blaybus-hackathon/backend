@@ -96,7 +96,7 @@ public class TblPatient extends BaseEntity {
         private String name;
 
         @Column(name = "patient_birth", nullable = false)
-        @Comment("생년월일")
+        @Comment("생년월일(YYYYMMDD)")
         private String birthDate;
 
         @Column(name = "patient_weight")
