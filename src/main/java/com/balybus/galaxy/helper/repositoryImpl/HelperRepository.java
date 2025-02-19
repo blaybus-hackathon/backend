@@ -17,38 +17,38 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
     @Query(value = """
                 select
                     d.helper_seq,
-                    ((d.location_score * 30)
-                        + (d.time_score * 15)
-                        + (d.date_score * 10)
-                        + (((d.work_type)
-                            + (d.welfare)
-                            + (d.care_level)
-                            + (d.dementia_symptom)
-                            + (d.inmate_state)
-                            + (d.gender)
-                            + (d.service_meal)
-                            + (d.service_mobility)
-                            + (d.service_toilet)
-                            + (d.service_daily) / 10) * 20)
-                        + (d.helper_exp * 15)
-                        + (d.cert_score * 5)
-                        + (d.wage_score * 5)) as total_score,
-                    d.location_score,	-- 0~1 / 4로 나눔
-                    d.time_score,		-- 0~1 / 주 단위 요청 시간으로 나눔
-                    d.date_score,		-- 0~1 / 7로 나눔
-                    d.work_type,		-- 0~1 / 선택된 개수로 나눔
-                    d.welfare,			-- 0~1 / 선택된 개수로 나눔
-                    d.care_level,		-- 0~1 / 선택된 개수로 나눔
-                    d.dementia_symptom,	-- 0~1 / 선택된 개수로 나눔
-                    d.inmate_state,		-- 0~1 / 선택된 개수로 나눔
-                    d.gender,			-- 0~1 / 선택된 개수로 나눔
-                    d.service_meal,		-- 0~1 / 선택된 개수로 나눔
-                    d.service_mobility,	-- 0~1 / 선택된 개수로 나눔
-                    d.service_toilet,	-- 0~1 / 선택된 개수로 나눔
-                    d.service_daily,		-- 0~1 / 선택된 개수로 나눔
-                    d.wage_score,		-- 0,1 / 계산된 시금,주급,일급 기준으로 해당 금액보다 적거나 같으면 1, 아니면 0
-                    d.helper_exp,		-- 0,1 / 신규:0 경력:1
-                    d.cert_score		-- 0~1 / 4로 나눔
+                    ((ifnull(d.location_score, 0) * 30)
+                        + (ifnull(d.time_score, 0) * 15)
+                        + (ifnull(d.date_score, 0) * 10)
+                        + (((ifnull(d.work_type, 0))
+                            + (ifnull(d.welfare, 0))
+                            + (ifnull(d.care_level, 0))
+                            + (ifnull(d.dementia_symptom, 0))
+                            + (ifnull(d.inmate_state, 0))
+                            + (ifnull(d.gender, 0))
+                            + (ifnull(d.service_meal, 0))
+                            + (ifnull(d.service_mobility, 0))
+                            + (ifnull(d.service_toilet, 0))
+                            + (ifnull(d.service_daily, 0)) / 10) * 20)
+                        + (ifnull(d.helper_exp, 0) * 15)
+                        + (ifnull(d.cert_score, 0) * 5)
+                        + (ifnull(d.wage_score, 0) * 5)) as total_score,
+                    ifnull(d.location_score, 0) as location_score,	-- 0~1 / 4로 나눔
+                    ifnull(d.time_score, 0) as time_score,		-- 0~1 / 주 단위 요청 시간으로 나눔
+                    ifnull(d.date_score, 0) as date_score,		-- 0~1 / 7로 나눔
+                    ifnull(d.work_type, 0) as work_type,		-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.welfare, 0) as welfare,			-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.care_level, 0) as care_level,		-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.dementia_symptom, 0) as dementia_symptom,	-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.inmate_state, 0) as inmate_state,		-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.gender, 0) as gender,			-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.service_meal, 0) as service_meal,		-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.service_mobility, 0) as service_mobility,	-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.service_toilet, 0) as service_toilet,	-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.service_daily, 0) as service_daily,	-- 0~1 / 선택된 개수로 나눔
+                    ifnull(d.wage_score, 0) as wage_score,		-- 0,1 / 계산된 시금,주급,일급 기준으로 해당 금액보다 적거나 같으면 1, 아니면 0
+                    ifnull(d.helper_exp, 0) as helper_exp,		-- 0,1 / 신규:0 경력:1
+                    ifnull(d.cert_score, 0)	as cert_score	-- 0~1 / 4로 나눔
                 from (select
                     c.*,
                     th2.helper_exp,
@@ -127,5 +127,5 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                 order by d.location_score, total_score desc
                 limit 10
             """, nativeQuery = true)
-    List<MatchingResponseDto.Score> findTop10HelperScores(@Param("plSeq") Long plSeq);
+    List<Object[]> findTop10HelperScores(@Param("plSeq") Long plSeq);
 }
