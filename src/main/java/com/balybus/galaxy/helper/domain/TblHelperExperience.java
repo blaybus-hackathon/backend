@@ -1,6 +1,7 @@
 package com.balybus.galaxy.helper.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.domain.tblCare.TblCare;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -29,6 +29,16 @@ public class TblHelperExperience extends BaseEntity {
     @JoinColumn(name = "helper_seq")
     @Comment("요양 보호사 정보 구분자")
     private TblHelper helper;
+
+    @ManyToOne
+    @JoinColumn(name = "care_seq_work_state")
+    @Comment("어르신 케어항목 구분자 (근무 상태)")
+    private TblCare workState;
+
+    @ManyToOne
+    @JoinColumn(name = "care_seq_patient_grade")
+    @Comment("어르신 케어항목 구분자 (환자 등급)")
+    private TblCare patientGrade;
 
     @Column(name = "filed")
     @Comment("근무지")
