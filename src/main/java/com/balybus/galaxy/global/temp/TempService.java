@@ -1,5 +1,6 @@
 package com.balybus.galaxy.global.temp;
 
+import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
@@ -25,6 +26,7 @@ import java.util.Random;
 public class TempService {
 
     private final SendMailUtils sendMailUtils;
+    private final MatchingServiceImpl matchingService;
 
     // 이메일 인증
     public void authenticationMail(String userEmail) {
@@ -105,5 +107,10 @@ public class TempService {
         Period period = Period.between(birthDate, currentDate);
         // 나이는 Period 객체의 연도를 반환
         return period.getYears();
+    }
+
+
+    public void matching(){
+        matchingService.matchingSystem(1L);
     }
 }

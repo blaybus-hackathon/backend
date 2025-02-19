@@ -8,6 +8,7 @@ import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.member.domain.TblUser;
@@ -52,6 +53,8 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressSecondRepository addressSecondRepository;
     private final TblAddressThirdRepository addressThirdRepository;
 
+    private final MatchingServiceImpl matchingService;
+
     /**
      * 어르신 정보 등록
      * @param userDetails UserDetails:토큰 조회 결과 데이터
@@ -94,7 +97,7 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDto.SavePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(4))
+                .birthYear(patient.getBirthDate().substring(0, 4))
                 .build();
     }
 
@@ -151,7 +154,7 @@ public class PatientServiceImpl implements PatientService {
         return PatientResponseDto.UpdatePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(4))
+                .birthYear(patient.getBirthDate().substring(0, 4))
                 .build();
     }
 
@@ -218,7 +221,16 @@ public class PatientServiceImpl implements PatientService {
         patientTimeRepository.saveAll(savePatientTimeList);
         patientTimeLogRepository.saveAll(savePatientTimeLogList);
 
-        return null;
+        //5. 요양보호사 추천 리스트 매칭
+        matchingService.matchingSystem(patientLog.getId());
+
+
+        return PatientResponseDto.RecruitHelper.builder()
+                .plSeq(patientLog.getId())
+                .patientSeq(patient.getId())
+                .name(patient.getName())
+                .birthYear(patient.getBirthDate().substring(0, 4))
+                .build();
     }
 
     private Map<String, Double> calWage(int wageState, int wage, List<PatientRequestDto.savePatientTimeInfo> timeList){
