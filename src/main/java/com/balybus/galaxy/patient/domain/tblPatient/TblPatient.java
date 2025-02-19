@@ -6,6 +6,7 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblImg.TblImg;
+import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -96,7 +97,7 @@ public class TblPatient extends BaseEntity {
         private String name;
 
         @Column(name = "patient_birth", nullable = false)
-        @Comment("생년월일")
+        @Comment("생년월일(YYYYMMDD)")
         private String birthDate;
 
         @Column(name = "patient_weight")
@@ -114,4 +115,29 @@ public class TblPatient extends BaseEntity {
         @Column(name = "patient_request_contents", length = 255)
         @Comment("기타 요청 사항")
         private String requestContents;
+
+        /* ========================================================
+         * UPDATE
+         * ========================================================*/
+        public void basicUpdate(PatientRequestDto.UpdatePatientInfo dto,TblAddressFirst tblAddressFirst,
+                                TblAddressSecond tblAddressSecond, TblAddressThird tblAddressThird){
+                this.tblAddressFirst = tblAddressFirst;
+                this.tblAddressSecond = tblAddressSecond;
+                this.tblAddressThird = tblAddressThird;
+                this.careLevel = dto.getCareLevel();
+                this.inmateState = dto.getInmateState();
+                this.workType = dto.getWorkType();
+                this.gender = dto.getGender();
+                this.dementiaSymptom = dto.getDementiaSymptom();
+                this.serviceMeal = dto.getServiceMeal();
+                this.serviceToilet = dto.getServiceToilet();
+                this.serviceMobility = dto.getServiceMobility();
+                this.serviceDaily = dto.getServiceDaily();
+                this.name = dto.getName();
+                this.birthDate = dto.getBirthDate();
+                this.weight = dto.getWeight();
+                this.diseases = dto.getDiseases();
+                this.timeNegotiation = dto.getTimeNegotiation();
+                this.requestContents = dto.getRequestContents();
+        }
 }
