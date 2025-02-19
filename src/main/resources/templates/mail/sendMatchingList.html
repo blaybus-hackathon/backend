@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<div>
+    <span>[(${content.content.plName})]님의 매칭 추천 리스트가 생성되었습니다.</span>
+    <h3>매칭 추천 요양보호사는 총 <span th:text="${#lists.size(content.content.contentList)}"></span>명 입니다.</h3>
+    <p th:if="${#lists.size(content.content.contentList) == 0}">
+        지역조건을 충족하는 요양보호사가 없습니다.
+    </p>
+    <ul th:unless="${#lists.size(content.content.contentList) == 0}">
+        <!-- contentList를 반복하면서 각 항목을 출력 -->
+        <li th:each="item : ${content.content.contentList}">
+            <strong><span th:text="${item.name}"></span></strong> <br>
+            <span th:text="${item.gender}"></span> <span th:text="${item.age}"></span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

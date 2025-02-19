@@ -1,5 +1,6 @@
 package com.balybus.galaxy.login.controller;
 
+import com.balybus.galaxy.domain.tblCenter.dto.CenterDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
@@ -121,6 +122,16 @@ public class LoginController {
         return ResponseEntity.ok(helperResponse);
     }
 
+    /**
+     * 센터 등록
+     * @param centerDto CenterDto
+     * @return ResponseEntity<CenterDto>
+     */
+    @PostMapping("/center-register")
+    public ResponseEntity<CenterDto> registerCenter(@RequestBody CenterDto centerDto) {
+        CenterDto registeredCenter = loginService.registerCenter(centerDto);
+        return ResponseEntity.ok(registeredCenter);
+    }
 
     /**
      * 관리자(센터직원) 회원 가입

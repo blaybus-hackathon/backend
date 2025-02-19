@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ContentType {
     AUTHENTICATION("mail/sendTempAuthentication"),
+    MATCHING_LIST("mail/sendMatchingList"),
     ;
 
     private final String uri;

@@ -2,7 +2,6 @@ package com.balybus.galaxy.helper.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.helper.util.StringListConverter;
-import com.balybus.galaxy.helper.util.WageConverter;
 import com.balybus.galaxy.domain.tblImg.TblImg;
 import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.member.domain.TblUser;
@@ -12,7 +11,6 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,7 +46,7 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
 
     @Column(name = "helper_gender")
     @Comment("요양보호사 성별")
-    private Integer gender;
+    private Integer gender; // 0이면 남성, 1이면 여성
 
     @Column(name = "helper_birthday")
     @Comment("요양보호사 생년월일")
@@ -108,6 +106,57 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Column(name = "helper_exp")
     @Comment("간병경력")
     private Boolean is_experienced;
+
+    @Column(name = "helper_time_negotiation")
+    @Comment("요일 시간 가능 여부")
+    private Boolean timeNegotiation;
+
+
+
+    @Column(name = "care_seq_care_level", nullable = false)
+    @Comment("장기요양등급(TblCare)")
+    private int careLevel;
+
+    @Column(name = "care_seq_inmate_state", nullable = false)
+    @Comment("동거인 여부(TblCare)")
+    private int inmateState;
+
+    @Comment("근무종류(TblCare)")
+    @Column(name = "care_seq_work_type", nullable = false)
+    private int workType;
+
+    @Comment("성별(TblCare)")
+    @Column(name = "care_seq_gender", nullable = false)
+    private int careGender; //남성:1 여성:2
+
+    @Comment("복리후생(TblCare)")
+    @Column(name = "care_seq_welfare", nullable = false)
+    private int welfare;
+
+    @Comment("치매증상(TblCare)")
+    @Column(name = "care_seq_dementia_symptom", nullable = false)
+    private int dementiaSymptom;
+
+    @Comment("식사보조(TblCare)")
+    @Column(name = "care_seq_service_meal", nullable = false)
+    private int serviceMeal;
+
+    @Comment("배변보조(TblCare)")
+    @Column(name = "care_seq_service_toilet", nullable = false)
+    private int serviceToilet;
+
+    @Comment("이동보조(TblCare)")
+    @Column(name = "care_seq_service_mobility", nullable = false)
+    private int serviceMobility;
+
+    @Comment("일상생활(TblCare)")
+    @Column(name = "care_seq_service_daily", nullable = false)
+    private int serviceDaily;
+
+
+
+
+
 
 
     /* ==================================================
