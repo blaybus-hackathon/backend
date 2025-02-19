@@ -52,6 +52,7 @@ public enum ExceptionCode {
 
     // 7xxx 관리자
     NOT_FOUND_MANAGER(7000, "해당 관리자 정보를 찾을 수 없습니다."),
+    UNAUTHORIZED_UPDATE(7001, "수정 권한이 없습니다."),
 
     // 8xxx 어르신
     NOT_FOUND_PATIENT(8000, "해당 어르신 정보를 찾을 수 없습니다."),

@@ -114,6 +114,9 @@ public class PatientServiceImpl implements PatientService {
         //2-1. 어르신 데이터 조회
         Optional<TblPatient> patientOpt = patientRepository.findById(dto.getPatientSeq());
         if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
+        TblPatient patient = patientOpt.get();
+        if(!patient.getManager().getId().equals(centerManager.getId()))
+            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
 
         //2-2. 주소 정보 검증
         Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
@@ -124,7 +127,6 @@ public class PatientServiceImpl implements PatientService {
         if(thirdOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
 
         //2-3. 데이터 수정
-        TblPatient patient = patientOpt.get();
         patient.basicUpdate(dto, firstOpt.get(), secondOpt.get(), thirdOpt.get());
 
         //3. 어르신 돌봄 시간 요일 조회 및 삭제
