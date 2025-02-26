@@ -9,6 +9,8 @@ import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedis;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedisRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.mail.ContentType;
@@ -57,6 +59,7 @@ public class LoginServiceImpl implements LoginService {
     private final TblCenterRepository centerRepository;
     private final TblCenterManagerRepository centerManagerRepository;
     private final TblAuthenticationMailRepository authenticationMailRepository;
+    private final TokenRedisRepository tokenRedisRepository;
 
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
@@ -87,7 +90,10 @@ public class LoginServiceImpl implements LoginService {
                     String refreshToken = tokenProvider.refreshToken(login.getEmail());
                     login.updateRefreshToken(refreshToken);
 
-                    // 4. 조회 결과 전달
+                    // 4. redis 에 토큰 저장
+                    tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
+
+                    // 5. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
                             .accessToken(accessToken)
                             .refreshToken(refreshToken)
