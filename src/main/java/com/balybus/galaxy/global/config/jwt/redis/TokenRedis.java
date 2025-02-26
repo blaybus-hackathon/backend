@@ -17,4 +17,11 @@ public class TokenRedis {
     private String accessToken;
 
     private String refreshToken;
+
+    /* ===========================================================
+     * UPDATE
+     * =========================================================== */
+    public void updateAccessToken(String accessToken){
+        this.accessToken = accessToken;
+    }
 }
