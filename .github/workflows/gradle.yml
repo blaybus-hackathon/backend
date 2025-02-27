@@ -2,9 +2,9 @@ name: CD with Gradle
 
 on:
   push:
-    branches: [ "main" ]
+    branches: main
   pull_request:
-    branches: [ "main" ]
+    branches: main
 
 permissions:
   contents: read
@@ -77,9 +77,9 @@ jobs:
       run: |
         aws s3 sync \
           --region ap-northeast-2 \
-          build s3://버킷이름 \
+          build s3://dolbom-s3 \
           --delete
-      working-directory: ./client // 디렉토리 위치 설정
+      working-directory: ./client
 
     - name: Deploy to server
       uses: appleboy/ssh-action@master
