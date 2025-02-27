@@ -8,8 +8,7 @@ public class MemberResponse {
     @Builder
     @Getter
     public static class SignInDto{
-        private String accessToken;
-        private String refreshToken;
+        private String email;
         private RoleType userAuth;
     }
 }

@@ -9,6 +9,9 @@ import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
+import com.balybus.galaxy.global.config.jwt.CookieUtils;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedis;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedisRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.mail.ContentType;
@@ -30,6 +33,7 @@ import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,12 +55,14 @@ public class LoginServiceImpl implements LoginService {
     private final TokenProvider tokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final SendMailUtils sendMailUtils;
+    private final CookieUtils cookieUtils;
 
     private final MemberRepository memberRepository;
     private final HelperRepository helperRepository;
     private final TblCenterRepository centerRepository;
     private final TblCenterManagerRepository centerManagerRepository;
     private final TblAuthenticationMailRepository authenticationMailRepository;
+    private final TokenRedisRepository tokenRedisRepository;
 
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
@@ -74,7 +80,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     @Transactional
-    public MemberResponse.SignInDto signIn(MemberRequest.SignInDto signInDto) {
+    public MemberResponse.SignInDto signIn(MemberRequest.SignInDto signInDto, HttpServletResponse response) {
         if (signInDto != null) {
             // 1. 사용자 조회
             Optional<TblUser> userOpt = memberRepository.findByEmail(signInDto.getUserId());
@@ -87,10 +93,13 @@ public class LoginServiceImpl implements LoginService {
                     String refreshToken = tokenProvider.refreshToken(login.getEmail());
                     login.updateRefreshToken(refreshToken);
 
-                    // 4. 조회 결과 전달
+                    // 4. redis 에 토큰 저장
+                    tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
+                    cookieUtils.saveCookie(response, accessToken);
+
+                    // 5. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
-                            .accessToken(accessToken)
-                            .refreshToken(refreshToken)
+                            .email(login.getEmail())
                             .userAuth(login.getUserAuth())
                             .build();
                 } else {
