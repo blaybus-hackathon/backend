@@ -29,8 +29,8 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.INVALID_REFRESH_
 @Service
 public class TokenProvider {
 
-    private TokenRedisRepository tokenRedisRepository;
-    private CookieUtils cookieUtils;
+    private final TokenRedisRepository tokenRedisRepository;
+    private final CookieUtils cookieUtils;
 
 
     private static final String EMPTY_STRING = "";
@@ -43,12 +43,16 @@ public class TokenProvider {
             @Value("${jwt.issuer}") final String issuer,
             @Value("${jwt.secret-key}") final String secretKey,
             @Value("${jwt.access-expiration-time}") final Long accessExpirationTime,
-            @Value("${jwt.refresh-expiration-time}") final Long refreshExpirationTime
+            @Value("${jwt.refresh-expiration-time}") final Long refreshExpirationTime,
+            final TokenRedisRepository tokenRedisRepository,
+            final CookieUtils cookieUtils
     ) {
         this.issuer = issuer;
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.accessExpirationTime = accessExpirationTime;
         this.refreshExpirationTime = refreshExpirationTime;
+        this.tokenRedisRepository = tokenRedisRepository;
+        this.cookieUtils = cookieUtils;
     }
 
     /**
