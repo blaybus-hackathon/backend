@@ -45,7 +45,7 @@ public class ResizeHandler implements RequestHandler<S3Event, String> {
             S3EventNotificationRecord record = s3event.getRecords().get(0);
             String srcBucket = record.getS3().getBucket().getName(); // 원본 버킷 이름
             String key = record.getS3().getObject().getUrlDecodedKey(); // 객체의 키 (파일 경로 및 이름)
-            String dstBucket = "dolbom-s3-resize"; // 수정된 저장될 버킷 이름
+            String dstBucket = "dolbom-s3"; // 수정된 저장될 버킷 이름
 
 
             // 파일 확장자 추출
