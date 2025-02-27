@@ -57,7 +57,18 @@ jobs:
         cd ./src/main/resources 
         echo "${{ secrets.YML_AWS }}" | sed 's/\\n/\n/g' > application-aws.yml
       shell: bash
-
+      
+    # Gradle을 캐싱 -> 빌드 속도가 증가하는 효과
+    - name: Gradle 캐싱
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+                ${{ runner.os }}-gradle-
+                
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
