@@ -52,6 +52,11 @@ jobs:
         echo "${{ secrets.YML_MAIL }}" | sed 's/\\n/\n/g' > ./application-mail.yml
       shell: bash
       
+    - name: Build with Gradle
+      run: |
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test
+
     #	Access Key와 Secret Access Key를 통해 권한을 확인
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -60,13 +65,10 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # 등록한 Github Secret이 자동으로 불려짐.
         aws-region: ap-northeast-2
 
-    - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./dodom-deploy.zip s3://$S3_BUCKET_NAME/dodom-deploy.zip
-        
-    - name: Build with Gradle
+    - name: Upload JAR to S3
       run: |
-          chmod +x ./gradlew
-          ./gradlew clean bootJar -x test
+        JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
+        aws s3 cp --region ap-northeast-2 "$JAR_FILE" s3://$S3_BUCKET_NAME/
 
     - name: Docker build & push to docker repo
       run: |
