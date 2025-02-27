@@ -1,4 +1,4 @@
-name: CD with Gradle
+name: CI/CD with Gradle
 
 on:
   push:
@@ -92,9 +92,9 @@ jobs:
       run: |
         aws s3 sync \
           --region ap-northeast-2 \
-          build s3://dolbom-s3 \
+          ./build s3://$S3_BUCKET_NAME/ \
           --delete
-      working-directory: ./client
+      working-directory: ./
 
     - name: Deploy to server
       uses: appleboy/ssh-action@master
