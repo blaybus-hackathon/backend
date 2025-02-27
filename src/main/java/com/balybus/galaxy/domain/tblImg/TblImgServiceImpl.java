@@ -1,8 +1,10 @@
 package com.balybus.galaxy.domain.tblImg;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.*;
+import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.FileUploadUtils;
@@ -13,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.net.URL;
+import java.net.URLConnection;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,9 @@ public class TblImgServiceImpl {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    /////////////////////////////////////
+    // 로컬에 이미지 업로드
 
     @Transactional
     public List<Long> uploadImg(MultipartFile[] photoFiles) {
@@ -42,28 +49,48 @@ public class TblImgServiceImpl {
         return imgSeq;
     }
 
-    /**
-     * S3에 이미지 업로드 하기
-     */
-    public String uploadImageToS3(MultipartFile image) throws IOException {
-        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename(); // 고유한 파일 이름 생성
+    public Map<String, String> getPresignedUrl(String prefix, String fileName) {
+        if (!prefix.isEmpty()) {
+            fileName = createPath(prefix, fileName);
+        }
 
-        // 메타데이터 설정
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(image.getContentType());
-        metadata.setContentLength(image.getSize());
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, fileName);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
-        // S3에 파일 업로드 요청 생성
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, image.getInputStream(), metadata);
-
-        // S3에 파일 업로드
-        amazonS3.putObject(putObjectRequest);
-
-        return getPublicUrl(fileName);
+        return Map.of("url", url.toString());
     }
 
-    private String getPublicUrl(String fileName) {
-        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, amazonS3.getRegionName(), fileName);
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(getPresignedUrlExpiration());
+
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString()
+        );
+
+        return generatePresignedUrlRequest;
     }
+
+    private Date getPresignedUrlExpiration() {
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 2;
+        expiration.setTime(expTimeMillis);
+
+        return expiration;
+    }
+
+    private String createFileId() {
+        return UUID.randomUUID().toString();
+    }
+
+    private String createPath(String prefix, String fileName) {
+        String fileId = createFileId();
+        return String.format("%s/%s", prefix, fileId + "-" + fileName);
+    }
+
+    //////////
 
 }
