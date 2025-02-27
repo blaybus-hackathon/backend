@@ -99,7 +99,7 @@ public class LoginServiceImpl implements LoginService {
 
                     // 5. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
-//                            .accessToken(accessToken)
+                            .email(login.getEmail())
                             .userAuth(login.getUserAuth())
                             .build();
                 } else {
