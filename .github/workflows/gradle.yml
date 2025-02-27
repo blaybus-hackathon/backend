@@ -51,13 +51,8 @@ jobs:
         touch ./application-mail.yml 
         echo "${{ secrets.YML_MAIL }}" | sed 's/\\n/\n/g' > ./application-mail.yml
       shell: bash
-      
-    - name: Build with Gradle
-      run: |
-          chmod +x ./gradlew
-          ./gradlew clean bootJar -x test
-          
-    - name: Create application-aws.yml
+
+    - name: Make application-aws.yml
       run: |
         cd ./src/main/resources 
         echo "${{ secrets.YML_AWS }}" | sed 's/\\n/\n/g' > application-aws.yml
@@ -69,6 +64,11 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} 
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
         aws-region: ap-northeast-2
+      
+    - name: Build with Gradle
+      run: |
+          chmod +x ./gradlew
+          ./gradlew clean bootJar -x test
 
     - name: Docker build & push to docker repo
       run: |
