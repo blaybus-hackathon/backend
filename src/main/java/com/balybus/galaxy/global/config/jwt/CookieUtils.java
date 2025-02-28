@@ -36,25 +36,30 @@ public class CookieUtils {
         return Optional.empty();
     }
 
-    public void saveCookie(HttpServletResponse response, String newAccessToken) {
+    public void saveCookie(HttpServletRequest request, HttpServletResponse response, String newAccessToken) {
         // JWT 토큰을 HttpOnly 쿠키로 설정
         ResponseCookie jwtCookie;
         log.info("spring.profiles.active::"+active);
-        if(active.equals("dev")){
-            jwtCookie = ResponseCookie.from("JWT-TOKEN", newAccessToken)
-                    .httpOnly(true)     // 클라이언트에서 쿠키를 읽을 수 없도록 설정
-                    .secure(true)       // HTTPS에서만 전송하도록 설정 (개발 환경에서는 false)
-                    .sameSite("Strict") // SameSite 설정을 통해 CSRF 공격 방어
-                    .path("/")          // 쿠키 경로 설정
-                    .maxAge(Duration.ofDays(7)) // 쿠키 유효 기간 설정 (예: 7일)
-//                .domain(frontDomain)
-                    .build();
-        } else {
+        String userAgent = request.getHeader("User-Agent");
+        log.info("userAgent::{}", userAgent);
+
+        if(active.equals("local")
+                || (userAgent != null && userAgent.contains("PostmanRuntime"))){
             jwtCookie = ResponseCookie.from("JWT-TOKEN", newAccessToken)
                     .httpOnly(true)     // 클라이언트에서 쿠키를 읽을 수 없도록 설정
                     .secure(false)       // HTTPS에서만 전송하도록 설정 (개발 환경에서는 false)
                     .path("/")          // 쿠키 경로 설정
                     .maxAge(Duration.ofDays(7)) // 쿠키 유효 기간 설정 (예: 7일)
+                    .sameSite("Strict")
+                    .build();
+        } else {
+            jwtCookie = ResponseCookie.from("JWT-TOKEN", newAccessToken)
+                    .httpOnly(true)     // 클라이언트에서 쿠키를 읽을 수 없도록 설정
+                    .path("/")          // 쿠키 경로 설정
+                    .maxAge(Duration.ofDays(7)) // 쿠키 유효 기간 설정 (예: 7일)
+                    .sameSite("Strict") // SameSite 설정을 통해 CSRF 공격 방어
+                    .secure(true)       // HTTPS에서만 전송하도록 설정 (개발 환경에서는 false)
+                    .domain(frontDomain)
                     .build();
         }
 

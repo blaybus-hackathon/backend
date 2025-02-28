@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = tokenProvider.getUsername(token);
             } catch (ExpiredTokenException e){
                 // 만료된 토큰 예외
-                username = tokenProvider.replaceAccessToken(response, token);
+                username = tokenProvider.replaceAccessToken(request, response, token);
             } catch (InvalidTokenException e) {
                 // 유효하지 않은 토큰 예외
                 sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());

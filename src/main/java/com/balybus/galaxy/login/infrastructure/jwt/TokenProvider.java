@@ -131,7 +131,7 @@ public class TokenProvider {
     }
 
     @Transactional
-    public String replaceAccessToken(HttpServletResponse response, String accessToken) throws IOException {
+    public String replaceAccessToken(HttpServletRequest request, HttpServletResponse response, String accessToken) throws IOException {
         try{
             // redis 엔티티 조회
             TokenRedis tokenRedis = tokenRedisRepository.findByAccessToken(accessToken).orElseThrow(() -> new InvalidTokenException("다시 로그인 해 주세요."));
@@ -149,7 +149,7 @@ public class TokenProvider {
             String newAccessToken = generateAccessToken(email);
 
             // 쿠키 AccessToken 업데이트
-            cookieUtils.saveCookie(response, newAccessToken);
+            cookieUtils.saveCookie(request, response, newAccessToken);
 
             // redis AccessToken 업데이트
             tokenRedis.updateAccessToken(newAccessToken);
