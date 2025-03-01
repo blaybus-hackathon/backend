@@ -33,6 +33,7 @@ import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +81,7 @@ public class LoginServiceImpl implements LoginService {
      */
     @Override
     @Transactional
-    public MemberResponse.SignInDto signIn(MemberRequest.SignInDto signInDto, HttpServletResponse response) {
+    public MemberResponse.SignInDto signIn(MemberRequest.SignInDto signInDto, HttpServletRequest request, HttpServletResponse response) {
         if (signInDto != null) {
             // 1. 사용자 조회
             Optional<TblUser> userOpt = memberRepository.findByEmail(signInDto.getUserId());
@@ -95,7 +96,7 @@ public class LoginServiceImpl implements LoginService {
 
                     // 4. redis 에 토큰 저장
                     tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
-                    cookieUtils.saveCookie(response, accessToken);
+                    cookieUtils.saveCookie(request, response, accessToken);
 
                     // 5. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
