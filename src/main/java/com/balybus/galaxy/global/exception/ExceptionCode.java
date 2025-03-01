@@ -38,6 +38,7 @@ public enum ExceptionCode {
     SIGNUP_INFO_NULL(4001, "회원 가입 정보를 확인해주세요."),
     LOGIN_FAIL(4002, "아이디/비밀번호를 확인해주세요."),
     CENTER_NOT_FOUND(4003, "센터 정보를 찾을 수 없습니다."),
+    CENTER_EXIST(4004, "센터 정보가 존재합니다."),
     UNAUTHORIZED(4005, "권한이 없습니다."),
 
     // 5xxx 서버에러

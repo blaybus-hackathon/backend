@@ -1,10 +1,11 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
-import com.balybus.galaxy.domain.tblCenter.dto.CenterDto;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailRepository;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
 import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterResponseDto;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
@@ -256,14 +257,53 @@ public class LoginServiceImpl implements LoginService {
 
     /**
      * 센터 등록
-     * @param centerDto CenterDto
+     * @param dto CenterRequestDto.RegisterCenter
      * @return CenterDto
      */
     @Override
     @Transactional
-    public CenterDto registerCenter(CenterDto centerDto) {
-        TblCenter center = centerRepository.save(centerDto.toEntity());
-        return CenterDto.fromEntity(center);
+    public CenterResponseDto.RegisterCenter registerCenter(CenterRequestDto.RegisterCenter dto) {
+        // 1. 센터 정보 조회
+        Optional<TblCenter> centerOpt = centerRepository.findByCenterAddress(dto.getAddress());
+        if(centerOpt.isPresent())
+            throw new BadRequestException(ExceptionCode.CENTER_EXIST);
+
+        //2. 센터 코드 생성
+        String centerCode = createCenterCode();
+
+        //3. 센터 정보 등록
+        Long centerSeq = centerRepository.save(dto.toEntity(centerCode)).getId();
+        return CenterResponseDto.RegisterCenter.builder()
+                .centerSeq(centerSeq)
+                .build();
+    }
+
+    // 센터 코드 생성
+    private String createCenterCode(){
+        int totalLen = 6;
+        int charLen = 2;
+        Random random = new Random();
+        String centerCode;
+
+        while (true) {
+            String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            String nums = "1234567890";
+            StringBuilder sb = new StringBuilder(totalLen);
+            for (int i = 0; i < totalLen; i++) {
+                if(i < charLen){
+                    int index = random.nextInt(characters.length());
+                    sb.append(characters.charAt(index));
+                } else {
+                    int index = random.nextInt(nums.length());
+                    sb.append(nums.charAt(index));
+                }
+            }
+            centerCode = sb.toString();
+            Optional<TblCenter> centerOpt = centerRepository.findByCenterCode(centerCode);
+            if(centerOpt.isEmpty()) break;
+        }
+
+        return centerCode;
     }
 
     /**
@@ -272,7 +312,7 @@ public class LoginServiceImpl implements LoginService {
      * @return CenterManagerResponseDto
      */
     @Transactional
-    public CenterManagerResponseDto registerManager(CenterManagerRequestDto dto) {
+    public CenterManagerResponseDto.SignUpManager signUpManager(CenterManagerRequestDto.SignUpManager dto) {
         // 1. 센터 정보 확인
         Optional<TblCenter> centerOpt = centerRepository.findById(dto.getCenterSeq());
         if(centerOpt.isEmpty())
@@ -282,21 +322,17 @@ public class LoginServiceImpl implements LoginService {
         TblUser savedMember = signUpLogin(dto.getEmail(), dto.getPassword(), RoleType.MANAGER);
 
         // 3. 관리자 정보 등록
-        TblCenterManager manager = centerManagerRepository.save(
+        Long cmSeq = centerManagerRepository.save(
                 TblCenterManager.builder()
                         .member(savedMember)            // 유저
                         .center(centerOpt.get())        // 센터
                         .cmPosition(dto.getPosition())  // 직책
                         .cmName(dto.getName())          // 직원명
-                        .build());
+                        .build()).getId();
 
         // 4. ResponseDTO 반환
-        return CenterManagerResponseDto.builder()
-                .id(manager.getId())  // 관리자 구분자
-                .userSeq(manager.getMember().getId())  // 유저 구분자
-                .centerSeq(manager.getCenter().getId())  // 센터 구분자
-                .position(manager.getCmPosition())  // 직책
-                .name(manager.getCmName())  // 직원명
+        return CenterManagerResponseDto.SignUpManager.builder()
+                .cmSeq(cmSeq)  // 관리자 구분자
                 .build();
     }
 
