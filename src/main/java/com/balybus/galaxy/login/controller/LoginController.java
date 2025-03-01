@@ -19,6 +19,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -69,8 +71,8 @@ public class LoginController {
             @ApiResponse(responseCode = "4002", description = "아이디/비밀번호 불일치",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto) {
-        return ResponseEntity.ok().body(loginService.signIn(dto));
+    public ResponseEntity<?> signIn(@RequestBody MemberRequest.SignInDto dto, HttpServletRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok().body(loginService.signIn(dto, request, response));
     }
 
     /**
