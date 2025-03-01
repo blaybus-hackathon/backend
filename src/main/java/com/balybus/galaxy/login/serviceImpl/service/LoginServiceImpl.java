@@ -312,7 +312,7 @@ public class LoginServiceImpl implements LoginService {
      * @return CenterManagerResponseDto
      */
     @Transactional
-    public CenterManagerResponseDto registerManager(CenterManagerRequestDto dto) {
+    public CenterManagerResponseDto.SignUpManager signUpManager(CenterManagerRequestDto.SignUpManager dto) {
         // 1. 센터 정보 확인
         Optional<TblCenter> centerOpt = centerRepository.findById(dto.getCenterSeq());
         if(centerOpt.isEmpty())
@@ -322,21 +322,17 @@ public class LoginServiceImpl implements LoginService {
         TblUser savedMember = signUpLogin(dto.getEmail(), dto.getPassword(), RoleType.MANAGER);
 
         // 3. 관리자 정보 등록
-        TblCenterManager manager = centerManagerRepository.save(
+        Long cmSeq = centerManagerRepository.save(
                 TblCenterManager.builder()
                         .member(savedMember)            // 유저
                         .center(centerOpt.get())        // 센터
                         .cmPosition(dto.getPosition())  // 직책
                         .cmName(dto.getName())          // 직원명
-                        .build());
+                        .build()).getId();
 
         // 4. ResponseDTO 반환
-        return CenterManagerResponseDto.builder()
-                .id(manager.getId())  // 관리자 구분자
-                .userSeq(manager.getMember().getId())  // 유저 구분자
-                .centerSeq(manager.getCenter().getId())  // 센터 구분자
-                .position(manager.getCmPosition())  // 직책
-                .name(manager.getCmName())  // 직원명
+        return CenterManagerResponseDto.SignUpManager.builder()
+                .cmSeq(cmSeq)  // 관리자 구분자
                 .build();
     }
 

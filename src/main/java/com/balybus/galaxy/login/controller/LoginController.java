@@ -2,7 +2,6 @@ package com.balybus.galaxy.login.controller;
 
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
-import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
@@ -130,7 +129,7 @@ public class LoginController {
      * @return ResponseEntity<CenterDto>
      */
     @PostMapping("/center-register")
-    @Operation(summary = "센터 등록 API", description = "사용자가 아이디와 비밀번호로 로그인합니다.")
+    @Operation(summary = "센터 등록 API", description = "센터 정보를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "등록 성공",
                     content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
@@ -147,8 +146,17 @@ public class LoginController {
      * @return ResponseEntity<CenterManagerResponseDto>
      */
     @PostMapping("/up/manager")
-    public ResponseEntity<CenterManagerResponseDto> managerInfo(@RequestBody CenterManagerRequestDto signUpDTO) {
-        return ResponseEntity.ok(loginService.registerManager(signUpDTO));
+    @Operation(summary = "관리자(센터직원) 회원 가입 API", description = "관리자(센터직원) 개인 계정 회원가입")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원가입 성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
+            @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4003", description = "사용자정의에러코드:센터 정보를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> signUpManager(@RequestBody CenterManagerRequestDto.SignUpManager signUpDTO) {
+        return ResponseEntity.ok().body(loginService.signUpManager(signUpDTO));
     }
 
 }

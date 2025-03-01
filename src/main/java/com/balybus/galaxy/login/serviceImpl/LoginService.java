@@ -2,6 +2,8 @@ package com.balybus.galaxy.login.serviceImpl;
 
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenter.dto.CenterResponseDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailResponseDto;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
@@ -17,5 +19,6 @@ public interface LoginService {
     MailResponseDto.AuthenticationMail authenticationMail(MailRequestDto.AuthenticationMail dto);
     MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto);
     CenterResponseDto.RegisterCenter registerCenter(CenterRequestDto.RegisterCenter centerDto);
+    CenterManagerResponseDto.SignUpManager signUpManager(CenterManagerRequestDto.SignUpManager centerDto);
 
 }
