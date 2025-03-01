@@ -1,6 +1,6 @@
 package com.balybus.galaxy.login.controller;
 
-import com.balybus.galaxy.domain.tblCenter.dto.CenterDto;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
@@ -130,9 +130,15 @@ public class LoginController {
      * @return ResponseEntity<CenterDto>
      */
     @PostMapping("/center-register")
-    public ResponseEntity<CenterDto> registerCenter(@RequestBody CenterDto centerDto) {
-        CenterDto registeredCenter = loginService.registerCenter(centerDto);
-        return ResponseEntity.ok(registeredCenter);
+    @Operation(summary = "센터 등록 API", description = "사용자가 아이디와 비밀번호로 로그인합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "등록 성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class))),
+            @ApiResponse(responseCode = "4004", description = "사용자정의에러코드:같은 주소의 센터가 존재",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> registerCenter(@RequestBody CenterRequestDto.RegisterCenter centerDto) {
+        return ResponseEntity.ok().body(loginService.registerCenter(centerDto));
     }
 
     /**

@@ -28,6 +28,10 @@ public class TblCenter extends BaseEntity {
     @JoinColumn(name = "img_seq")
     private TblImg img;
 
+    @Comment(value="센터코드")
+    @Column(length = 6, nullable = false, unique = true)
+    private String centerCode;          //센터코드
+
     @Comment(value="센터명")
     @Column(length = 50, nullable = false)
     private String centerName;          //센터명
