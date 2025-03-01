@@ -12,7 +12,7 @@ public class MailRequestDto {
     @Getter
     @Builder
     public static class CheckAuthenticationCode{
-        private Long amSeq;
+        private Long mailSeq;
         private String email;
         private String code;
     }

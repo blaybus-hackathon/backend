@@ -168,7 +168,7 @@ public class LoginServiceImpl implements LoginService {
     @Transactional
     public MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto) {
         //1. 전송테이블에서 seq, 이메일, 인증코드로 데이터 조회
-        Optional<TblAuthenticationMail> mailOpt = authenticationMailRepository.findByIdAndEmailAndCode(dto.getAmSeq(), dto.getEmail(), dto.getCode());
+        Optional<TblAuthenticationMail> mailOpt = authenticationMailRepository.findByIdAndEmailAndCode(dto.getMailSeq(), dto.getEmail(), dto.getCode());
         boolean checker = mailOpt.isPresent();
 
         //2. 조회 결과가 있는 경우, 메일 데이터 삭제
