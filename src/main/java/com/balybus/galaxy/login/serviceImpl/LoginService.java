@@ -20,5 +20,6 @@ public interface LoginService {
     MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto);
     CenterResponseDto.RegisterCenter registerCenter(CenterRequestDto.RegisterCenter centerDto);
     CenterManagerResponseDto.SignUpManager signUpManager(CenterManagerRequestDto.SignUpManager centerDto);
+    MemberResponse.FindEmail findEmail(String dto);
 
 }

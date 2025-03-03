@@ -336,4 +336,20 @@ public class LoginServiceImpl implements LoginService {
                 .build();
     }
 
+    /**
+     * 이메일 찾기
+     * @param email String
+     * @return MemberResponse.FindEmail
+     */
+    @Override
+    public MemberResponse.FindEmail findEmail(String email) {
+        //1. 이메일 등록 여부 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(email);
+        //2. 결과 반환
+        return MemberResponse.FindEmail.builder()
+                .code(userOpt.isPresent() ? 200 : 404)
+                .result(userOpt.isPresent() ? "가입된 이메일입니다." : "미가입한 이메일입니다.")
+                .build();
+    }
+
 }

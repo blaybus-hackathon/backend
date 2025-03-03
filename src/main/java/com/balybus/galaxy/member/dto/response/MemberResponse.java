@@ -11,4 +11,10 @@ public class MemberResponse {
         private String email;
         private RoleType userAuth;
     }
+    @Builder
+    @Getter
+    public static class FindEmail{
+        private int code;
+        private String result;
+    }
 }
