@@ -21,6 +21,7 @@ public class CareResponseDto {
         private final List<TblCareDto> serviceToiletList;     // 어르신 필요 서비스 - 배변보조
         private final List<TblCareDto> serviceMobilityList;   // 어르신 필요 서비스 - 이동보조
         private final List<TblCareDto> serviceDailyList;      // 어르신 필요 서비스 - 일상생활
+        private final List<TblCareDto> gender;                // 성별
     }
     @Getter
     @Builder
@@ -45,5 +46,6 @@ public class CareResponseDto {
         private List<TblCareDto> serviceToiletList;     // 어르신 필요 서비스 - 배변보조
         private List<TblCareDto> serviceMobilityList;   // 어르신 필요 서비스 - 이동보조
         private List<TblCareDto> serviceDailyList;      // 어르신 필요 서비스 - 일상생활
+        private List<TblCareDto> gender;                // 성별
     }
 }
