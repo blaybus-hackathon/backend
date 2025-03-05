@@ -1,6 +1,7 @@
 package com.balybus.galaxy.login.serviceImpl.service;
 
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
+import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailMsgEnum;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailRepository;
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
 import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
@@ -345,11 +346,80 @@ public class LoginServiceImpl implements LoginService {
     public MemberResponse.FindEmail findEmail(String email) {
         //1. 이메일 등록 여부 조회
         Optional<TblUser> userOpt = memberRepository.findByEmail(email);
-        //2. 결과 반환
+        TblAuthenticationMailMsgEnum state = userOpt.isPresent() ?
+                TblAuthenticationMailMsgEnum.REGISTED_EMAIL
+                : TblAuthenticationMailMsgEnum.UNREGISTED_EMAIL;
+
+        //2. 카카오 로그인 결과 확인
+
+        //3. 결과 반환
         return MemberResponse.FindEmail.builder()
-                .code(userOpt.isPresent() ? 200 : 404)
-                .result(userOpt.isPresent() ? "가입된 이메일입니다." : "미가입한 이메일입니다.")
+                .code(state.getCode())
+                .result(state.getMsg())
                 .build();
+    }
+
+    /**
+     * 비밀번호 찾기
+     * @param email String
+     * @return MemberResponse.FindPwd
+     */
+    @Override
+    @Transactional
+    public MemberResponse.FindPwd findPwd(String email) {
+        //1. 조회 결과
+        TblAuthenticationMailMsgEnum state = TblAuthenticationMailMsgEnum.UNREGISTED_EMAIL;
+
+        //2. 이메일 등록 여부 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(email);
+        if(userOpt.isPresent()){
+            TblUser userEntity = userOpt.get();
+            //2-1. SNS 로그인 여부 판독
+            //2-2. SNS 로그인의 경우, SNS 로그인 사실 전달
+
+
+            //2-3. SNS 로그인이 아닌 경우, 입력한 이메일로 임시비밀번호 전달
+            state = TblAuthenticationMailMsgEnum.REGISTED_EMAIL;
+            //2-3-1. 임시 비밀번호 생성
+            String tempPwd = createTempPwd();
+            //2-3-2. 임시 비밀번호 DB 저장
+            userEntity.updatePwd(tempPwd);
+            //2-3-3. 임시 비밀번호 메일 전송
+            SendMailRequest request = SendMailRequest.builder()
+                    .toMail(userEntity.getEmail())
+                    .title("임시 비밀번호 발급")
+                    .fromName("은하수 개발단")
+                    .contentType(ContentType.TEMP_PWD)
+                    .build();
+            ContentDto<String> contentDto = new ContentDto<>(tempPwd);
+            try {
+                sendMailUtils.sendMail(request, contentDto);
+            } catch (UnsupportedEncodingException | MessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        //5. 결과 반환
+        return MemberResponse.FindPwd.builder()
+                .code(state.getCode())
+                .result(state.getMsg())
+                .build();
+    }
+
+    /**
+     * 임시 비밀번호 생성
+     * @return String
+     */
+    private String createTempPwd(){
+        int length = 12;
+        String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(characters.length());
+            sb.append(characters.charAt(index));
+        }
+        return sb.toString();
     }
 
 }

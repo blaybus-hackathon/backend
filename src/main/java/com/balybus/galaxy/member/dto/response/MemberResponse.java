@@ -17,4 +17,10 @@ public class MemberResponse {
         private int code;
         private String result;
     }
+    @Builder
+    @Getter
+    public static class FindPwd{
+        private int code;
+        private String result;
+    }
 }

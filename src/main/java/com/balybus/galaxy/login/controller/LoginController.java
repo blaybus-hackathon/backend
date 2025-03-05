@@ -179,4 +179,21 @@ public class LoginController {
         return ResponseEntity.ok().body(loginService.findEmail(email));
     }
 
+    /**
+     * 비밀번호 찾기(임시 비밀번호 발급)
+     * @param email String
+     * @return ResponseEntity
+     */
+    @GetMapping("/find-pwd/{email}")
+    @Operation(summary = "로그인 비밀번호 찾기 API", description = "로그인 비밀번호를 찾습니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "사용자정의코드:가입된 이메일",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.FindEmail.class))),
+            @ApiResponse(responseCode = "404", description = "사용자정의에러코드:미가입된 이메일",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.FindEmail.class)))
+    })
+    public ResponseEntity<?> findPwd(@PathVariable String email) {
+        return ResponseEntity.ok().body(loginService.findPwd(email));
+    }
+
 }
