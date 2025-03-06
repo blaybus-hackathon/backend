@@ -1,6 +1,5 @@
 package com.balybus.galaxy.domain.tblImg.dto;
 
-import com.balybus.galaxy.login.domain.type.RoleType;
 import lombok.Builder;
 import lombok.Getter;
 
