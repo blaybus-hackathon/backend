@@ -31,8 +31,12 @@ public class TblImgServiceImpl {
     private String bucket;
 
     /////////////////////////////////////
-    // 로컬에 이미지 업로드
 
+    /**
+     * 로컬 이미지 등록
+     * @param photoFiles MultipartFile[]
+     * @return List<Long>
+     */
     @Transactional
     public List<Long> uploadImg(MultipartFile[] photoFiles) {
         List<Long> imgSeq = new ArrayList<>();

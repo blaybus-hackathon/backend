@@ -13,8 +13,13 @@ public class ImgRequestDto {
     }
     @Data
     public static class uploadUserImg{
-        private MultipartFile[] photoFiles;     // 첨부파일
-        private Long seq;                       //유저 구분자(요양보호사:tblHelper, 관리자:tblCenterManager, 어르신:tblPatient)
+        private MultipartFile[] photoFiles;     //첨부파일
+        private String fileName;                //파일명
+
+        private Long helperSeq;                 //요양보호사 구분자(요양보호사:tblHelper)
+        private Long managerSeq;                //관리자 구분자(관리자:tblCenterManager)
+        private Long patientSeq;                //어르신 구분자(어르신:tblPatient)
+
         private RoleType imgOwnerAuth;          //이미지 주체자 권한(요양보호사:MEMBER, 관리자:MANAGER, 어르신:PATIENT)
     }
 
