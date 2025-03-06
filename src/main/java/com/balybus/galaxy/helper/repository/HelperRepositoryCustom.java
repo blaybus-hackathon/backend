@@ -1,4 +1,4 @@
-package com.balybus.galaxy.helper.repositoryImpl;
+package com.balybus.galaxy.helper.repository;
 
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.dto.request.HelperSearchRequest;

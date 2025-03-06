@@ -22,8 +22,11 @@ import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
+import com.balybus.galaxy.helper.domain.TblHelperCert;
+import com.balybus.galaxy.helper.repository.HelperCertRepository;
+import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
@@ -43,6 +46,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -65,6 +70,7 @@ public class LoginServiceImpl implements LoginService {
     private final TblCenterManagerRepository centerManagerRepository;
     private final TblAuthenticationMailRepository authenticationMailRepository;
     private final TokenRedisRepository tokenRedisRepository;
+    private final HelperCertRepository helperCertRepository;
 
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
@@ -237,21 +243,48 @@ public class LoginServiceImpl implements LoginService {
                     .gender(signUpRequest.getGender())
                     .birthday(signUpRequest.getBirthday())
                     .addressDetail(signUpRequest.getAddressDetail())
-                    .essentialCertNo(signUpRequest.getEssentialCertNo())
-                    .careCertNo(signUpRequest.getCareCertNo())
-                    .nurseCertNo(signUpRequest.getNurseCertNo())
-                    .postPartumCertNo(signUpRequest.getPostPartumCertNo())
-                    .helperOtherCerts(signUpRequest.getHelperOtherCerts())
                     .carOwnYn(signUpRequest.isCarOwnYn())
                     .eduYn(signUpRequest.isEduYn())
                     .build();
             helperRepository.save(helper);
         }
 
+        // 3. 요양 보호사 자격증 별로 따로 정보 저장
+        if(helper != null) {
+            List<HelperCertDTO> certList = new ArrayList<>();
+            certList.add(signUpRequest.getEssentialCertNo());
+            certList.add(signUpRequest.getCareCertNo());
+            certList.add(signUpRequest.getNurseCertNo());
+            certList.add(signUpRequest.getPostPartumCertNo());
+            certList.add(signUpRequest.getHelperOtherCerts());
+            for(HelperCertDTO cert : certList) {
+                helperCertRepository.save(makeCertTbl(cert.getCertName(),
+                        helper,
+                        cert.getCertNum(),
+                        cert.getCertDateIssue(),
+                        cert.getCertSerialNum()));
+            }
+        }
+
+
         return TblHelperResponse.builder()
                 .name(helper.getName())
                 .phone(helper.getPhone())
                 .addressDetail(helper.getAddressDetail())
+                .build();
+    }
+
+    public TblHelperCert makeCertTbl(String name,
+                                     TblHelper tblHelper,
+                                     String certNum,
+                                     Integer certDateIssue,
+                                     Integer certSerialNum) {
+        return TblHelperCert.builder()
+                .tblHelper(tblHelper)
+                .certName(name)
+                .certNum(certNum)
+                .certDateIssue(certDateIssue)
+                .certSerialNum(certSerialNum)
                 .build();
     }
 

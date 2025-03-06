@@ -6,17 +6,12 @@ import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
-import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.domain.TblHelperExperience;
-import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
-import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
+import com.balybus.galaxy.helper.domain.*;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
-import com.balybus.galaxy.helper.repositoryImpl.HelperExperienceRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperWorkLocationRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperWorkTimeRepository;
+import com.balybus.galaxy.helper.repository.*;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -42,6 +37,7 @@ public class HelperServiceImpl implements HelperService {
     private final HelperRepository helperRepository;
     private final MemberRepository memberRepository;
 
+    private final HelperCertRepository helperCertRepository;
     private final HelperWorkLocationRepository helperWorkLocationRepository;
     private final HelperWorkTimeRepository helperWorkTimeRepository;
     private final HelperExperienceRepository helperExperienceRepository;
@@ -60,17 +56,25 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
+        List<TblHelperCert> certificates = helperCertRepository.findAllById(Collections.singleton(tblHelper.getId()));
+        List<HelperCertDTO> certDTOList = new ArrayList<>();
+
+        for(TblHelperCert tblHelperCert : certificates) {
+            certDTOList.add(HelperCertDTO.builder()
+                    .certName(tblHelperCert.getCertName())
+                    .certNum(tblHelperCert.getCertNum())
+                    .certDateIssue(tblHelperCert.getCertDateIssue())
+                    .certSerialNum(tblHelperCert.getCertSerialNum())
+                    .build());
+        }
+
         return HelperResponse.builder()
                 .id(tblHelper.getId())
                 .userEmail(tblUser.getEmail())
                 .name(tblHelper.getName())
                 .phone(tblHelper.getPhone())
                 .addressDetail(tblHelper.getAddressDetail())
-                .essentialCertNo(tblHelper.getEssentialCertNo())
-                .careCertNo(tblHelper.getCareCertNo())
-                .nurseCertNo(tblHelper.getNurseCertNo())
-                .postPartumCertNo(tblHelper.getPostPartumCertNo())
-                .helperOtherCerts(tblHelper.getHelperOtherCerts())
+                .certificates(certDTOList)
                 .carOwnYn(tblHelper.isCarOwnYn())
                 .eduYn(tblHelper.isEduYn())
                 .wage(tblHelper.getWage())
@@ -90,12 +94,21 @@ public class HelperServiceImpl implements HelperService {
 
         tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
         tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
-        tblHelper.setEssentialCertNo(helperProfileDTO.getEssentialCertNo());
-        tblHelper.setCareCertNo(helperProfileDTO.getCareCertNo());
-        tblHelper.setNurseCertNo(helperProfileDTO.getNurseCertNo());
-        tblHelper.setPostPartumCertNo(helperProfileDTO.getPostPartumCertNo());
-        tblHelper.setHelperOtherCerts(helperProfileDTO.getHelperOtherCerts());
 
+        List<TblHelperCert> certificates = helperCertRepository.findAllById(tblHelper.getId());
+
+        for(HelperCertDTO helperCertDTO : helperProfileDTO.getCertificates()) {
+            for(TblHelperCert certificate : certificates) {
+                if(helperCertDTO.getCertName().equals(certificate.getCertName())) {
+                    certificate.setCertNum(helperCertDTO.getCertNum());
+                    certificate.setCertDateIssue(helperCertDTO.getCertDateIssue());
+                    certificate.setCertSerialNum(helperCertDTO.getCertSerialNum());
+                    break;
+                }
+            }
+        }
+
+        helperCertRepository.saveAll(certificates);
         helperRepository.save(tblHelper);
     }
 
