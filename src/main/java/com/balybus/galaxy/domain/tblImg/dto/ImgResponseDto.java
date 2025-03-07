@@ -19,6 +19,5 @@ public class ImgResponseDto {
     @Builder
     public static class UploadUserImg{
         private Long imgSeq;            // 이미지 구분자
-        private String preSignedUrl;  // PreSigned URL
     }
 }
