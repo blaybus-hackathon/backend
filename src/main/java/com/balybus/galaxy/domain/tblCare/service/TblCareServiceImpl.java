@@ -34,6 +34,7 @@ public class TblCareServiceImpl implements TblCareService{
                 .serviceToiletList(careRepository.findByCare_IdAndCareYnTrue(TblCareTopEnum.SERVICE_TOILET.getCareSeq()).stream().map(TblCareDto::new).toList())     // 어르신 필요 서비스 - 배변보조
                 .serviceMobilityList(careRepository.findByCare_IdAndCareYnTrue(TblCareTopEnum.SERVICE_MOBILITY.getCareSeq()).stream().map(TblCareDto::new).toList())   // 어르신 필요 서비스 - 이동보조
                 .serviceDailyList(careRepository.findByCare_IdAndCareYnTrue(TblCareTopEnum.SERVICE_DAILY.getCareSeq()).stream().map(TblCareDto::new).toList())      // 어르신 필요 서비스 - 일상생활
+                .gender(careRepository.findByCare_IdAndCareYnTrue(TblCareTopEnum.GENDER.getCareSeq()).stream().map(TblCareDto::new).toList())      // 성별
                 .build();
     }
     @Override
@@ -62,6 +63,7 @@ public class TblCareServiceImpl implements TblCareService{
         setterMap.put(TblCareTopEnum.SERVICE_TOILET, CareResponseDto.GetRequestCodeList::setServiceToiletList);
         setterMap.put(TblCareTopEnum.SERVICE_MOBILITY, CareResponseDto.GetRequestCodeList::setServiceMobilityList);
         setterMap.put(TblCareTopEnum.SERVICE_DAILY, CareResponseDto.GetRequestCodeList::setServiceDailyList);
+        setterMap.put(TblCareTopEnum.GENDER, CareResponseDto.GetRequestCodeList::setGender);
 
         // 데이터를 가져오는 공통 로직
         Function<TblCareTopEnum, List<TblCareDto>> fetchCareList =
