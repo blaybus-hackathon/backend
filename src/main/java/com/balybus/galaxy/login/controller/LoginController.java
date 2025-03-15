@@ -37,9 +37,13 @@ public class LoginController {
 
     /**
      * 엑세스 토큰 재발급
-     * @param refreshTokenDTO
-     * @return 액세스 토큰
      */
+    @Operation(summary = "액세스 토큰 재발급", description = "리프레시 토큰을 사용하여 새 액세스 토큰을 발급합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "새 액세스 토큰 발급 성공",
+                    content = @Content(schema = @Schema(implementation = AccessTokenResponse.class))),
+            @ApiResponse(responseCode = "2003", description = "리프레쉬 토큰을 확인해주세요.")
+    })
     @GetMapping("/token/access-token")
     public ResponseEntity<AccessTokenResponse> renewAccessToken(@RequestBody RefreshTokenDTO refreshTokenDTO) {
         String accessToken = loginService.renewAccessToken(refreshTokenDTO);
@@ -48,9 +52,14 @@ public class LoginController {
     }
 
     /**
-     * 레프레시 토큰 재발급
-     * @return 리프레시 토큰
+     * 리프레시 토큰 재발급
      */
+    @Operation(summary = "리프레시 토큰 재발급", description = "새로운 리프레시 토큰을 발급합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "새 리프레시 토큰 발급 성공",
+                    content = @Content(schema = @Schema(implementation = RefreshTokenResponse.class))),
+            @ApiResponse(responseCode = "2003", description = "리프레쉬 토큰을 확인해주세요. ")
+    })
     @GetMapping("/token/refresh-token")
     public ResponseEntity<RefreshTokenResponse> refreshToken() {
         String refreshToken = loginService.getRefreshToken();
@@ -111,9 +120,14 @@ public class LoginController {
 
     /**
      * 요양 보호사 회원 가입
-     * @param signUpDTO SignUpDTO
-     * @return ResponseEntity<TblHelperResponse>
      */
+    @Operation(summary = "요양 보호사 회원 가입", description = "요양 보호사 회원 정보를 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 가입 성공",
+                    content = @Content(schema = @Schema(implementation = TblHelperResponse.class))),
+            @ApiResponse(responseCode = "4001", description = "회원가입 정보를 확인해 주세요."),
+            @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.")
+    })
     @PutMapping("/up/helper")
     public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
         if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {

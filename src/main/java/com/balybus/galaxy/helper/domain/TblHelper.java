@@ -37,7 +37,7 @@ public class TblHelper extends BaseEntity implements ChangeProfileImg {
     @Comment("요양보호사 이름")
     private String name;
 
-    @Column(name = "helper_tel", length = 11)
+    @Column(name = "helper_tel", length = 13)
     @Comment("요양보호사 연락처")
     private String phone;
 
