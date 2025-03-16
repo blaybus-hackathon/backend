@@ -1,16 +1,20 @@
 package com.balybus.galaxy.helper.controller;
 
+import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -143,5 +147,13 @@ public class HelperController {
     public ResponseEntity<HelperSearchResponse> searchHelper(@RequestBody HelperSearchDTO helperSearchDTO) {
         HelperSearchResponse helperSearchResponse = helperService.helperSearch(helperSearchDTO);
         return ResponseEntity.ok(helperSearchResponse);
+    }
+
+    @PostMapping("/certi-verify")
+    public ResponseEntity<Map<String, String>> certiVerify(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody List<HelperCertDTO> helperCertDTO) {
+        Map<String, String> result = helperService.saveCertificateByQNet(helperCertDTO, userDetails);
+        return ResponseEntity.ok(result);
     }
 }

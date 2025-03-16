@@ -4,6 +4,7 @@ import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
@@ -24,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.SIGNUP_INFO_NULL;
 
@@ -123,17 +126,17 @@ public class LoginController {
      */
     @Operation(summary = "요양 보호사 회원 가입", description = "요양 보호사 회원 정보를 등록합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "회원 가입 성공",
+            @ApiResponse(responseCode = "200", description = "회원 가입 성공, 유효하지 않은 자격증을 반환합니다.",
                     content = @Content(schema = @Schema(implementation = TblHelperResponse.class))),
             @ApiResponse(responseCode = "4001", description = "회원가입 정보를 확인해 주세요."),
             @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.")
     })
     @PutMapping("/up/helper")
-    public ResponseEntity<TblHelperResponse> signUp(@RequestBody SignUpDTO signUpDTO) {
+    public ResponseEntity<List<HelperCertDTO>> signUp(@RequestBody SignUpDTO signUpDTO) {
         if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
             throw new BadRequestException(SIGNUP_INFO_NULL);
         }
-        TblHelperResponse helperResponse = loginService.signUp(signUpDTO);
+        List<HelperCertDTO> helperResponse = loginService.signUp(signUpDTO);
         return ResponseEntity.ok(helperResponse);
     }
 

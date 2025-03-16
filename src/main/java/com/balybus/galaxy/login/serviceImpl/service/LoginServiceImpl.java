@@ -25,6 +25,7 @@ import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.domain.TblHelperCert;
 import com.balybus.galaxy.helper.repository.HelperCertRepository;
 import com.balybus.galaxy.helper.repository.HelperRepository;
+import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
@@ -71,6 +72,7 @@ public class LoginServiceImpl implements LoginService {
     private final TblAuthenticationMailRepository authenticationMailRepository;
     private final TokenRedisRepository tokenRedisRepository;
     private final HelperCertRepository helperCertRepository;
+    private final HelperServiceImpl helperServiceImpl;
 
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
@@ -228,7 +230,7 @@ public class LoginServiceImpl implements LoginService {
      * @param signUpRequest SignUpDTO
      * @return TblHelperResponse
      */
-    public TblHelperResponse signUp(SignUpDTO signUpRequest) {
+    public List<HelperCertDTO> signUp(SignUpDTO signUpRequest) {
         // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
         TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType());
 
@@ -249,7 +251,9 @@ public class LoginServiceImpl implements LoginService {
             helperRepository.save(helper);
         }
 
-        // 3. 요양 보호사 자격증 별로 따로 정보 저장
+        // 3. 요양 보호사 자격증 별로 따로 정보 저장 + 요양 보호사 자격증 진위 여부 검사 -> Q-net
+        List<HelperCertDTO> invalidCertList = new ArrayList<>();
+
         if(helper != null) {
             List<HelperCertDTO> certList = new ArrayList<>();
             certList.add(signUpRequest.getEssentialCertNo());
@@ -257,7 +261,23 @@ public class LoginServiceImpl implements LoginService {
             certList.add(signUpRequest.getNurseCertNo());
             certList.add(signUpRequest.getPostPartumCertNo());
             certList.add(signUpRequest.getHelperOtherCerts());
+
+            String name = signUpRequest.getName();
+            String birthday = signUpRequest.getBirthday();
             for(HelperCertDTO cert : certList) {
+                String checkCertVerify = helperServiceImpl.checkCertificate(
+                        name,
+                        birthday,
+                        cert.getCertNum(),
+                        String.valueOf(cert.getCertDateIssue()),
+                        String.valueOf(cert.getCertSerialNum())
+                );
+                if(checkCertVerify.equals("NOT_FOUND") ||
+                    checkCertVerify.equals("UNKNOWN")
+                ) {
+                    invalidCertList.add(cert);
+                    continue;
+                }
                 helperCertRepository.save(makeCertTbl(cert.getCertName(),
                         helper,
                         cert.getCertNum(),
@@ -266,12 +286,7 @@ public class LoginServiceImpl implements LoginService {
             }
         }
 
-
-        return TblHelperResponse.builder()
-                .name(helper.getName())
-                .phone(helper.getPhone())
-                .addressDetail(helper.getAddressDetail())
-                .build();
+        return invalidCertList;
     }
 
     public TblHelperCert makeCertTbl(String name,
