@@ -1,7 +1,9 @@
 package com.balybus.galaxy.login.controller;
 
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterResponseDto;
 import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerRequestDto;
+import com.balybus.galaxy.domain.tblCenterManager.dto.CenterManagerResponseDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.utils.mail.dto.MailRequestDto;
 import com.balybus.galaxy.global.utils.mail.dto.MailResponseDto;
