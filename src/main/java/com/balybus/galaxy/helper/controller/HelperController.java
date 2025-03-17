@@ -139,6 +139,11 @@ public class HelperController {
         return ResponseEntity.ok(helperExperienceResponse);
     }
 
+    /**
+     * 요양 보호사 조회
+     * @param helperSearchDTO
+     * @return
+     */
     @PostMapping("/search-helper")
     public ResponseEntity<HelperSearchResponse> searchHelper(@RequestBody HelperSearchDTO helperSearchDTO) {
         HelperSearchResponse helperSearchResponse = helperService.helperSearch(helperSearchDTO);
