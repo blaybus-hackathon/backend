@@ -7,7 +7,7 @@ import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.global.utils.mail.dto.contents.MailMatchingDto;
 import com.balybus.galaxy.domain.tblMatching.dto.MatchingResponseDto;
 import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
+import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLogRepository;
 import jakarta.mail.MessagingException;

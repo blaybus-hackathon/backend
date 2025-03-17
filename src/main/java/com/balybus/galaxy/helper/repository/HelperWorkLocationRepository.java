@@ -1,4 +1,4 @@
-package com.balybus.galaxy.helper.repositoryImpl;
+package com.balybus.galaxy.helper.repository;
 
 import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
 import org.springframework.data.jpa.repository.JpaRepository;
