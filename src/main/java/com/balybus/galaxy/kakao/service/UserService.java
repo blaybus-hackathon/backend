@@ -5,6 +5,7 @@ import com.balybus.galaxy.kakao.dto.request.KakaoUser;
 import com.balybus.galaxy.kakao.dto.response.OauthToken;
 import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.TblUser;
+import com.balybus.galaxy.member.repository.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,6 +34,9 @@ public class UserService {
     @Value("${kakao.client-id}")
     private String clientId;
 
+    @Value("${kakao.client-secret}")
+    private String clientSecret;
+
     @Value("${kakao.token-uri}")
     private String tokenUri;
 
@@ -40,6 +45,9 @@ public class UserService {
 
     @Value("${kakao.user-info-uri}")
     private String userInfoUri;
+
+    private final MemberRepository memberRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public KakaoUser kakaoLogin(KakaoRequest code) {
         // 인가 코드를 통해 access_token 발급
@@ -50,21 +58,21 @@ public class UserService {
         log.info("카카오 사용자 정보: {}", userInfo);
 
         // 로그인 진행
-        if(code.getRoleType().equals(RoleType.MEMBER)) {
-            doKakaoLoginMember(oauthToken, userInfo);
-        }
-        else if(code.getRoleType().equals(RoleType.MANAGER)) {
-            doKakaoLoginManager(oauthToken, userInfo);
-        }
+        doKakaoLogin(oauthToken, userInfo, code);
 
         return userInfo;
     }
 
-    private void doKakaoLoginMember(OauthToken oauthToken, KakaoUser userInfo) {
+    private void doKakaoLogin(OauthToken oauthToken, KakaoUser userInfo, KakaoRequest code) {
+        // 요양 보호사 & 센터 회원 가입 진행
+        String userPassword = clientSecret + oauthToken.getAccessToken();
+        TblUser user = TblUser.builder()
+                .email(userInfo.getEmail())
+                .password(bCryptPasswordEncoder.encode(userPassword))
+                .userAuth(code.getRoleType())
+                .build();
 
-    }
-    private void doKakaoLoginManager(OauthToken oauthToken, KakaoUser userInfo) {
-
+        memberRepository.save(user);
     }
 
     private KakaoUser getUserInfo(String accessToken) {
