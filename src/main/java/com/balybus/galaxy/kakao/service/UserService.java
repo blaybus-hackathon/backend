@@ -1,14 +1,23 @@
 package com.balybus.galaxy.kakao.service;
 
+import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.kakao.domain.TblKakao;
 import com.balybus.galaxy.kakao.dto.request.KakaoRequest;
 import com.balybus.galaxy.kakao.dto.request.KakaoUser;
+import com.balybus.galaxy.kakao.dto.response.KakaoResponse;
 import com.balybus.galaxy.kakao.dto.response.OauthToken;
+import com.balybus.galaxy.kakao.repository.TblKakaoRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
 import com.balybus.galaxy.member.domain.TblUser;
+import com.balybus.galaxy.member.domain.type.LoginType;
+import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +32,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Member;
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +59,10 @@ public class UserService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TblKakaoRepository tblKakaoRepository;
+    private final LoginServiceImpl loginService;
 
-    public KakaoUser kakaoLogin(KakaoRequest code) {
+    public KakaoResponse kakaoLogin(KakaoRequest code, HttpServletRequest request, HttpServletResponse response) {
         // 인가 코드를 통해 access_token 발급
         OauthToken oauthToken = getAccessToken(code.getCode());
         log.info(oauthToken.getAccessToken());
@@ -57,23 +70,64 @@ public class UserService {
         KakaoUser userInfo = getUserInfo(oauthToken.getAccessToken());
         log.info("카카오 사용자 정보: {}", userInfo);
 
-        // 로그인 진행
-        doKakaoLogin(oauthToken, userInfo, code);
+        Optional<TblKakao> kakaoUser = tblKakaoRepository.findByKakaoEmail(userInfo.getEmail());
+        Optional<TblUser> tblUser = memberRepository.findByEmail(userInfo.getEmail());
 
-        return userInfo;
-    }
+        if(kakaoUser.isEmpty() && tblUser.isPresent()) {
+            // 기존 아이디로 자동 로그인 시키기
+            String email = tblUser.get().getEmail();
+            loginService.signIn(MemberRequest.SignInDto.builder()
+                    .userId(email)
+                    .userPw(tblUser.get().getPassword())
+                    .build(), request, response);
+        }
+        else if(kakaoUser.isEmpty() && tblUser.isEmpty()) {
+            tblKakaoRepository.save(TblKakao.of(userInfo));
+            //이메일과 닉네임을 전달하고 kakao로그인 구분자를 전달해주어 프론트 측에서 이후 회원가입 진행시 해당 정보를 다시 넘겨줄수 있도록 하면 좋을거 같습니다.
+            return KakaoResponse.builder()
+                    .email(userInfo.getEmail())
+                    .nickName(userInfo.getNickname())
+                    .loginType(LoginType.KAKAO_LOGIN)
+                    .description("카카오 회원 등록 완료. 회원가입을 진행해 주세요.")
+                    .build();
+        }
+        else if(kakaoUser.isPresent() && tblUser.isEmpty()) {
+            //이메일과 닉네임을 전달하고 kakao로그인 구분자를 전달해주어 프론트 측에서 이후 회원가입 진행시 해당 정보를 다시 넘겨줄수 있도록 하면 좋을거 같습니다.
+            return KakaoResponse.builder()
+                    .email(userInfo.getEmail())
+                    .nickName(userInfo.getNickname())
+                    .loginType(LoginType.KAKAO_LOGIN)
+                    .description("회원가입을 진행해 주세요.")
+                    .build();
+        }
+        else if(kakaoUser.isPresent() && tblUser.isPresent()) {
+            loginService.signIn(MemberRequest.SignInDto.builder()
+                            .userId(kakaoUser.get().getKakaoEmail())
+                            .userPw(tblUser.get().getPassword())
+                    .build(), request, response);
+        }
 
-    private void doKakaoLogin(OauthToken oauthToken, KakaoUser userInfo, KakaoRequest code) {
-        // 요양 보호사 & 센터 회원 가입 진행
-        String userPassword = clientSecret + oauthToken.getAccessToken();
-        TblUser user = TblUser.builder()
+//        doKakaoLogin(oauthToken, userInfo, code);
+
+        return KakaoResponse.builder()
                 .email(userInfo.getEmail())
-                .password(bCryptPasswordEncoder.encode(userPassword))
-                .userAuth(code.getRoleType())
+                .nickName(userInfo.getNickname())
+                .loginType(LoginType.KAKAO_LOGIN)
+                .description("로그인이 정상적으로 완료되었습니다.")
                 .build();
-
-        memberRepository.save(user);
     }
+
+//    private void doKakaoLogin(OauthToken oauthToken, KakaoUser userInfo, KakaoRequest code) {
+//        // 요양 보호사 & 센터 회원 가입 진행
+//        String userPassword = clientSecret + oauthToken.getAccessToken();
+//        TblUser user = TblUser.builder()
+//                .email(userInfo.getEmail())
+//                .password(bCryptPasswordEncoder.encode(userPassword))
+//                .userAuth(code.getRoleType())
+//                .build();
+//
+//        memberRepository.save(user);
+//    }
 
     private KakaoUser getUserInfo(String accessToken) {
         RestTemplate rt = new RestTemplate();

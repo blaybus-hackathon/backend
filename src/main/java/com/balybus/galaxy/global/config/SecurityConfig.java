@@ -40,7 +40,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/**").permitAll()
                                 .requestMatchers("/api/update-profile").permitAll()
                                 .requestMatchers("/api/sign/**").permitAll()
-                                .requestMatchers("/api/token/**", "/api/oauth/token").permitAll()
+                                .requestMatchers("/api/token/**", "/api/oauth/kakao-signup", "/api/oauth/kakao-login").permitAll()
                                 .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
                                 .requestMatchers("/api/**").authenticated()
