@@ -1,13 +1,11 @@
 package com.balybus.galaxy.kakao.service;
 
-import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.kakao.domain.TblKakao;
 import com.balybus.galaxy.kakao.dto.request.KakaoRequest;
 import com.balybus.galaxy.kakao.dto.request.KakaoUser;
 import com.balybus.galaxy.kakao.dto.response.KakaoResponse;
 import com.balybus.galaxy.kakao.dto.response.OauthToken;
 import com.balybus.galaxy.kakao.repository.TblKakaoRepository;
-import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.domain.type.LoginType;
@@ -29,11 +27,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Member;
-import java.sql.Timestamp;
 import java.util.Optional;
 
 @Service
@@ -149,6 +144,7 @@ public class UserService {
 
         return kakaoUser;
     }
+
     private OauthToken getAccessToken(String code) {
         RestTemplate rt = new RestTemplate();
 
