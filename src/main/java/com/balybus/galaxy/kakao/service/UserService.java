@@ -101,13 +101,12 @@ public class UserService {
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isPresent()) {
+            // TblKakao와 TblUser 모두 있다면, 로그인 시도이므로 기존 일반 로그인의 로직(LoginServiceImpl 클래스내 signIn 매소드)을 사용하여 데이터를 넘겨주면 됩니다.
             loginService.signIn(MemberRequest.SignInDto.builder()
                             .userId(kakaoUser.get().getKakaoEmail())
                             .userPw(tblUser.get().getPassword())
                     .build(), request, response);
         }
-
-//        doKakaoLogin(oauthToken, userInfo, code);
 
         return KakaoResponse.builder()
                 .email(userInfo.getEmail())
