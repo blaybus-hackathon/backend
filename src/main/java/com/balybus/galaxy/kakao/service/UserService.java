@@ -116,18 +116,6 @@ public class UserService {
                 .build();
     }
 
-//    private void doKakaoLogin(OauthToken oauthToken, KakaoUser userInfo, KakaoRequest code) {
-//        // 요양 보호사 & 센터 회원 가입 진행
-//        String userPassword = clientSecret + oauthToken.getAccessToken();
-//        TblUser user = TblUser.builder()
-//                .email(userInfo.getEmail())
-//                .password(bCryptPasswordEncoder.encode(userPassword))
-//                .userAuth(code.getRoleType())
-//                .build();
-//
-//        memberRepository.save(user);
-//    }
-
     private KakaoUser getUserInfo(String accessToken) {
         RestTemplate rt = new RestTemplate();
 
