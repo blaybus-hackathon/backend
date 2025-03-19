@@ -2,6 +2,7 @@ package com.balybus.galaxy.member.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.member.domain.type.LoginType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -25,7 +26,6 @@ public class TblUser extends BaseEntity {
     @Comment("로그인 아이디")
     private String email; // USER_ID
 
-
     @Column(name = "user_pe", length = 255, nullable = false)
     @Comment("로그인 비밀번호")
     private String password;
@@ -38,6 +38,11 @@ public class TblUser extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Comment("권한 구분")
     private RoleType userAuth;
+
+    @Column(name = "user_login_type")
+    @Comment("로그인 타입 구분자")
+    @Enumerated(EnumType.STRING)
+    private LoginType userLoginType;
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
