@@ -35,6 +35,7 @@ import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import com.balybus.galaxy.login.serviceImpl.LoginService;
 import com.balybus.galaxy.member.domain.TblUser;
+import com.balybus.galaxy.member.domain.type.LoginType;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import com.balybus.galaxy.member.repository.MemberRepository;
@@ -208,7 +209,7 @@ public class LoginServiceImpl implements LoginService {
      * @param roleType RoleTyp(Enum):권한
      * @return TblUser
      */
-    private TblUser signUpLogin(String email, String pw, RoleType roleType) {
+    private TblUser signUpLogin(String email, String pw, RoleType roleType, LoginType loginType) {
         // 1. email 중복성 검사
         if(memberRepository.findByEmail(email).isPresent())
             throw new BadRequestException(LOGIN_ID_EXIST);
@@ -221,6 +222,7 @@ public class LoginServiceImpl implements LoginService {
                 .email(email)
                 .password(encryptedPassword)
                 .userAuth(roleType)
+                .userLoginType(loginType)
                 .build();
 
         return memberRepository.save(member);
@@ -233,7 +235,7 @@ public class LoginServiceImpl implements LoginService {
      */
     public List<HelperCertDTO> signUp(SignUpDTO signUpRequest) {
         // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
-        TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType());
+        TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType(), LoginType.DOLBOM_LOGIN);
 
         TblHelper helper = null;
 
@@ -368,7 +370,7 @@ public class LoginServiceImpl implements LoginService {
             throw new BadRequestException(ExceptionCode.CENTER_NOT_FOUND);
 
         // 2. 이메일 유효셩 검사 및 관리자 아이디 비밀번호 등록
-        TblUser savedMember = signUpLogin(dto.getEmail(), dto.getPassword(), RoleType.MANAGER);
+        TblUser savedMember = signUpLogin(dto.getEmail(), dto.getPassword(), RoleType.MANAGER, LoginType.DOLBOM_LOGIN);
 
         // 3. 관리자 정보 등록
         Long cmSeq = centerManagerRepository.save(
@@ -394,13 +396,13 @@ public class LoginServiceImpl implements LoginService {
     public MemberResponse.FindEmail findEmail(String email) {
         //1. 이메일 등록 여부 조회
         Optional<TblUser> userOpt = memberRepository.findByEmail(email);
-        TblAuthenticationMailMsgEnum state = userOpt.isPresent() ?
-                TblAuthenticationMailMsgEnum.REGISTED_EMAIL
-                : TblAuthenticationMailMsgEnum.UNREGISTED_EMAIL;
+        TblAuthenticationMailMsgEnum state = userOpt.map(tblUser ->
+                        (tblUser.getUserLoginType() == LoginType.KAKAO_LOGIN ?
+                                TblAuthenticationMailMsgEnum.KAKAO_EMAIL
+                                : TblAuthenticationMailMsgEnum.REGISTED_EMAIL))
+                .orElse(TblAuthenticationMailMsgEnum.UNREGISTED_EMAIL);
 
-        //2. 카카오 로그인 결과 확인
-
-        //3. 결과 반환
+        //2. 결과 반환
         return MemberResponse.FindEmail.builder()
                 .code(state.getCode())
                 .result(state.getMsg())
@@ -423,28 +425,31 @@ public class LoginServiceImpl implements LoginService {
         if(userOpt.isPresent()){
             TblUser userEntity = userOpt.get();
             //2-1. SNS 로그인 여부 판독
-            //2-2. SNS 로그인의 경우, SNS 로그인 사실 전달
-
-
-            //2-3. SNS 로그인이 아닌 경우, 입력한 이메일로 임시비밀번호 전달
-            state = TblAuthenticationMailMsgEnum.REGISTED_EMAIL;
-            //2-3-1. 임시 비밀번호 생성
-            String tempPwd = createTempPwd();
-            //2-3-2. 임시 비밀번호 DB 저장
-            userEntity.updatePwd(tempPwd);
-            //2-3-3. 임시 비밀번호 메일 전송
-            SendMailRequest request = SendMailRequest.builder()
-                    .toMail(userEntity.getEmail())
-                    .title("임시 비밀번호 발급")
-                    .fromName("은하수 개발단")
-                    .contentType(ContentType.TEMP_PWD)
-                    .build();
-            ContentDto<String> contentDto = new ContentDto<>(tempPwd);
-            try {
-                sendMailUtils.sendMail(request, contentDto);
-            } catch (UnsupportedEncodingException | MessagingException e) {
-                throw new RuntimeException(e);
+            if(userEntity.getUserLoginType() == LoginType.KAKAO_LOGIN) {
+                //2-2. 카카오 로그인의 경우, 카카오 로그인 사실 전달
+                state = TblAuthenticationMailMsgEnum.KAKAO_EMAIL;
+            } else {
+                //2-3. SNS 로그인이 아닌 경우, 입력한 이메일로 임시비밀번호 전달
+                state = TblAuthenticationMailMsgEnum.REGISTED_EMAIL;
+                //2-3-1. 임시 비밀번호 생성
+                String tempPwd = createTempPwd();
+                //2-3-2. 임시 비밀번호 DB 저장
+                userEntity.updatePwd(tempPwd);
+                //2-3-3. 임시 비밀번호 메일 전송
+                SendMailRequest request = SendMailRequest.builder()
+                        .toMail(userEntity.getEmail())
+                        .title("임시 비밀번호 발급")
+                        .fromName("은하수 개발단")
+                        .contentType(ContentType.TEMP_PWD)
+                        .build();
+                ContentDto<String> contentDto = new ContentDto<>(tempPwd);
+                try {
+                    sendMailUtils.sendMail(request, contentDto);
+                } catch (UnsupportedEncodingException | MessagingException e) {
+                    throw new RuntimeException(e);
+                }
             }
+
         }
 
         //5. 결과 반환
