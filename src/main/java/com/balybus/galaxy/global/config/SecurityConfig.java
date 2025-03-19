@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
                                 .requestMatchers("/api/**").authenticated()
+                                .requestMatchers("/ws-chat").authenticated()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

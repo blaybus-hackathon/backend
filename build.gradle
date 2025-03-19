@@ -83,7 +83,8 @@ dependencies {
 
     // chat socket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.boot:spring-boot-starter-stomp'
+    implementation 'org.webjars:stomp-websocket:2.3.4'
+
 }
 
 tasks.named('test') {

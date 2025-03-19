@@ -102,6 +102,7 @@ public class LoginServiceImpl implements LoginService {
 
                     // 5. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
+                            .chatSenderId(login.getId())
                             .email(login.getEmail())
                             .userAuth(login.getUserAuth())
                             .build();
