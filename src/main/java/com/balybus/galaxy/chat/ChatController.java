@@ -3,11 +3,13 @@ package com.balybus.galaxy.chat;
 import com.balybus.galaxy.chat.dto.ChatMsgRequestDto;
 import com.balybus.galaxy.chat.dto.ChatMsgResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Controller
@@ -25,14 +27,15 @@ public class ChatController {
 
     // 특정 사용자에게 1:1 메시지 전송
     @MessageMapping("/private-message")
-    public void sendPrivateMessage(ChatMsgRequestDto message, Map<String, Object> attributes) {
+    public void sendPrivateMessage(ChatMsgRequestDto message, @Headers Map<String, Object> headers) {
+        Principal simpUser = (Principal) headers.get("simpUser");
+        String sender = simpUser.getName();
         try {
-            String sender = (String) attributes.get("userEmail");
             ChatMsgResponseDto responseDto = chatService.saveMessage(message, sender);   //채팅 데이터 DB 저장
-            messagingTemplate.convertAndSendToUser(message.getReceiverId().toString(), "/queue/private", responseDto);
+            messagingTemplate.convertAndSendToUser(responseDto.getReceiverMail(), "/queue/private", responseDto);
         } catch (Exception e) {
             // 예외가 발생한 경우 메시지를 보낸 사람에게 에러 메시지를 보냄
-            messagingTemplate.convertAndSendToUser(message.getSenderId().toString(), "/queue/error", "Error occurred: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(sender, "/queue/error", "Error occurred: " + e.getMessage());
         }
     }
 }

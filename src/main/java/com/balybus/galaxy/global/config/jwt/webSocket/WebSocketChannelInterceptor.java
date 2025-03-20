@@ -3,6 +3,7 @@ package com.balybus.galaxy.global.config.jwt.webSocket;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,6 +12,10 @@ public class WebSocketChannelInterceptor implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         // 메시지 전송 전 처리할 로직 (예: 인증 체크)
+//        MessageHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+//        WebSocketSession session = (WebSocketSession) accessor.getHeader("simpSessionAttributes");
+//        Object userEmail =  session.getAttributes().get("userEmail");
+
         return message;
     }
 

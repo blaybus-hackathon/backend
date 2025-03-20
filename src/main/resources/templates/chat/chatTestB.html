@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1>WebSocket Test</h1>
+<button id="btnLogin" onclick="login()">로그인</button>
+<button id="btnSocket" onclick="connectSocket()">소켓연결</button>
+<button id="sendMessageBtn">Send Message</button>
+<div id="messageContainer"></div>
+
+<script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script>
+    let socket;  // 소켓을 전역으로 선언해두면 연결 끊을 때 사용하기 용이
+    let stompClient;
+
+    function connectSocket(chatSenderId){
+        // WebSocket 서버 연결 (SockJS 사용)
+        socket = new SockJS("http://localhost:8080/ws-chat", null, { withCredentials: true });
+        stompClient = Stomp.over(socket);
+
+        // 3. STOMP 연결 (웹소켓이 연결된 후)
+        stompClient.connect({}, function(frame) {
+            console.log('STOMP 연결 성공: ' + frame);
+
+            // 4. 연결 성공 후, 개인 채팅 구독 (userId에 따라 다르게 구독)
+            stompClient.subscribe('/user/queue/private', function(messageOutput) {
+                const message = JSON.parse(messageOutput.body);
+                console.log("받은 개인 메시지:", message);
+
+                // 메시지를 div에 추가
+                const messageContainer = document.getElementById("messageContainer");
+                messageContainer.innerHTML += `<p>받은 개인 메시지: ${message.content}</p>`;
+            });
+
+            stompClient.subscribe('/user/queue/error', function(message) {
+                console.log("에러 발생 메시지:", message.body);
+
+                // 메시지를 div에 추가
+                const messageContainer = document.getElementById("messageContainer");
+                messageContainer.innerHTML += `<p>에러 발생 메시지: ${message.body}</p>`;
+            });
+
+            // 5. 메시지 전송 버튼 클릭 시
+            document.getElementById("sendMessageBtn").onclick = function() {
+                const message = {
+                    content: "안녕하세요, private-message 테스트!",
+                    senderId: chatSenderId, // 메시지를 보낼 사용자
+                    receiverId: 1, // 메시지를 받을 사용자
+                    patientLogId: 1 // 메시지를 환자
+                };
+                messageContainer.innerHTML += `<p>보낸 개인 메시지: ${message.content}</p>`;
+                stompClient.send("/app/private-message", {}, JSON.stringify(message)); // private-message 엔드포인트로 메시지 전송
+            };
+        });
+
+        // 연결 종료 시
+        socket.onclose = function() {
+            console.log("WebSocket 연결 종료");
+        };
+    }
+
+    function login(){
+        console.log('로그인 버튼 클릭 됨.');
+        let params = {
+            userId: 'ljg5396@naver.com',
+            userPw: 'vAlU4G7T8xAj'
+        };
+
+        $.ajax({
+            url: '/api/sign/in',
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify(params),
+            contentType: 'application/json; charset=UTF-8',
+            async: true,
+            success: function(response) {
+                console.log("실행은 되는거지?",response.chatSenderId);
+                chatSenderId = response.chatSenderId;
+                if(response === 0) {
+                    alert("ID 또는 PW가 잘못 입력되었습니다.");
+                    return;
+                }
+                alert("로그인 성공!");
+                connectSocket(response.chatSenderId);  // 로그인 성공 후 WebSocket 연결 시도
+            },
+            error: function(xhr, status, error) {
+                alert("로그인 실패");
+            }
+        });
+    }
+</script>
+</body>
+</html>

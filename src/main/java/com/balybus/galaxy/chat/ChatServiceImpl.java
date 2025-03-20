@@ -47,9 +47,10 @@ public class ChatServiceImpl {
 
         //3. 엔티티 생성 & 저장
         TblUser senderEntity = senderOpt.get();
+        TblUser receiverEntity = receiverOpt.get();
         chatMsgRepository.save(TblChatMsg.builder()
                 .sender(senderEntity)
-                .receiver(receiverOpt.get())
+                .receiver(receiverEntity)
                 .patientLog(patientLogOpt.get())
                 .content(dto.getContent())
                 .build());
@@ -73,6 +74,7 @@ public class ChatServiceImpl {
                 .senderId(dto.getSenderId())
                 .senderName(senderName)
                 .receiverId(dto.getReceiverId())
+                .receiverMail(receiverEntity.getEmail())
                 .patientLogId(dto.getPatientLogId())
                 .content(dto.getContent())
                 .build();
