@@ -58,6 +58,9 @@ public enum ExceptionCode {
 
     // 8xxx 어르신
     NOT_FOUND_PATIENT(8000, "해당 어르신 정보를 찾을 수 없습니다."),
+
+    // 9xxx 센터
+    NOT_FOUND_CENTER(9000, "해당 센터 정보를 찾을 수 없습니다."),
     ;
 
 

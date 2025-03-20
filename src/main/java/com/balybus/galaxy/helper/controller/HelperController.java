@@ -5,6 +5,7 @@ import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.helper.serviceImpl.service.HelperServiceImpl;
 import com.balybus.galaxy.login.dto.request.HelperCertDTO;
+import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
@@ -160,5 +161,36 @@ public class HelperController {
             @RequestBody List<HelperCertDTO> helperCertDTO) {
         Map<String, String> result = helperService.saveCertificateByQNet(helperCertDTO, userDetails);
         return ResponseEntity.ok(result);
+    }
+
+
+    /////////////
+
+    /**
+     * 매칭 요청 목록 조회
+     * @param userDetails
+     * @return
+     */
+    @GetMapping("/get-matching-list")
+    public ResponseEntity<List<MatchingListResponseDTO>> getMatchingList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(helperService.getHelperMatchingList(userDetails));
+    }
+
+    /**
+     * 매칭 요청 목록에서 자세히 보기 클릭
+     */
+    @GetMapping("/get-matching-patient-detail")
+    public ResponseEntity<MatchedPatientResponseDTO> getMatchingPatient(@RequestParam(name = "patientId") Long patientId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(helperService.getMatchedPatient(patientId, userDetails));
+    }
+
+    @GetMapping("/get-matched-patient-list")
+    public ResponseEntity<List<MatchedListResponseDTO>> getMatchedPatientList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(helperService.getMatchedPatientList(userDetails));
+    }
+
+    @GetMapping("/get-matched-patient-list-detail")
+    public ResponseEntity<TblPatient> getMatchedPatientListDetail(@RequestParam(name = "patientId") Long patientId) {
+        return ResponseEntity.ok(helperService.getMathedPatientDetail(patientId));
     }
 }

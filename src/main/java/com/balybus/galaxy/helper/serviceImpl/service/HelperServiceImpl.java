@@ -5,6 +5,13 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblCenter.TblCenter;
+import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.domain.tblMatching.MatchState;
+import com.balybus.galaxy.domain.tblMatching.TblMatching;
+import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.helper.domain.*;
 import com.balybus.galaxy.helper.dto.request.*;
@@ -14,6 +21,12 @@ import com.balybus.galaxy.helper.serviceImpl.HelperService;
 import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
+import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
+import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLogRepository;
+import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
+import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTimeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +76,13 @@ public class HelperServiceImpl implements HelperService {
     private final TblAddressFirstRepository tblAddressFirstRepository;
     private final TblAddressSecondRepository tblAddressSecondRepository;
     private final TblAddressThirdRepository tblAddressThirdRepository;
+
+    private final TblMatchingRepository tblMatchingRepository;
+    private final TblPatientLogRepository patientLogRepository;
+    private final TblPatientRepository tblPatientRepository;
+    private final TblPatientTimeRepository tblPatientTimeRepository;
+    private final TblCenterManagerRepository tblCenterManagerRepository;
+    private final TblCenterRepository tblCenterRepository;
 
     @Override
     public HelperResponse getAllHelperInfo(UserDetails userDetails) {
@@ -526,5 +546,248 @@ public class HelperServiceImpl implements HelperService {
         return result;
     }
 
+    // 매칭 중인 노인 리스트 반환
+    @Override
+    public List<MatchingListResponseDTO> getHelperMatchingList(UserDetails userDetails) {
+        String username = userDetails.getUsername();
 
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        List<TblMatching> matchingList = tblMatchingRepository.findMatchingRequests(
+                tblHelper.getId(), MatchState.MATCH_REQUEST
+        );
+        List<PatientNode> answerList = new ArrayList<>();
+        for(TblMatching matching : matchingList) {
+            Optional<TblPatientLog> patientLog = patientLogRepository.findById(matching.getPatientLog().getId());
+            if (patientLog.isPresent()) {
+                TblPatientLog tblPatientLog = patientLog.get();
+                TblPatient tblPatient = tblPatientRepository.findById(tblPatientLog.getPatient().getId())
+                        .orElseThrow(() -> new BadRequestException(NOT_FOUND_PATIENT));
+                answerList.add(new PatientNode(tblPatientLog, tblPatient));
+            }
+        }
+
+        List<MatchingListResponseDTO> matchingListResponseDTOList = new ArrayList<>();
+
+        for(PatientNode patientNode : answerList) {
+            TblPatientLog curPatientLog = patientNode.patientLog;
+            TblPatient curPatient = patientNode.patient;
+
+            List<Long> addressIdList = new ArrayList<>();
+            addressIdList.add(curPatientLog.getTblAddressFirst().getId());
+            addressIdList.add(curPatientLog.getTblAddressSecond().getId());
+            addressIdList.add(curPatientLog.getTblAddressThird().getId());
+
+            matchingListResponseDTOList.add(
+                    MatchingListResponseDTO.builder()
+                            .patientId(curPatient.getId())
+                            .patientName(curPatient.getName())
+                            .patientGender(curPatient.getGender())
+                            .patientAge(curPatient.getBirthDate())
+                            .workCategory(curPatient.getWorkType())
+                            .patientAddressId(addressIdList)
+                            .build()
+            );
+        }
+
+        return matchingListResponseDTOList;
+    }
+
+    // 매칭 중인 리스트에서 자세히 보기 클릭시
+    @Override
+    public MatchedPatientResponseDTO getMatchedPatient(Long patientId, UserDetails userDetails) {
+
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+
+        // 주소
+        TblPatient tblPatient = tblPatientRepository.findById(patientId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_PATIENT));
+        List<String> patientAddrName = new ArrayList<>();
+        patientAddrName.add(tblPatient.getTblAddressFirst().getName());
+        patientAddrName.add(tblPatient.getTblAddressSecond().getName());
+        patientAddrName.add(tblPatient.getTblAddressThird().getName());
+
+        // 케어 필요 항목
+        List<Integer> care_need_list = new ArrayList<>();
+        if(tblPatient.getDementiaSymptom() == 1) {
+            care_need_list.add(tblPatient.getDementiaSymptom());
+        }
+        if(tblPatient.getServiceMeal() == 1) {
+            care_need_list.add(tblPatient.getServiceMeal());
+        }
+        if(tblPatient.getServiceToilet() == 1) {
+            care_need_list.add(tblPatient.getServiceToilet());
+        }
+        if(tblPatient.getServiceMobility() == 1) {
+            care_need_list.add(tblPatient.getServiceMobility());
+        }
+        if(tblPatient.getServiceDaily() == 1) {
+            care_need_list.add(tblPatient.getServiceDaily());
+        }
+
+        // 요양 보호사 근무 가능 시간
+        List<MatchedPatientResponseDTO.HelperWorkTime> helperWorkTimeList = new ArrayList<>();
+        List<TblHelperWorkTime> tblHelperWorkTimeList = helperWorkTimeRepository.findAllById(Collections.singleton(tblHelper.getId()));
+        for(TblHelperWorkTime tblHelperWorkTime : tblHelperWorkTimeList) {
+            helperWorkTimeList.add(
+                    MatchedPatientResponseDTO.HelperWorkTime.builder()
+                            .day(tblHelperWorkTime.getDate())
+                            .startTime(tblHelperWorkTime.getStartTime())
+                            .endTime(tblHelperWorkTime.getEndTime())
+                            .nego(tblHelperWorkTime.getNegotiation())
+                            .workTerm(tblHelperWorkTime.getWorkTerm())
+                            .build()
+            );
+        }
+
+        // 어르신 근무 가능 시간
+        List<MatchedPatientResponseDTO.PatientWorkTime> patientTimeList = new ArrayList<>();
+        List<TblPatientTime> tblPatientTimeList = tblPatientTimeRepository.findAllById(Collections.singleton(tblPatient.getId()));
+        for(TblPatientTime tblPatientTime : tblPatientTimeList) {
+            patientTimeList.add(
+                    MatchedPatientResponseDTO.PatientWorkTime.builder()
+                            .day(tblPatientTime.getPtDate())
+                            .startTime(tblPatientTime.getPtStartTime())
+                            .endTime(tblPatientTime.getPtEndTime())
+                            .build()
+            );
+        }
+
+        return MatchedPatientResponseDTO.builder()
+                .patientName(tblPatient.getName())
+                .patientGender(tblPatient.getGender())
+                .patientAge(tblPatient.getBirthDate())
+                .workType(tblPatient.getWorkType())
+                .addressList(patientAddrName)
+                .helperWorkTimes(helperWorkTimeList)
+                .patientWorkTimes(patientTimeList)
+                .diseases(tblPatient.getDiseases())
+                .careType(care_need_list)
+                .wage(tblPatient.getWage())
+                .build();
+    }
+
+    // 매칭 완료 리스트에서 어르신 정보 반환
+    @Override
+    public List<MatchedListResponseDTO> getMatchedPatientList(UserDetails userDetails) {
+        String username = userDetails.getUsername();
+
+        TblUser tblUser = memberRepository.findByEmail(username)
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        List<TblMatching> matchingList = tblMatchingRepository.findMatchingRequests(
+                tblHelper.getId(), MatchState.MATCH_FIN
+        );
+        List<PatientNode> answerList = new ArrayList<>();
+
+        for(TblMatching matching : matchingList) {
+            Optional<TblPatientLog> patientLog = patientLogRepository.findById(matching.getPatientLog().getId());
+            if (patientLog.isPresent()) {
+                TblPatientLog tblPatientLog = patientLog.get();
+                TblPatient tblPatient = tblPatientRepository.findById(tblPatientLog.getPatient().getId())
+                        .orElseThrow(() -> new BadRequestException(NOT_FOUND_PATIENT));
+                answerList.add(new PatientNode(tblPatientLog, tblPatient));
+            }
+        }
+
+
+
+        List<MatchedListResponseDTO> matchingListResponseDTOList = new ArrayList<>();
+
+
+        for(PatientNode patientNode : answerList) {
+            TblPatientLog curPatientLog = patientNode.patientLog;
+            TblPatient curPatient = patientNode.patient;
+            TblCenterManager curCenterManager = tblCenterManagerRepository.findById(curPatient.getId())
+                    .orElseThrow(() -> new BadRequestException(NOT_FOUND_MANAGER));
+            TblCenter curCenter = tblCenterRepository.findById(curCenterManager.getId())
+                    .orElseThrow(() -> new BadRequestException(NOT_FOUND_CENTER));
+
+            // 주소
+            List<Long> addressIdList = new ArrayList<>();
+            addressIdList.add(curPatientLog.getTblAddressFirst().getId());
+            addressIdList.add(curPatientLog.getTblAddressSecond().getId());
+            addressIdList.add(curPatientLog.getTblAddressThird().getId());
+
+
+            // 어르신 근무 가능 시간
+            List<MatchedPatientResponseDTO.PatientWorkTime> patientWorkTimeList = new ArrayList<>();
+            List<TblPatientTime> tblPatientTimeList = tblPatientTimeRepository.findAllById(Collections.singleton(curPatient.getId()));
+            for(TblPatientTime tblPatientTime : tblPatientTimeList) {
+                patientWorkTimeList.add(
+                        MatchedPatientResponseDTO.PatientWorkTime.builder()
+                                .day(tblPatientTime.getPtDate())
+                                .startTime(tblPatientTime.getPtStartTime())
+                                .endTime(tblPatientTime.getPtEndTime())
+                                .build()
+                );
+            }
+
+            // 케어 필요 항목
+            List<Integer> care_need_list = new ArrayList<>();
+            if(curPatient.getDementiaSymptom() == 1) {
+                care_need_list.add(curPatient.getDementiaSymptom());
+            }
+            if(curPatient.getServiceMeal() == 1) {
+                care_need_list.add(curPatient.getServiceMeal());
+            }
+            if(curPatient.getServiceToilet() == 1) {
+                care_need_list.add(curPatient.getServiceToilet());
+            }
+            if(curPatient.getServiceMobility() == 1) {
+                care_need_list.add(curPatient.getServiceMobility());
+            }
+            if(curPatient.getServiceDaily() == 1) {
+                care_need_list.add(curPatient.getServiceDaily());
+            }
+
+            matchingListResponseDTOList.add(
+                    MatchedListResponseDTO.builder()
+                            .matchedPatientId(curPatient.getId())
+                            .patientName(curPatient.getName())
+                            .patientGender(curPatient.getGender())
+                            .patientAge(curPatient.getBirthDate())
+                            .managerPhoneNum(curCenter.getCenterTel())
+                            .workType(curPatient.getWorkType())
+                            .addressIdList(addressIdList)
+                            .patientWorkDays(patientWorkTimeList)
+                            .diseases(curPatient.getDiseases())
+                            .careType(care_need_list)
+                            .wage(curPatient.getWage())
+                            .build()
+            );
+        }
+
+        return matchingListResponseDTOList;
+    }
+
+    @Override
+    public TblPatient getMathedPatientDetail(Long patientId) {
+        return tblPatientRepository.findById(patientId)
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_PATIENT));
+    }
+
+    static class PatientNode {
+        TblPatientLog patientLog;
+        TblPatient patient;
+
+        public PatientNode(TblPatientLog patientLog, TblPatient tblPatient) {
+            this.patientLog = patientLog;
+            this.patient = tblPatient;
+        }
+    }
 }
