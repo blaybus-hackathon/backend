@@ -66,12 +66,13 @@ public class ChatServiceImpl implements ChatService {
         TblUser userA = senderEntity.getId() < receiverEntity.getId() ? senderEntity : receiverEntity;
         TblUser userB = senderEntity.getId() >= receiverEntity.getId() ? senderEntity : receiverEntity;
 
-//        Optional<TblChatRoom> chatRoomOpt = chatRoomRepository.findByUserA_Id(userA.getId(), userB.getId(), patientLogEntity.getId());
-        TblChatRoom chatRoom = chatRoomRepository.save(TblChatRoom.builder()
-                .userA(userA)
-                .userB(userB)
-                .patientLog(patientLogOpt.get())
-                .build());
+        Optional<TblChatRoom> chatRoomOpt = chatRoomRepository.findByUserA_IdAndUserB_IdAndPatientLog_Id(userA.getId(), userB.getId(), patientLogEntity.getId());
+        TblChatRoom chatRoom = chatRoomOpt.orElseGet(() ->
+                chatRoomRepository.save(TblChatRoom.builder()
+                        .userA(userA)
+                        .userB(userB)
+                        .patientLog(patientLogOpt.get())
+                        .build()));
 
         //4. 채팅 내역 엔티티 생성 & 저장
         chatMsgRepository.save(TblChatMsg.builder()

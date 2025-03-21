@@ -4,13 +4,14 @@ import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
 @Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class TblChatRoom extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
