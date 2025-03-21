@@ -9,5 +9,4 @@ import java.util.List;
 
 @Repository
 public interface TblChatMsgRepository extends JpaRepository<TblChatMsg, Long> {
-    List<TblChatMsg> findBySender_IdAndReceiver_IdAndPatientLog_Id(Long sender, Long receiver, Long patientLog);
 }
