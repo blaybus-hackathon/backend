@@ -1,9 +1,13 @@
-package com.balybus.galaxy.chat;
+package com.balybus.galaxy.chat.domain.tblChatMsg;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface TblChatMsgRepository extends JpaRepository<TblChatMsg, Long> {
     List<TblChatMsg> findBySender_IdAndReceiver_IdAndPatientLog_Id(Long sender, Long receiver, Long patientLog);
 }

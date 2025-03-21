@@ -1,12 +1,10 @@
-package com.balybus.galaxy.global.config.jwt.webSocket;
+package com.balybus.galaxy.global.config.webSocket;
 
 import com.balybus.galaxy.global.config.jwt.CookieUtils;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;

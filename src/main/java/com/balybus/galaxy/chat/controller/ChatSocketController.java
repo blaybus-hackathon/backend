@@ -1,7 +1,9 @@
-package com.balybus.galaxy.chat;
+package com.balybus.galaxy.chat.controller;
 
+import com.balybus.galaxy.chat.domain.tblChatMsg.TblChatMsg;
 import com.balybus.galaxy.chat.dto.ChatMsgRequestDto;
 import com.balybus.galaxy.chat.dto.ChatMsgResponseDto;
+import com.balybus.galaxy.chat.service.ChatServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -14,7 +16,7 @@ import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
-public class ChatController {
+public class ChatSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatServiceImpl chatService;
 
@@ -27,11 +29,11 @@ public class ChatController {
 
     // 특정 사용자에게 1:1 메시지 전송
     @MessageMapping("/private-message")
-    public void sendPrivateMessage(ChatMsgRequestDto message, @Headers Map<String, Object> headers) {
+    public void sendPrivateMessage(ChatMsgRequestDto.SendPrivateMessage message, @Headers Map<String, Object> headers) {
         Principal simpUser = (Principal) headers.get("simpUser");
         String sender = simpUser.getName();
         try {
-            ChatMsgResponseDto responseDto = chatService.saveMessage(message, sender);   //채팅 데이터 DB 저장
+            ChatMsgResponseDto.SendPrivateMessage responseDto = chatService.saveMessage(message, sender);   //채팅 데이터 DB 저장
             messagingTemplate.convertAndSendToUser(responseDto.getReceiverMail(), "/queue/private", responseDto);
         } catch (Exception e) {
             // 예외가 발생한 경우 메시지를 보낸 사람에게 에러 메시지를 보냄

@@ -1,7 +1,5 @@
 package com.balybus.galaxy.global.config.webSocket;
 
-import com.balybus.galaxy.global.config.jwt.webSocket.WebSocketAuthInterceptor;
-import com.balybus.galaxy.global.config.jwt.webSocket.WebSocketChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
