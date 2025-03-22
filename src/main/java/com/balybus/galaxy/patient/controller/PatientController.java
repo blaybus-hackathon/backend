@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -41,4 +38,25 @@ public class PatientController {
         return ResponseEntity.ok().body(patientService.recruitHelper(userDetails, dto));
     }
 
+    /*// 매칭중 리스트 조회
+    @GetMapping("/matching")
+    @Operation(summary = "매칭중 어르신 리스트 조회 API")
+    public ResponseEntity<?> getMatchingPatientList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(patientService.getMatchingPatientList(userDetails));
+    }
+
+    // 매칭완료 리스트 조회
+    @GetMapping("/matching-completed")
+    @Operation(summary = "매칭완료 어르신 리스트 조회 API")
+    public ResponseEntity<?> getCompletedMatchingPatientList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(patientService.getCompletedMatchingPatientList(userDetails));
+    }
+
+    // 매칭 완료 상태로 변경
+    @PostMapping("/matching/{patientLogId}/complete")
+    @Operation(summary = "매칭 완료 상태로 변경 API")
+    public ResponseEntity<?> completeMatching(@PathVariable Long patientLogId) {
+        patientService.completeMatching(patientLogId);
+        return ResponseEntity.noContent().build();
+    }*/
 }

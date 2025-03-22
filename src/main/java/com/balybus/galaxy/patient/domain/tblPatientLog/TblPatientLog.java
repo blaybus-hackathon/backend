@@ -145,4 +145,8 @@ public class TblPatientLog extends BaseEntity {
     @Comment("기타 요청 사항")
     private String requestContents;
 
+    // 매칭 리스트 2025.03.08 (추가)
+    @Column(name = "matching_status")
+    @Comment("매칭 상태 (1: 매칭중, 2: 매칭완료)")
+    private int matchingStatus; // 매칭 상태 (1: 매칭중, 2: 매칭완료)
 }
