@@ -1,7 +1,8 @@
 package com.balybus.galaxy.chat.controller;
 
+import com.balybus.galaxy.chat.dto.ChatRoomResponseDto;
 import com.balybus.galaxy.chat.service.ChatServiceImpl;
-import com.balybus.galaxy.member.dto.response.MemberResponse;
+import com.balybus.galaxy.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,12 +26,12 @@ public class ChatController {
      * @return ResponseEntity
      */
     @GetMapping("/find-list")
-    @Operation(summary = "채팅 리스트 조회 API", description = "채팅방을 확인합니다.")
+    @Operation(summary = "채팅 리스트 조회 API", description = "채팅방 목록을 조회합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "사용자정의코드:가입된 이메일",
-                    content = @Content(schema = @Schema(implementation = MemberResponse.FindEmail.class))),
-            @ApiResponse(responseCode = "404", description = "사용자정의에러코드:미가입된 이메일",
-                    content = @Content(schema = @Schema(implementation = MemberResponse.FindEmail.class)))
+            @ApiResponse(responseCode = "200", description = "사용자정의코드:채팅방 리스트 조회 완료",
+                    content = @Content(schema = @Schema(implementation = ChatRoomResponseDto.FindList.class))),
+            @ApiResponse(responseCode = "3010", description = "사용자정의에러코드:로그인한 회원을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> findList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(chatService.findList(userDetails.getUsername()));

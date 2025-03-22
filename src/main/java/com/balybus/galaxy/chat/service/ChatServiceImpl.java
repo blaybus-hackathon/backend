@@ -6,6 +6,7 @@ import com.balybus.galaxy.chat.domain.tblChatRoom.TblChatRoom;
 import com.balybus.galaxy.chat.domain.tblChatRoom.TblChatRoomRepository;
 import com.balybus.galaxy.chat.dto.ChatMsgRequestDto;
 import com.balybus.galaxy.chat.dto.ChatMsgResponseDto;
+import com.balybus.galaxy.chat.dto.ChatRoomResponseDto;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -108,16 +110,33 @@ public class ChatServiceImpl implements ChatService {
 
     /**
      * 채팅방 리스트 조회
+     *
      * @param userEmail String
-     * @return List<ChatMsgResponseDto.FindList>
+     * @return List<ChatRoomResponseDto.FindList>
      */
     @Override
-    public List<ChatMsgResponseDto.FindList> findList(String userEmail) {
+    public List<ChatRoomResponseDto.FindList> findList(String userEmail) {
+        // 1. 로그인 사용자 정보 조회
         Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail);
         if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.MEMBER_NOT_FOUND);
+        TblUser userEntity = userOpt.get();
 
-//        List<Object[]> findList = chatRoomRepository.findChatGroupList(userOpt.get().getId());
-        return null;
+        // 2. 로그인 사용자가 참가한 채팅방 리스트 조회
+        List<Object[]> objectList = chatRoomRepository.findObjectList(userEntity.getId());
+
+        // 3. entity -> dto 전환
+        List<ChatRoomResponseDto.FindList> result = new ArrayList<>();
+        for(Object[] entity : objectList) {
+            // 3-1. dto 전환 및 리스트 추가
+            result.add(ChatRoomResponseDto.FindList.builder()
+                    .chatRoomId((Long) entity[0])
+                    .partnerId((Long) entity[1])
+                    .partnerName((String) entity[2])
+                    .patientLogId((Long) entity[3])
+                    .patientLogName((String) entity[4])
+                    .build());
+        }
+        return result;
     }
 
     @Override
