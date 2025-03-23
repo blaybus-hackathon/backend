@@ -20,6 +20,10 @@ import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -140,8 +144,36 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatMsgResponseDto.FindChatDetail> findChatDetail(ChatMsgRequestDto.FindChatDetail dto) {
-//        chatMsgRepository.findBySender_IdAndReceiver_IdAndPatientLog_Id(senderId, receiverId, patientLogId);
-        return null;
+    public ChatMsgResponseDto.FindChatDetail findChatDetail(ChatMsgRequestDto.FindChatDetail dto, String userEmail) {
+        //1. 로그인 사용자 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail);
+        if(userOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.MEMBER_NOT_FOUND);
+        TblUser userEntity = userOpt.get();
+
+        //2. 채팅방 조회
+        Optional<TblChatRoom> chatRoomOpt = chatRoomRepository.findByIdAndOrUser(dto.getChatRoomId(), userEntity.getId());
+        if(chatRoomOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.WS_NOT_FOUND_CHAT_ROOM);
+        TblChatRoom chatRoomEntity = chatRoomOpt.get();
+
+        //3. 채팅 내역 조회
+        Pageable page = PageRequest.of(dto.getPageNo(), 30, Sort.by(Sort.Direction.DESC, "id"));
+        Page<TblChatMsg> chatListPage = chatMsgRepository.findByChatRoom_Id(dto.getChatRoomId(), page);
+
+        List<TblChatMsg> chatList = chatListPage.getContent();
+        List<ChatMsgResponseDto.FindChatDetailList> chatListDto = new ArrayList<>();
+        for(TblChatMsg entity : chatList) {
+            chatListDto.add(ChatMsgResponseDto.FindChatDetailList.builder()
+                    .senderYn(userEntity.equals(entity.getSender()))
+                    .content(entity.getContent())
+                    .sendTime(entity.getCreateDatetime())
+                    .build());
+        }
+
+        return ChatMsgResponseDto.FindChatDetail.builder()
+                .hasNext(chatListPage.hasNext())
+                .list(chatListDto)
+                .build();
     }
 }

@@ -63,6 +63,7 @@ public enum ExceptionCode {
     WS_NOT_FOUND_SENDER(9001, "송신자 정보를 찾을 수 없습니다."),
     WS_NOT_FOUND_RECEIVER(9002, "수신자 정보를 찾을 수 없습니다."),
     WS_NOT_FOUND_PATIENT_LOG(9003, "환자 정보를 찾을 수 없습니다."),
+    WS_NOT_FOUND_CHAT_ROOM(9004, "채팅방 정보를 찾을 수 없습니다."),
     ;
 
 

@@ -13,8 +13,7 @@ public class ChatMsgRequestDto {
 
     @Data
     public static class FindChatDetail {
-        private Long senderId;
-        private Long receiverId;
-        private Long patientLogId;
+        private int pageNo;
+        private Long chatRoomId;
     }
 }

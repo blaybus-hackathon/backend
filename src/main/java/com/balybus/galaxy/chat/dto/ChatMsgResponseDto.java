@@ -1,31 +1,36 @@
 package com.balybus.galaxy.chat.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class ChatMsgResponseDto {
     @Getter
-    @SuperBuilder
-    public static class BaseDto {
+    @Builder
+    public static class SendPrivateMessage {
         private Long patientLogId;
         private Long senderId;
         private Long receiverId;
-    }
 
-    @Getter
-    @SuperBuilder
-    public static class SendPrivateMessage extends BaseDto{
         private String senderName;
         private String receiverMail;
         private String content;
     }
 
     @Getter
-    @SuperBuilder
-    public static class FindChatDetail extends BaseDto{
-//        private String senderName;
-//        private String receiverMail;
-//        private String content;
+    @Builder
+    public static class FindChatDetail {
+        private boolean hasNext;
+        private List<FindChatDetailList> list;
+    }
+
+    @Getter
+    @Builder
+    public static class FindChatDetailList {
+        private boolean senderYn;
+        private String content;
+        private LocalDateTime sendTime;
     }
 }
