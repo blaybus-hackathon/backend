@@ -4,7 +4,6 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.*;
-import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.FileUploadUtils;
@@ -14,11 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -31,8 +26,12 @@ public class TblImgServiceImpl {
     private String bucket;
 
     /////////////////////////////////////
-    // 로컬에 이미지 업로드
 
+    /**
+     * 로컬 이미지 등록
+     * @param photoFiles MultipartFile[]
+     * @return List<Long>
+     */
     @Transactional
     public List<Long> uploadImg(MultipartFile[] photoFiles) {
         List<Long> imgSeq = new ArrayList<>();

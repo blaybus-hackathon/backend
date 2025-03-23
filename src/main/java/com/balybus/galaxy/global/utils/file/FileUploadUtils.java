@@ -1,11 +1,16 @@
 package com.balybus.galaxy.global.utils.file;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.balybus.galaxy.domain.tblImg.TblImg;
 import com.balybus.galaxy.domain.tblImg.TblImgRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -13,23 +18,33 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 @PropertySource("classpath:/application.yml")
 public class FileUploadUtils {
     @Value("${spring.locations.file-archive}")
     private String archive;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
-    @Autowired
-    private TblImgRepository photoFileRepository;
+    private final TblImgRepository photoFileRepository;
+    private final AmazonS3Client amazonS3;
+
+    private String getUuid() {
+        return (LocalDate.now()+ UUID.randomUUID().toString()).replaceAll("-", "");
+    }
+
+    /* ==========================================================================================
+     * LOCAL
+     * ========================================================================================== */
 
     /**
      * 이미지 업로드 (저장)
@@ -81,10 +96,6 @@ public class FileUploadUtils {
                 .collect(Collectors.toList());
     }
 
-    private String getUuid() {
-        return (LocalDate.now()+ UUID.randomUUID().toString()).replaceAll("-", "");
-    }
-
     /**
      * 이미지 조회
      * @param entity - PhotoFile : 바이트로 변환하려는 포토 entity
@@ -132,5 +143,72 @@ public class FileUploadUtils {
             log.debug("savedFilename : {}", fileEntity.getImgUuid());
             photoFileRepository.delete(fileEntity);
         }
+    }
+
+
+
+
+    /* ==========================================================================================
+     * DEV
+     * ========================================================================================== */
+
+    /**
+     * S3 PreSigned Url 생성
+     * @param prefix String
+     * @param fileName String
+     * @return String
+     */
+    public Map<String, Object> getPresignedUrl(String prefix, String fileName) {
+        if(fileName == null || fileName.isEmpty()) return null;
+
+        String imgUuid = createPath(prefix==null ? "" : prefix, fileName);
+
+        TblImg saveImg = TblImg.builder()
+                .imgOriginName(fileName)
+                .imgUuid(imgUuid)
+                .build();
+        photoFileRepository.save(saveImg);
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = getGeneratePresignedUrlRequest(bucket, imgUuid);
+        URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+        return Map.of(
+                "preSignedUrl", url.toString(),
+                "imgEntity", saveImg
+        );
+    }
+
+    private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
+                .withMethod(HttpMethod.PUT)
+                .withExpiration(getPresignedUrlExpiration());
+
+        generatePresignedUrlRequest.addRequestParameter(
+                Headers.S3_CANNED_ACL,
+                CannedAccessControlList.PublicRead.toString()
+        );
+
+        return generatePresignedUrlRequest;
+    }
+
+    private Date getPresignedUrlExpiration() {
+        Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 2;
+        expiration.setTime(expTimeMillis);
+
+        return expiration;
+    }
+
+    private String createPath(String prefix, String fileName) {
+        String fileId = getUuid();
+        return String.format("%s/%s", prefix, fileId + "-" + fileName);
+    }
+
+    /**
+     * S3 파일 삭제
+     * @param fileEntity TblImg
+     */
+    public void deleteDevFile(TblImg fileEntity) {
+        amazonS3.deleteObject(bucket, fileEntity.getImgUuid());
     }
 }

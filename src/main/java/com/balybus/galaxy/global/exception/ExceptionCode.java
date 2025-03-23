@@ -50,6 +50,7 @@ public enum ExceptionCode {
     FILE_NOT_FOUND(6001, "첨부파일을 찾을 수 없습니다."),
     TOO_MUCH_FILE(6002, "1개의 파일만 등록 가능합니다."),
     NOT_FOUND_TARGET(6003, "주체 정보를 찾을 수 없습니다."),
+    NEED_FILE_NAME(6004, "NULL 또는 1글자 이상의 파일명이 필요합니다."),
 
 
     // 7xxx 관리자
