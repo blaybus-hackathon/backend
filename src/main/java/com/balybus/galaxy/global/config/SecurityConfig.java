@@ -36,6 +36,8 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/ws-chat").permitAll()
+                                .requestMatchers("/page/**").permitAll()
                                 .requestMatchers("/api/update-profile").permitAll()
                                 .requestMatchers("/api/sign/**").permitAll()
                                 .requestMatchers("/api/token/**", "/api/oauth/kakao-signup").permitAll()

@@ -36,7 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         List<String> uriPatterns = List.of(
                 "/",
                 "/api/sign/**", "/api/token/**", "/api/oauth/**", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
-                "/img/**", "/css/**", "/static/js/**", "/docs/**"
+                "/img/**", "/css/**", "/static/js/**", "/docs/**",
+                "/ws-chat", "/page/**"
         );
 
         for (String pattern : uriPatterns) {
