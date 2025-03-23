@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,5 +67,23 @@ public class CookieUtils {
 
         // JWT 쿠키를 응답 헤더에 추가
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+    }
+
+    // SOCKET 통신 쿠키
+    public String  getCookieForSocket(ServerHttpRequest request, String name) {
+        String cookieHeader = request.getHeaders().getFirst(HttpHeaders.COOKIE);
+
+        if (cookieHeader != null) {
+            String[] cookies = cookieHeader.split(";"); // 쿠키는 ;로 구분됨
+
+            for (String cookie : cookies) {
+                String[] cookiePair = cookie.trim().split("=");
+                if (cookiePair.length == 2 && name.equals(cookiePair[0])) {
+                    return cookiePair[1]; // JWT 쿠키 값 반환
+                }
+            }
+        }
+
+        return null; // 쿠키에서 JWT 토큰을 찾을 수 없으면 null 반환
     }
 }

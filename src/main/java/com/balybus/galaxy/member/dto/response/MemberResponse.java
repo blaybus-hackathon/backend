@@ -8,7 +8,20 @@ public class MemberResponse {
     @Builder
     @Getter
     public static class SignInDto{
+        private Long chatSenderId;
         private String email;
         private RoleType userAuth;
+    }
+    @Builder
+    @Getter
+    public static class FindEmail{
+        private int code;
+        private String result;
+    }
+    @Builder
+    @Getter
+    public static class FindPwd{
+        private int code;
+        private String result;
     }
 }

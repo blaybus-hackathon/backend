@@ -6,26 +6,38 @@ import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
-import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.domain.TblHelperExperience;
-import com.balybus.galaxy.helper.domain.TblHelperWorkLocation;
-import com.balybus.galaxy.helper.domain.TblHelperWorkTime;
+import com.balybus.galaxy.helper.domain.*;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
-import com.balybus.galaxy.helper.repositoryImpl.HelperExperienceRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperWorkLocationRepository;
-import com.balybus.galaxy.helper.repositoryImpl.HelperWorkTimeRepository;
+import com.balybus.galaxy.helper.repository.*;
 import com.balybus.galaxy.helper.serviceImpl.HelperService;
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
+import org.apache.http.client.CookieStore;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.HttpResponse;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Service;
+
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -37,11 +49,13 @@ import static com.balybus.galaxy.global.exception.ExceptionCode.*;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class HelperServiceImpl implements HelperService {
 
     private final HelperRepository helperRepository;
     private final MemberRepository memberRepository;
 
+    private final HelperCertRepository helperCertRepository;
     private final HelperWorkLocationRepository helperWorkLocationRepository;
     private final HelperWorkTimeRepository helperWorkTimeRepository;
     private final HelperExperienceRepository helperExperienceRepository;
@@ -60,17 +74,25 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
+        List<TblHelperCert> certificates = helperCertRepository.findAllById(Collections.singleton(tblHelper.getId()));
+        List<HelperCertDTO> certDTOList = new ArrayList<>();
+
+        for(TblHelperCert tblHelperCert : certificates) {
+            certDTOList.add(HelperCertDTO.builder()
+                    .certName(tblHelperCert.getCertName())
+                    .certNum(tblHelperCert.getCertNum())
+                    .certDateIssue(tblHelperCert.getCertDateIssue())
+                    .certSerialNum(tblHelperCert.getCertSerialNum())
+                    .build());
+        }
+
         return HelperResponse.builder()
                 .id(tblHelper.getId())
                 .userEmail(tblUser.getEmail())
                 .name(tblHelper.getName())
                 .phone(tblHelper.getPhone())
                 .addressDetail(tblHelper.getAddressDetail())
-                .essentialCertNo(tblHelper.getEssentialCertNo())
-                .careCertNo(tblHelper.getCareCertNo())
-                .nurseCertNo(tblHelper.getNurseCertNo())
-                .postPartumCertNo(tblHelper.getPostPartumCertNo())
-                .helperOtherCerts(tblHelper.getHelperOtherCerts())
+                .certificates(certDTOList)
                 .carOwnYn(tblHelper.isCarOwnYn())
                 .eduYn(tblHelper.isEduYn())
                 .wage(tblHelper.getWage())
@@ -90,12 +112,21 @@ public class HelperServiceImpl implements HelperService {
 
         tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
         tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
-        tblHelper.setEssentialCertNo(helperProfileDTO.getEssentialCertNo());
-        tblHelper.setCareCertNo(helperProfileDTO.getCareCertNo());
-        tblHelper.setNurseCertNo(helperProfileDTO.getNurseCertNo());
-        tblHelper.setPostPartumCertNo(helperProfileDTO.getPostPartumCertNo());
-        tblHelper.setHelperOtherCerts(helperProfileDTO.getHelperOtherCerts());
 
+        List<TblHelperCert> certificates = helperCertRepository.findAllById(tblHelper.getId());
+
+        for(HelperCertDTO helperCertDTO : helperProfileDTO.getCertificates()) {
+            for(TblHelperCert certificate : certificates) {
+                if(helperCertDTO.getCertName().equals(certificate.getCertName())) {
+                    certificate.setCertNum(helperCertDTO.getCertNum());
+                    certificate.setCertDateIssue(helperCertDTO.getCertDateIssue());
+                    certificate.setCertSerialNum(helperCertDTO.getCertSerialNum());
+                    break;
+                }
+            }
+        }
+
+        helperCertRepository.saveAll(certificates);
         helperRepository.save(tblHelper);
     }
 
@@ -412,4 +443,88 @@ public class HelperServiceImpl implements HelperService {
                 .helperSearchInfos(helperSearchInfos)
                 .build();
     }
+
+    @Override
+    public Map<String, String> saveCertificateByQNet(List<HelperCertDTO> helperCertDTO, UserDetails userDetails) {
+        TblUser tblUser = memberRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
+
+        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        Map<String, String> answers = new HashMap<>();
+        for(HelperCertDTO helperCert : helperCertDTO) {
+            answers.put(helperCert.getCertName(), checkCertificate(
+                    tblHelper.getName(),
+                    tblHelper.getBirthday(),
+                    helperCert.getCertNum(),
+                    String.valueOf(helperCert.getCertDateIssue()),
+                    String.valueOf(helperCert.getCertSerialNum())
+            ));
+        }
+        return answers;
+    }
+
+
+    @Override
+    public String checkCertificate(String name, String birth, String certNo, String issueDate, String insideNo) {
+        // 실제 결과
+        String result = "UNKNOWN";
+
+        // 쿠키 스토어 (세션 관리)
+        CookieStore cookieStore = new BasicCookieStore();
+        try (CloseableHttpClient client = HttpClients.custom()
+                .setDefaultCookieStore(cookieStore)
+                .build()) {
+
+            // 1) 사전 페이지 GET
+            String preUrl = "https://www.q-net.or.kr/qlf006.do?id=qlf00601&gSite=Q&gId=";
+            client.execute(new HttpGet(preUrl)).close();
+
+            // 2) POST 요청
+            String postUrl = "https://www.q-net.or.kr/qlf006.do?id=qlf00601s01";
+            HttpPost post = new HttpPost(postUrl);
+
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("id", "qlf00601s01"));
+            params.add(new BasicNameValuePair("gSite", "Q"));
+            params.add(new BasicNameValuePair("gId", ""));
+            // 주민번호 앞 6자리, 혹은 생년월일
+            params.add(new BasicNameValuePair("resdNo1", birth));
+            // 성명
+            params.add(new BasicNameValuePair("hgulNm", name));
+            // 자격증번호
+            params.add(new BasicNameValuePair("lcsNo", certNo));
+            // 발급(등록) 연월일
+            params.add(new BasicNameValuePair("qualExpDt", issueDate));
+            // 자격증내지번호
+            params.add(new BasicNameValuePair("lcsMngNo", insideNo));
+
+            post.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+
+            HttpResponse response = client.execute(post);
+            String html = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+            // 3) HTML 파싱
+            Document doc = Jsoup.parse(html);
+
+            // “해당결과가 없습니다” 판별
+            if (html.contains("해당결과가 없습니다")) {
+                result = "NOT_FOUND"; // or INVALID
+            } else if (html.contains("유효")) {
+                result = "VALID";
+            } else {
+                // 기타 케이스
+                result = "UNKNOWN";
+            }
+
+        } catch (Exception e) {
+            log.error("큐넷 스크래핑 중 오류 발생", e);
+            result = "ERROR";
+        }
+
+        return result;
+    }
+
+
 }
