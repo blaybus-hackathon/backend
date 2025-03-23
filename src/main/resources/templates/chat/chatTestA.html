@@ -5,9 +5,18 @@
 </head>
 <body>
 <h1>WebSocket Test</h1>
-<button id="btnLogin" onclick="login()">로그인</button>
-<button id="btnSocket" onclick="connectSocket()">소켓연결</button>
-<button id="sendMessageBtn">Send Message</button>
+<div>
+    <label for="loginId">아이디</label><input id="loginId" type="text" placeholder="아이디"/>
+    <label for="loginPw">비밀번호</label><input id="loginPw" type="password" placeholder="비밀번호"/>
+    <button id="btnLogin" onclick="login()">로그인</button>
+    <div id="loginInfo"></div>
+</div>
+<div>
+    <label for="receiverId">채팅상대</label><input id="receiverId" type="text"/>
+    <label for="patientId">어르신</label><input id="patientId" type="text"/>
+    <label for="textMsg">채팅내용</label><input id="textMsg" type="text" placeholder="전송할 채팅내용을 적어주세요."/>
+    <button id="sendMessageBtn">Send Message</button>
+</div>
 <div id="messageContainer"></div>
 
 <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -47,10 +56,10 @@
             // 5. 메시지 전송 버튼 클릭 시
             document.getElementById("sendMessageBtn").onclick = function() {
                 const message = {
-                    content: "안녕하세요, private-message 테스트!",
+                    content: document.getElementById("textMsg").value,
                     senderId: chatSenderId, // 메시지를 보낼 사용자
-                    receiverId: 2, // 메시지를 받을 사용자
-                    patientLogId: 1 // 메시지를 환자
+                    receiverId: document.getElementById("receiverId").value, // 메시지를 받을 사용자
+                    patientLogId: document.getElementById("patientId").value // 메시지를 환자
                 };
                 messageContainer.innerHTML += `<p>보낸 개인 메시지: ${message.content}</p>`;
                 stompClient.send("/app/private-message", {}, JSON.stringify(message)); // private-message 엔드포인트로 메시지 전송
@@ -66,8 +75,8 @@
     function login(){
         console.log('로그인 버튼 클릭 됨.');
         let params = {
-            userId: 'ella.code.j@gmail.com',
-            userPw: 'cwjq*ixIKApe'
+            userId: document.getElementById("loginId").value,
+            userPw: document.getElementById("loginPw").value
         };
 
         $.ajax({
@@ -83,6 +92,7 @@
                     alert("ID 또는 PW가 잘못 입력되었습니다.");
                     return;
                 }
+                document.getElementById("loginInfo").innerHTML += `<p>${response.chatSenderId}</p>`;
                 alert("로그인 성공!");
                 connectSocket(response.chatSenderId);  // 로그인 성공 후 WebSocket 연결 시도
             },
