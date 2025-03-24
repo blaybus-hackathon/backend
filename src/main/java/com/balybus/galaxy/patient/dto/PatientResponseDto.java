@@ -7,9 +7,8 @@ public class PatientResponseDto {
     @Getter
     @Builder
     public static class SavePatientInfo{
-        private Long patientSeq;    // 어르신 정보 구분자 값
-        private String name;        // 이름
-        private String birthYear;   // 생년월일 중 연도 반환
+        private Long patientSeq;        // 어르신 정보 구분자 값
+        private String managerEmail;    // 담당자 이메일
     }
 
     @Getter

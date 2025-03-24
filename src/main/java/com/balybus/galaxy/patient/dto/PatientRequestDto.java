@@ -25,13 +25,13 @@ public class PatientRequestDto {
         protected int careLevel;        // 장기요양등급(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int inmateState;      // 동거인 여부(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int workType;         // 근무종류(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
-        protected int gender;           //남성:1 여성:2 : 선택된 항목의 careVal 값을 합산해주세요
+        protected int gender;           // 남성:1 여성:2 : 선택된 항목의 careVal 값을 합산해주세요
         protected int dementiaSymptom;  // 치매증상(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int serviceMeal;      // 식사보조(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int serviceToilet;    // 배변보조(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int serviceMobility;  // 이동보조(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
         protected int serviceDaily;     // 일상생활(TblCare) : 선택된 항목의 careVal 값을 합산해주세요
-        protected String name;          //어르신 이름
+        protected String name;          // 어르신 이름
         protected String birthDate;     // 생년월일
         protected Double weight;        // 몸무게
         protected String diseases;      // 보유 질병/질환
@@ -40,6 +40,7 @@ public class PatientRequestDto {
 
         protected List<savePatientTimeInfo> timeList; // 돌봄요일 리스트 : 선택한 요일에 대한 데이터만 리스트에 넣어서 전달.
     }
+
 
     @Data
     public static class savePatientTimeInfo{

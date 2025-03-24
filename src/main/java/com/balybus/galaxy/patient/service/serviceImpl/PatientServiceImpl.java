@@ -11,6 +11,7 @@ import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
@@ -57,21 +58,23 @@ public class PatientServiceImpl implements PatientService {
 
     /**
      * 어르신 정보 등록
-     * @param userDetails UserDetails:토큰 조회 결과 데이터
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
      * @param dto PatientRequestDto.SavePatientInfo
      * @return PatientResponseDto.SavePatientInfo
      */
     @Override
     @Transactional
-    public PatientResponseDto.SavePatientInfo savePatientInfo(UserDetails userDetails, PatientRequestDto.SavePatientInfo dto) {
+    public PatientResponseDto.SavePatientInfo savePatientInfo(String userEmail, PatientRequestDto.SavePatientInfo dto) {
         //1. 관리자 정보 조회
         //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
 
         //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
-        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
         TblCenterManager centerManager = centerManagerOpt.get();
 
         //2. 어르신 정보 등록
@@ -93,11 +96,10 @@ public class PatientServiceImpl implements PatientService {
 
         patientTimeRepository.saveAll(savePatientTimeList);
 
-        //4. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
+        //4. 어르신 정보 구분자 값, 담당자 이메일 반환
         return PatientResponseDto.SavePatientInfo.builder()
                 .patientSeq(patient.getId())
-                .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(0, 4))
+                .managerEmail(userEmail)
                 .build();
     }
 
