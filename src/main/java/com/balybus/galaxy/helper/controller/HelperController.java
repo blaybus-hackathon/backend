@@ -177,18 +177,28 @@ public class HelperController {
     }
 
     /**
-     * 매칭 요청 목록에서 자세히 보기 클릭
+     * 매칭 요청 목록에서 자세히 보기 클릭시 나오는 어르신 상세 정보 보기
      */
     @GetMapping("/get-matching-patient-detail")
     public ResponseEntity<MatchedPatientResponseDTO> getMatchingPatient(@RequestParam(name = "patientId") Long patientId, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(helperService.getMatchedPatient(patientId, userDetails));
     }
 
+    /**
+     * 매칭 완료 목록 조회
+     * @param userDetails
+     * @return
+     */
     @GetMapping("/get-matched-patient-list")
     public ResponseEntity<List<MatchedListResponseDTO>> getMatchedPatientList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(helperService.getMatchedPatientList(userDetails));
     }
 
+    /**
+     * 매칭 완료 목족 조회에서 어르신 상세 조회
+     * @param patientId
+     * @return
+     */
     @GetMapping("/get-matched-patient-list-detail")
     public ResponseEntity<TblPatient> getMatchedPatientListDetail(@RequestParam(name = "patientId") Long patientId) {
         return ResponseEntity.ok(helperService.getMathedPatientDetail(patientId));
