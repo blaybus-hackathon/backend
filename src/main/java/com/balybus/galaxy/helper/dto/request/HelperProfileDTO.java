@@ -1,5 +1,6 @@
 package com.balybus.galaxy.helper.dto.request;
 
+import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -15,12 +16,8 @@ import java.util.List;
 public class HelperProfileDTO {
     private String introduce;
     private Boolean careExperience;
-    private String essentialCertNo;
-    private String careCertNo;
-    private String nurseCertNo;
-    private String postPartumCertNo;
     @NotEmpty(message = "자격증은 최소 1개 이상 필수입니다.")
-    private List<String> helperOtherCerts;
+    private List<HelperCertDTO> certificates;
 
 
 }

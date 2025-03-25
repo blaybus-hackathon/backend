@@ -40,6 +40,7 @@ public enum ExceptionCode {
     CENTER_NOT_FOUND(4003, "센터 정보를 찾을 수 없습니다."),
     CENTER_EXIST(4004, "센터 정보가 존재합니다."),
     UNAUTHORIZED(4005, "권한이 없습니다."),
+    ALREADY_EXISTS_USER_EMAIL(4007, "카카오 이메일이 이미 존재합니다."),
 
     // 5xxx 서버에러
     INTERNAL_SEVER_ERROR(5000, "서버에서 에러가 발생하였습니다."),
@@ -49,6 +50,7 @@ public enum ExceptionCode {
     FILE_NOT_FOUND(6001, "첨부파일을 찾을 수 없습니다."),
     TOO_MUCH_FILE(6002, "1개의 파일만 등록 가능합니다."),
     NOT_FOUND_TARGET(6003, "주체 정보를 찾을 수 없습니다."),
+    NEED_FILE_NAME(6004, "NULL 또는 1글자 이상의 파일명이 필요합니다."),
 
 
     // 7xxx 관리자
@@ -57,6 +59,12 @@ public enum ExceptionCode {
 
     // 8xxx 어르신
     NOT_FOUND_PATIENT(8000, "해당 어르신 정보를 찾을 수 없습니다."),
+
+    // 9xxx 소켓
+    WS_NOT_FOUND_SENDER(9001, "송신자 정보를 찾을 수 없습니다."),
+    WS_NOT_FOUND_RECEIVER(9002, "수신자 정보를 찾을 수 없습니다."),
+    WS_NOT_FOUND_PATIENT_LOG(9003, "환자 정보를 찾을 수 없습니다."),
+    WS_NOT_FOUND_CHAT_ROOM(9004, "채팅방 정보를 찾을 수 없습니다."),
     ;
 
 
