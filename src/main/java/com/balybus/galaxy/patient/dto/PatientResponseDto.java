@@ -2,22 +2,23 @@ package com.balybus.galaxy.patient.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 public class PatientResponseDto {
     @Getter
-    @Builder
-    public static class SavePatientInfo{
+    @SuperBuilder
+    public static class basicDto {
         private Long patientSeq;        // 어르신 정보 구분자 값
         private String managerEmail;    // 담당자 이메일
     }
 
     @Getter
-    @Builder
-    public static class UpdatePatientInfo{
-        private Long patientSeq;    // 어르신 정보 구분자 값
-        private String name;        // 이름
-        private String birthYear;   // 생년월일 중 연도 반환
-    }
+    @SuperBuilder
+    public static class SavePatientInfo extends basicDto { }
+
+    @Getter
+    @SuperBuilder
+    public static class UpdatePatientInfo extends basicDto { }
 
     @Getter
     @Builder

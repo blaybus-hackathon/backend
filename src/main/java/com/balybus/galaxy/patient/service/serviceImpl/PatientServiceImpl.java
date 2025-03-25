@@ -105,22 +105,25 @@ public class PatientServiceImpl implements PatientService {
 
     /**
      * 어르신 정보 수정
-     * @param userDetails UserDetails:토큰 조회 결과 데이터
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
      * @param dto PatientRequestDto.UpdatePatientInfo
      * @return PatientResponseDto.UpdatePatientInfo
      */
     @Override
     @Transactional
-    public PatientResponseDto.UpdatePatientInfo updatePatientInfo(UserDetails userDetails, PatientRequestDto.UpdatePatientInfo dto) {
+    public PatientResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, PatientRequestDto.UpdatePatientInfo dto) {
         //1. 관리자 정보 조회
         //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
 
         //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
-        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
         TblCenterManager centerManager = centerManagerOpt.get();
+
 
         //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정
         //2-1. 어르신 데이터 조회
@@ -155,8 +158,7 @@ public class PatientServiceImpl implements PatientService {
         //5. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
         return PatientResponseDto.UpdatePatientInfo.builder()
                 .patientSeq(patient.getId())
-                .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(0, 4))
+                .managerEmail(userEmail)
                 .build();
     }
 
