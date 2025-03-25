@@ -36,7 +36,7 @@ public class PatientRequestDto {
         protected Double weight;        // 몸무게
         protected String diseases;      // 보유 질병/질환
         protected Boolean timeNegotiation;    // 돌봄 요일 시간 협의 여부
-        protected String requestContents;     // 기타 요청 사항
+//        protected String requestContents;     // 기타 요청 사항
 
         protected List<savePatientTimeInfo> timeList; // 돌봄요일 리스트 : 선택한 요일에 대한 데이터만 리스트에 넣어서 전달.
     }
@@ -95,7 +95,7 @@ public class PatientRequestDto {
                     .weight(this.weight)
                     .diseases(this.diseases)
                     .timeNegotiation(this.timeNegotiation)
-                    .requestContents(this.requestContents)
+//                    .requestContents(this.requestContents)
                     .build();
         }
     }
@@ -148,7 +148,7 @@ public class PatientRequestDto {
                     .weight(this.weight)
                     .diseases(this.diseases)
                     .timeNegotiation(this.timeNegotiation)
-                    .requestContents(this.requestContents)
+//                    .requestContents(this.requestContents)
                     .build();
         }
     }
