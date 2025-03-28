@@ -1,6 +1,8 @@
 package com.balybus.galaxy.patient.dto;
 
 import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
@@ -19,6 +21,15 @@ public class PatientResponseDto {
     @Getter
     @SuperBuilder
     public static class UpdatePatientInfo extends basicDto { }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class GetOnePatientInfo extends PatientBaseDto {
+        public GetOnePatientInfo(){
+
+        }
+
+    }
 
     @Getter
     @Builder
