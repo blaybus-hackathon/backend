@@ -38,6 +38,13 @@ public class PatientBaseDto {
         private String ptStartTime;  // 시작시간
         private String ptEndTime;    // 종료시간
 
+        public SavePatientTimeInfo(TblPatientTime entity){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            this.ptDate = entity.getPtDate();             // 요일(1:월 ~ 7:일)
+            this.ptStartTime = entity.getPtStartTime().format(formatter);  // 시작시간
+            this.ptEndTime = entity.getPtEndTime().format(formatter);    // 종료시간
+        }
+
         public TblPatientTime toEntity(TblPatient patient) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             return TblPatientTime.builder()

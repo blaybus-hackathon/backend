@@ -6,6 +6,8 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
+import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
@@ -56,6 +58,7 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressThirdRepository addressThirdRepository;
 
     private final MatchingServiceImpl matchingService;
+    private final TblCareServiceImpl careService;
 
     /**
      * 어르신 정보 등록
@@ -195,10 +198,40 @@ public class PatientServiceImpl implements PatientService {
         List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
 
         //4. 반환 dto 생성
-
-
-
-        return null;
+        PatientResponseDto.GetOnePatientInfo resultDto = new PatientResponseDto.GetOnePatientInfo(patient, patientTimeList);
+        TblCareTopEnum[] careTopEnumList = TblCareTopEnum.values();
+        for(TblCareTopEnum careTopEnum : careTopEnumList) {
+            switch (careTopEnum) {
+                case WORK_TYPE:
+                    resultDto.setWorkTypeList(careService.getCareChoiceList(careTopEnum, resultDto.getWorkType()));
+                    break;
+                case CARE_LEVEL:
+                    resultDto.setCareLevelList(careService.getCareChoiceList(careTopEnum, resultDto.getCareLevel()));
+                    break;
+                case DEMENTIA_SYMPTOM:
+                    resultDto.setDementiaSymptomList(careService.getCareChoiceList(careTopEnum, resultDto.getDementiaSymptom()));
+                    break;
+                case INMATE_STATE:
+                    resultDto.setInmateStateList(careService.getCareChoiceList(careTopEnum, resultDto.getInmateState()));
+                    break;
+                case GENDER:
+                    resultDto.setGenderList(careService.getCareChoiceList(careTopEnum, resultDto.getGender()));
+                    break;
+                case SERVICE_MEAL:
+                    resultDto.setServiceMealList(careService.getCareChoiceList(careTopEnum, resultDto.getServiceMeal()));
+                    break;
+                case SERVICE_TOILET:
+                    resultDto.setServiceToiletList(careService.getCareChoiceList(careTopEnum, resultDto.getServiceToilet()));
+                    break;
+                case SERVICE_MOBILITY:
+                    resultDto.setServiceMobilityList(careService.getCareChoiceList(careTopEnum, resultDto.getServiceMobility()));
+                    break;
+                case SERVICE_DAILY:
+                    resultDto.setServiceDailyList(careService.getCareChoiceList(careTopEnum, resultDto.getServiceDaily()));
+                    break;
+            }
+        }
+        return resultDto;
     }
 
     /**

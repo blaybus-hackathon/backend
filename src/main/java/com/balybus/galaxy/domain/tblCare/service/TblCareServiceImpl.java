@@ -78,4 +78,44 @@ public class TblCareServiceImpl implements TblCareService{
 
         return resultDto;
     }
+
+    public List<Long> getCareChoiceList(TblCareTopEnum topEnum, int calValTotal){
+        return careRepository.findByCareIdList(topEnum.getCareSeq(), calValTotal);
+    }
+
+//    public List<Long> getCareChoiceList(TblCareTopEnum topEnum, int calValTotal){
+//        TblCareTopEnum[] careTopEnumList = TblCareTopEnum.values();
+//        for(TblCareTopEnum careTopEnum : careTopEnumList) {
+//            switch (careTopEnum) {
+//                case WORK_TYPE:
+//                    resultDto.setWorkTypeList(careRepository.findByCareIdList(careTopEnum, resultDto.getWorkType()));
+//                    break;
+//                case CARE_LEVEL:
+//                    resultDto.setCareLevelList(careRepository.findByCareIdList(careTopEnum, resultDto.getCareLevel()));
+//                    break;
+//                case DEMENTIA_SYMPTOM:
+//                    resultDto.setDementiaSymptomList(careRepository.findByCareIdList(careTopEnum, resultDto.getDementiaSymptom()));
+//                    break;
+//                case INMATE_STATE:
+//                    resultDto.setInmateStateList(careRepository.findByCareIdList(careTopEnum, resultDto.getInmateState()));
+//                    break;
+//                case GENDER:
+//                    resultDto.setGenderList(careRepository.findByCareIdList(careTopEnum, resultDto.getGender()));
+//                    break;
+//                case SERVICE_MEAL:
+//                    resultDto.setServiceMealList(careRepository.findByCareIdList(careTopEnum, resultDto.getServiceMeal()));
+//                    break;
+//                case SERVICE_TOILET:
+//                    resultDto.setServiceToiletList(careRepository.findByCareIdList(careTopEnum, resultDto.getServiceToilet()));
+//                    break;
+//                case SERVICE_MOBILITY:
+//                    resultDto.setServiceMobilityList(careRepository.findByCareIdList(careTopEnum, resultDto.getServiceMobility()));
+//                    break;
+//                case SERVICE_DAILY:
+//                    resultDto.setServiceDailyList(careRepository.findByCareIdList(careTopEnum, resultDto.getServiceDaily()));
+//                    break;
+//            }
+//        }
+//        return careRepository.findByCareIdList(topEnum.getCareSeq(), calValTotal);
+//    }
 }
