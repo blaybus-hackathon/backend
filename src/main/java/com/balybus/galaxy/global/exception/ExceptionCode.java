@@ -41,6 +41,7 @@ public enum ExceptionCode {
     CENTER_EXIST(4004, "센터 정보가 존재합니다."),
     UNAUTHORIZED(4005, "권한이 없습니다."),
     ALREADY_EXISTS_USER_EMAIL(4007, "카카오 이메일이 이미 존재합니다."),
+    DO_NOT_LOGIN(4008, "로그인이 필요합니다."),
 
     // 5xxx 서버에러
     INTERNAL_SEVER_ERROR(5000, "서버에서 에러가 발생하였습니다."),
