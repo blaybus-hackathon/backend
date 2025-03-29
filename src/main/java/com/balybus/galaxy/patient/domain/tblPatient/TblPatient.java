@@ -113,9 +113,9 @@ public class TblPatient extends BaseEntity implements ChangeProfileImg {
         @Comment("돌봄 요일 시간 협의 여부")
         private Boolean timeNegotiation;
 
-        @Column(name = "patient_request_contents", length = 255)
-        @Comment("기타 요청 사항")
-        private String requestContents;
+//        @Column(name = "patient_request_contents", length = 255)
+//        @Comment("기타 요청 사항")
+//        private String requestContents;
 
         /* ========================================================
          * UPDATE
@@ -145,6 +145,6 @@ public class TblPatient extends BaseEntity implements ChangeProfileImg {
                 this.weight = dto.getWeight();
                 this.diseases = dto.getDiseases();
                 this.timeNegotiation = dto.getTimeNegotiation();
-                this.requestContents = dto.getRequestContents();
+//                this.requestContents = dto.getRequestContents();
         }
 }

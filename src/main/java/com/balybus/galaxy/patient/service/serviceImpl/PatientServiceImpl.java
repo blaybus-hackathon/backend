@@ -6,11 +6,13 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
@@ -21,6 +23,7 @@ import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTimeRepository;
 import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLog;
 import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLogRepository;
+import com.balybus.galaxy.patient.dto.PatientBaseDto;
 import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import com.balybus.galaxy.patient.service.PatientService;
@@ -54,24 +57,27 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressThirdRepository addressThirdRepository;
 
     private final MatchingServiceImpl matchingService;
+    private final TblCareServiceImpl careService;
 
     /**
      * 어르신 정보 등록
-     * @param userDetails UserDetails:토큰 조회 결과 데이터
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
      * @param dto PatientRequestDto.SavePatientInfo
      * @return PatientResponseDto.SavePatientInfo
      */
     @Override
     @Transactional
-    public PatientResponseDto.SavePatientInfo savePatientInfo(UserDetails userDetails, PatientRequestDto.SavePatientInfo dto) {
+    public PatientResponseDto.SavePatientInfo savePatientInfo(String userEmail, PatientRequestDto.SavePatientInfo dto) {
         //1. 관리자 정보 조회
         //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
 
         //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
-        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
         TblCenterManager centerManager = centerManagerOpt.get();
 
         //2. 어르신 정보 등록
@@ -88,37 +94,39 @@ public class PatientServiceImpl implements PatientService {
 
         //3. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
         List<TblPatientTime> savePatientTimeList = new ArrayList<>();
-        for(PatientRequestDto.savePatientTimeInfo ptDto : dto.getTimeList())
+        for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList())
             savePatientTimeList.add(ptDto.toEntity(patient));
 
         patientTimeRepository.saveAll(savePatientTimeList);
 
-        //4. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
+        //4. 어르신 정보 구분자 값, 담당자 이메일 반환
         return PatientResponseDto.SavePatientInfo.builder()
                 .patientSeq(patient.getId())
-                .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(0, 4))
+                .managerEmail(userEmail)
                 .build();
     }
 
     /**
      * 어르신 정보 수정
-     * @param userDetails UserDetails:토큰 조회 결과 데이터
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
      * @param dto PatientRequestDto.UpdatePatientInfo
      * @return PatientResponseDto.UpdatePatientInfo
      */
     @Override
     @Transactional
-    public PatientResponseDto.UpdatePatientInfo updatePatientInfo(UserDetails userDetails, PatientRequestDto.UpdatePatientInfo dto) {
+    public PatientResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, PatientRequestDto.UpdatePatientInfo dto) {
         //1. 관리자 정보 조회
         //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
 
         //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
-        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
         TblCenterManager centerManager = centerManagerOpt.get();
+
 
         //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정
         //2-1. 어르신 데이터 조회
@@ -145,7 +153,7 @@ public class PatientServiceImpl implements PatientService {
 
         //4. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
         List<TblPatientTime> savePatientTimeList = new ArrayList<>();
-        for(PatientRequestDto.savePatientTimeInfo ptDto : dto.getTimeList())
+        for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList())
             savePatientTimeList.add(ptDto.toEntity(patient));
 
         patientTimeRepository.saveAll(savePatientTimeList);
@@ -153,9 +161,46 @@ public class PatientServiceImpl implements PatientService {
         //5. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
         return PatientResponseDto.UpdatePatientInfo.builder()
                 .patientSeq(patient.getId())
-                .name(patient.getName())
-                .birthYear(patient.getBirthDate().substring(0, 4))
+                .managerEmail(userEmail)
                 .build();
+    }
+
+    /**
+     * 어르신 정보 상세 조회
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
+     * @param patientSeq Long
+     * @return PatientResponseDto.GetOnePatientInfo
+     */
+    @Override
+    public PatientResponseDto.GetOnePatientInfo getOnePatientInfo(String userEmail, Long patientSeq) {
+        //1. 관리자 정보 조회
+        //1-1. 로그인 테이블 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
+
+        //1-2. 관리자 테이블 조회
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        TblCenterManager centerManager = centerManagerOpt.get();
+
+        //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자)
+        Optional<TblPatient> patientOpt = patientRepository.findById(patientSeq);
+        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
+        TblPatient patient = patientOpt.get();
+        if(!patient.getManager().getId().equals(centerManager.getId()))
+            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
+
+
+        //3. 어르신 돌봄 시간 요일 조회
+        List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
+
+        //4. 반환 dto 생성
+        PatientResponseDto.GetOnePatientInfo resultDto = new PatientResponseDto.GetOnePatientInfo(patient, patientTimeList);
+        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, false));
+        resultDto.setCareBaseDtoNull();
+        return resultDto;
     }
 
     /**
@@ -213,7 +258,7 @@ public class PatientServiceImpl implements PatientService {
         //4. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장 (time & timeLog)
         List<TblPatientTime> savePatientTimeList = new ArrayList<>();
         List<TblPatientTimeLog> savePatientTimeLogList = new ArrayList<>();
-        for(PatientRequestDto.savePatientTimeInfo ptDto : dto.getTimeList()){
+        for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
             savePatientTimeList.add(ptDto.toEntity(patient));
             savePatientTimeLogList.add(ptDto.toLogEntity(patientLog));
         }
@@ -233,7 +278,7 @@ public class PatientServiceImpl implements PatientService {
                 .build();
     }
 
-    private Map<String, Double> calWage(int wageState, int wage, List<PatientRequestDto.savePatientTimeInfo> timeList){
+    private Map<String, Double> calWage(int wageState, int wage, List<PatientBaseDto.SavePatientTimeInfo> timeList){
         Map<String, Double> calWage = new HashMap<>();
         double timeWage = 0;    // 시급
         double dayWage = 0;     // 일급
@@ -242,7 +287,7 @@ public class PatientServiceImpl implements PatientService {
         double timeCnt = 0;
 
         // 구인하는 돌봄 전체 시간
-        for(PatientRequestDto.savePatientTimeInfo ptDto : timeList){
+        for(PatientBaseDto.SavePatientTimeInfo ptDto : timeList){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
             LocalTime startTime = LocalTime.parse(ptDto.getPtStartTime(), formatter);
             LocalTime endTime = LocalTime.parse(ptDto.getPtEndTime(), formatter);
