@@ -6,8 +6,6 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
-import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
-import com.balybus.galaxy.domain.tblCare.dto.CareChoiceListDto;
 import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
