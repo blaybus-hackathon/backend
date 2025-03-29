@@ -1,5 +1,6 @@
 package com.balybus.galaxy.patient.dto;
 
+import com.balybus.galaxy.domain.tblCare.dto.CareChoiceListDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
 import lombok.Builder;
@@ -30,15 +31,7 @@ public class PatientResponseDto {
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class GetOnePatientInfo extends PatientBaseDto {
-        private List<Long> workTypeList;         // 근무종류
-        private List<Long> careLevelList;        // 장기요양등급
-        private List<Long> dementiaSymptomList;  // 치매증상
-        private List<Long> inmateStateList;      // 동거인 여부
-        private List<Long> genderList;           // 성별
-        private List<Long> serviceMealList;      // 식사보조
-        private List<Long> serviceToiletList;    // 배변보조
-        private List<Long> serviceMobilityList;  // 이동보조
-        private List<Long> serviceDailyList;     // 일상생활
+        private CareChoiceListDto careChoice;
         public GetOnePatientInfo(TblPatient patient, List<TblPatientTime> patientTimeList){
             this.afSeq = patient.getTblAddressFirst().getId();      // 광역시.도 구분자
             this.asSeq = patient.getTblAddressSecond().getId();     // 시.군.구 구분자
@@ -63,6 +56,18 @@ public class PatientResponseDto {
                 timeList.add(new SavePatientTimeInfo(patientTime));
             }
             this.timeList = timeList; // 돌봄요일 리스트 : 선택한 요일에 대한 데이터만 리스트에 넣어서 전달.
+        }
+
+        public void setCareBaseDtoNull(){
+            this.careLevel = null;        // 장기요양등급
+            this.inmateState = null;      // 동거인여부
+            this.workType = null;         // 근무종류
+            this.gender = null;           // 남성:1 여성:2
+            this.dementiaSymptom = null;  // 치매증상
+            this.serviceMeal = null;      // 식사보조
+            this.serviceToilet = null;    // 배변보조
+            this.serviceMobility = null;  // 이동보조
+            this.serviceDaily = null;     // 일상생활
         }
 
     }

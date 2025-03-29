@@ -50,7 +50,6 @@ public class PatientRequestDto {
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class RecruitHelper extends UpdatePatientInfo {
-        private int welfare; // 복리후생(TblCare)
         private Boolean wageNegotiation; //급여 협의 여부
         private int wageState; // 1:시급, 2:일급, 3:주급 구분
         private int wage; // 급여
