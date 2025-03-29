@@ -50,6 +50,13 @@ jobs:
         echo "${{ secrets.YML_MAIL }}" | sed 's/\\n/\n/g' > ./application-mail.yml
       shell: bash
 
+    - name: Make application-oauth.yml
+      run: |
+        cd ./src/main/resources 
+        touch ./application-oauth.yml 
+        echo "${{ secrets.YML_OAUTH }}" | sed 's/\\n/\n/g' > ./application-oauth.yml
+      shell: bash
+
     - name: Build with Gradle
       run: |
           chmod +x ./gradlew
