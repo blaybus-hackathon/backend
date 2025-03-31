@@ -81,6 +81,7 @@ public class TblCareServiceImpl implements TblCareService{
      * @param needWelfare boolean:복리후생 데이터 반환 여부
      * @return CareChoiceListDto
      */
+    @Override
     public CareChoiceListDto getCareChoiceList(CareBaseDto careDto, boolean needWelfare){
         CareChoiceListDto resultDto = new CareChoiceListDto();
         for(TblCareTopEnum careTopEnum : TblCareTopEnum.values()) {
@@ -119,4 +120,6 @@ public class TblCareServiceImpl implements TblCareService{
         }
         return resultDto;
     }
+
+
 }

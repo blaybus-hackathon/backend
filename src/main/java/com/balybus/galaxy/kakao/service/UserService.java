@@ -6,7 +6,7 @@ import com.balybus.galaxy.kakao.dto.request.KakaoUser;
 import com.balybus.galaxy.kakao.dto.response.KakaoResponse;
 import com.balybus.galaxy.kakao.dto.response.OauthToken;
 import com.balybus.galaxy.kakao.repository.TblKakaoRepository;
-import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
+import com.balybus.galaxy.login.serviceImpl.login.LoginServiceImpl;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.domain.type.LoginType;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
