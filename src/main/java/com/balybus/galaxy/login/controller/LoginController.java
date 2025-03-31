@@ -14,7 +14,7 @@ import com.balybus.galaxy.login.dto.request.SignUpDTO;
 import com.balybus.galaxy.login.dto.response.AccessTokenResponse;
 import com.balybus.galaxy.login.dto.response.RefreshTokenResponse;
 import com.balybus.galaxy.login.dto.response.TblHelperResponse;
-import com.balybus.galaxy.login.serviceImpl.service.LoginServiceImpl;
+import com.balybus.galaxy.login.serviceImpl.login.LoginServiceImpl;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;

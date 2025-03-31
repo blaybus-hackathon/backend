@@ -1,4 +1,4 @@
-package com.balybus.galaxy.login.serviceImpl.service;
+package com.balybus.galaxy.login.serviceImpl.login;
 
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMail;
 import com.balybus.galaxy.domain.tblAuthenticationMail.TblAuthenticationMailMsgEnum;
@@ -31,9 +31,7 @@ import com.balybus.galaxy.login.domain.type.RoleType;
 import com.balybus.galaxy.login.dto.request.HelperCertDTO;
 import com.balybus.galaxy.login.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.dto.request.SignUpDTO;
-import com.balybus.galaxy.login.dto.response.TblHelperResponse;
 import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
-import com.balybus.galaxy.login.serviceImpl.LoginService;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.domain.type.LoginType;
 import com.balybus.galaxy.member.dto.request.MemberRequest;

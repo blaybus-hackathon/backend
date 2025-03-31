@@ -10,14 +10,11 @@ import com.balybus.galaxy.domain.tblCare.TblCareRepository;
 import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.login.domain.type.RoleType;
-import com.balybus.galaxy.member.domain.TblUser;
-import com.balybus.galaxy.member.repository.MemberRepository;
+import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
@@ -58,16 +55,32 @@ public class PatientServiceImpl implements PatientService {
     private final TblPatientLogRepository patientLogRepository;
     private final TblPatientTimeLogRepository patientTimeLogRepository;
 
-    private final MemberRepository memberRepository;
-    private final TblCenterManagerRepository centerManagerRepository;
     private final TblAddressFirstRepository addressFirstRepository;
     private final TblAddressSecondRepository addressSecondRepository;
     private final TblAddressThirdRepository addressThirdRepository;
     private final TblCareRepository careRepository;
 
+    private final LoginAuthCheckServiceImpl loginAuthCheckService;
     private final MatchingServiceImpl matchingService;
     private final TblCareServiceImpl careService;
     private final CommonServiceImpl commonService;
+
+    /**
+     * 관리자 사용자의 어르신 정보 접근 권한 확인
+     * @param patientSeq Long: 어르신(TblPatient) 구분자
+     * @param managerSeq Long: 센터 관리자(TblCenterManager) 구분자
+     * @return TblPatient
+     */
+    private TblPatient checkPatientManagerAuth(Long patientSeq, Long managerSeq){
+        Optional<TblPatient> patientOpt = patientRepository.findById(patientSeq);
+        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
+        TblPatient patient = patientOpt.get();
+        if(!patient.getManager().getId().equals(managerSeq))
+            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
+
+        return patient;
+    }
+
 
     /**
      * 어르신 정보 등록
@@ -79,16 +92,7 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public PatientResponseDto.SavePatientInfo savePatientInfo(String userEmail, PatientRequestDto.SavePatientInfo dto) {
         //1. 관리자 정보 조회
-        //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
-        TblUser userEntity = userOpt.get();
-
-        //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
-        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
-                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-        TblCenterManager centerManager = centerManagerOpt.get();
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         //2. 어르신 정보 등록
         //2-1. 주소 정보 검증
@@ -126,25 +130,11 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public PatientResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, PatientRequestDto.UpdatePatientInfo dto) {
         //1. 관리자 정보 조회
-        //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
-        TblUser userEntity = userOpt.get();
-
-        //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
-        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
-                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-        TblCenterManager centerManager = centerManagerOpt.get();
-
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정
         //2-1. 어르신 데이터 조회
-        Optional<TblPatient> patientOpt = patientRepository.findById(dto.getPatientSeq());
-        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
-        TblPatient patient = patientOpt.get();
-        if(!patient.getManager().getId().equals(centerManager.getId()))
-            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
+        TblPatient patient = checkPatientManagerAuth(dto.getPatientSeq(), centerManager.getId());
 
         //2-2. 주소 정보 검증
         Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
@@ -184,24 +174,10 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDto.GetOnePatientInfo getOnePatientInfo(String userEmail, Long patientSeq) {
         //1. 관리자 정보 조회
-        //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
-        TblUser userEntity = userOpt.get();
-
-        //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
-        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
-                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-        TblCenterManager centerManager = centerManagerOpt.get();
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자)
-        Optional<TblPatient> patientOpt = patientRepository.findById(patientSeq);
-        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
-        TblPatient patient = patientOpt.get();
-        if(!patient.getManager().getId().equals(centerManager.getId()))
-            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
-
+        TblPatient patient = checkPatientManagerAuth(patientSeq, centerManager.getId());
 
         //3. 어르신 돌봄 시간 요일 조회
         List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
@@ -216,16 +192,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public PatientResponseDto.GetPatientList getPatientList(String userEmail, PatientRequestDto.GetPatientList dto) {
         //1. 관리자 정보 조회
-        //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
-        TblUser userEntity = userOpt.get();
-
-        //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
-        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
-                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-        TblCenterManager centerManager = centerManagerOpt.get();
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         //2. 해당 관리자가 관리중인 어르신 리스트 조회
         Pageable page = PageRequest.of(
@@ -269,22 +236,11 @@ public class PatientServiceImpl implements PatientService {
     @Transactional
     public PatientResponseDto.RecruitHelper recruitHelper(UserDetails userDetails, PatientRequestDto.RecruitHelper dto) {
         //1. 관리자 정보 조회
-        //1-1. 로그인 테이블 조회
-        Optional<TblUser> userOpt = memberRepository.findByEmail(userDetails.getUsername()); // 토큰 이메일로 정보 조회
-        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-
-        //1-2. 관리자 테이블 조회
-        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userOpt.get().getId());
-        if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
-        TblCenterManager centerManager = centerManagerOpt.get();
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userDetails.getUsername());
 
         //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정 & 로그 등록
         //2-1. 어르신 데이터 조회
-        Optional<TblPatient> patientOpt = patientRepository.findById(dto.getPatientSeq());
-        if(patientOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT);
-        TblPatient patient = patientOpt.get();
-        if(!patient.getManager().getId().equals(centerManager.getId()))
-            throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
+        TblPatient patient = checkPatientManagerAuth(dto.getPatientSeq(), centerManager.getId());
 
         //2-2. 주소 정보 검증
         Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
