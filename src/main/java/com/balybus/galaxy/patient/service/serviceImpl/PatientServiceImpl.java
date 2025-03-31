@@ -6,10 +6,14 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.chat.domain.tblChatMsg.TblChatMsg;
+import com.balybus.galaxy.domain.tblCare.TblCareRepository;
+import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
+import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.login.domain.type.RoleType;
@@ -23,18 +27,23 @@ import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTimeRepository;
 import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLog;
 import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLogRepository;
-import com.balybus.galaxy.patient.dto.PatientBaseDto;
+import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import com.balybus.galaxy.patient.service.PatientService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -55,9 +64,11 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressFirstRepository addressFirstRepository;
     private final TblAddressSecondRepository addressSecondRepository;
     private final TblAddressThirdRepository addressThirdRepository;
+    private final TblCareRepository careRepository;
 
     private final MatchingServiceImpl matchingService;
     private final TblCareServiceImpl careService;
+    private final CommonServiceImpl commonService;
 
     /**
      * 어르신 정보 등록
@@ -201,6 +212,52 @@ public class PatientServiceImpl implements PatientService {
         resultDto.setCareChoice(careService.getCareChoiceList(resultDto, false));
         resultDto.setCareBaseDtoNull();
         return resultDto;
+    }
+
+    @Override
+    public PatientResponseDto.GetPatientList getPatientList(String userEmail, PatientRequestDto.GetPatientList dto) {
+        //1. 관리자 정보 조회
+        //1-1. 로그인 테이블 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
+
+        //1-2. 관리자 테이블 조회
+        Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MANAGER)
+                || centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+        TblCenterManager centerManager = centerManagerOpt.get();
+
+        //2. 해당 관리자가 관리중인 어르신 리스트 조회
+        Pageable page = PageRequest.of(
+                dto.getPageNo()==null ? 0 : dto.getPageNo()
+                , dto.getPageSize()==null ? 10 : dto.getPageSize()
+                , Sort.by(Sort.Order.asc("name"), Sort.Order.desc("birthDate"), Sort.Order.desc("id")));
+        Page<TblPatient> listPage = patientRepository.findByManagerId(centerManager.getId(), page);
+        List<TblPatient> patientEntityList = listPage.getContent();
+
+        //3. 성별/근무종류/주소지/장기요양등급 각 항목 이름 조회 및 dto 리스트 정리
+        List<PatientResponseDto.GetPatientListInfo> resultList = new ArrayList<>();
+        for (TblPatient entity : patientEntityList) {
+            resultList.add(
+                    PatientResponseDto.GetPatientListInfo.builder()
+                            .patientSeq(entity.getId())
+                            .name(entity.getName())
+                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
+                            .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
+                            .inmateStateStr(careRepository.findCalNameListStr(TblCareTopEnum.INMATE_STATE.getCareSeq(), entity.getInmateState()))
+                            .build());
+        }
+
+        //4. 결과 반환
+        return PatientResponseDto.GetPatientList.builder()
+                .totalPage(listPage.getTotalPages())
+                .totalEle(listPage.getTotalElements())
+                .hasNext(listPage.hasNext())
+                .list(resultList)
+                .build();
     }
 
     /**
