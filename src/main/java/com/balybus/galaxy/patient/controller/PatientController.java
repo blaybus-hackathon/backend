@@ -61,7 +61,7 @@ public class PatientController {
         return ResponseEntity.ok().body(patientService.updatePatientInfo(userDetails.getUsername(), dto));
     }
 
-    @PostMapping("/{patientSeq}/detail")
+    @GetMapping("/{patientSeq}/detail")
     @Operation(summary = "어르신 정보 상세 조회 API", description = "어르신 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
