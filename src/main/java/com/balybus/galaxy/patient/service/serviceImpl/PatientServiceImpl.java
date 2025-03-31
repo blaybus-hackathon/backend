@@ -3,9 +3,9 @@ package com.balybus.galaxy.patient.service.serviceImpl;
 import com.balybus.galaxy.address.domain.TblAddressFirst;
 import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.address.domain.TblAddressThird;
-import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
-import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
-import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
+import com.balybus.galaxy.address.serviceImpl.service.TblAddressFirstServiceImpl;
+import com.balybus.galaxy.address.serviceImpl.service.TblAddressSecondServiceImpl;
+import com.balybus.galaxy.address.serviceImpl.service.TblAddressThirdServiceImpl;
 import com.balybus.galaxy.domain.tblCare.TblCareRepository;
 import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
@@ -54,16 +54,15 @@ public class PatientServiceImpl implements PatientService {
     private final TblPatientTimeRepository patientTimeRepository;
     private final TblPatientLogRepository patientLogRepository;
     private final TblPatientTimeLogRepository patientTimeLogRepository;
-
-    private final TblAddressFirstRepository addressFirstRepository;
-    private final TblAddressSecondRepository addressSecondRepository;
-    private final TblAddressThirdRepository addressThirdRepository;
     private final TblCareRepository careRepository;
 
     private final LoginAuthCheckServiceImpl loginAuthCheckService;
     private final MatchingServiceImpl matchingService;
     private final TblCareServiceImpl careService;
     private final CommonServiceImpl commonService;
+    private final TblAddressFirstServiceImpl firstAddressService;
+    private final TblAddressSecondServiceImpl secondAddressService;
+    private final TblAddressThirdServiceImpl thirdAddressService;
 
     /**
      * 관리자 사용자의 어르신 정보 접근 권한 확인
@@ -96,15 +95,12 @@ public class PatientServiceImpl implements PatientService {
 
         //2. 어르신 정보 등록
         //2-1. 주소 정보 검증
-        Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
-        if(firstOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressSecond> secondOpt = addressSecondRepository.findById(dto.getAsSeq());
-        if(secondOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressThird> thirdOpt = addressThirdRepository.findById(dto.getAtSeq());
-        if(thirdOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+        TblAddressFirst firstAddress = firstAddressService.validationCheck(dto.getAfSeq());
+        TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
+        TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
 
         //2-2. 어르신 정보 entity 전환 및 저장
-        TblPatient patient = patientRepository.save(dto.toEntity(centerManager, firstOpt.get(), secondOpt.get(), thirdOpt.get()));
+        TblPatient patient = patientRepository.save(dto.toEntity(centerManager, firstAddress, secondAddress, thirdAddress));
 
         //3. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
         List<TblPatientTime> savePatientTimeList = new ArrayList<>();
@@ -137,15 +133,12 @@ public class PatientServiceImpl implements PatientService {
         TblPatient patient = checkPatientManagerAuth(dto.getPatientSeq(), centerManager.getId());
 
         //2-2. 주소 정보 검증
-        Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
-        if(firstOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressSecond> secondOpt = addressSecondRepository.findById(dto.getAsSeq());
-        if(secondOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressThird> thirdOpt = addressThirdRepository.findById(dto.getAtSeq());
-        if(thirdOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+        TblAddressFirst firstAddress = firstAddressService.validationCheck(dto.getAfSeq());
+        TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
+        TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
 
         //2-3. 데이터 수정
-        patient.basicUpdate(dto, firstOpt.get(), secondOpt.get(), thirdOpt.get());
+        patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
 
         //3. 어르신 돌봄 시간 요일 조회 및 삭제
         List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
@@ -243,15 +236,12 @@ public class PatientServiceImpl implements PatientService {
         TblPatient patient = checkPatientManagerAuth(dto.getPatientSeq(), centerManager.getId());
 
         //2-2. 주소 정보 검증
-        Optional<TblAddressFirst> firstOpt = addressFirstRepository.findById(dto.getAfSeq());
-        if(firstOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressSecond> secondOpt = addressSecondRepository.findById(dto.getAsSeq());
-        if(secondOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
-        Optional<TblAddressThird> thirdOpt = addressThirdRepository.findById(dto.getAtSeq());
-        if(thirdOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_ADDRESS);
+        TblAddressFirst firstAddress = firstAddressService.validationCheck(dto.getAfSeq());
+        TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
+        TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
 
         //2-3. 데이터 수정
-        patient.basicUpdate(dto, firstOpt.get(), secondOpt.get(), thirdOpt.get());
+        patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
 
         //2-4. 임금 계산
         Map<String, Double> calWage = calWage(dto.getWageState(), dto.getWage(), dto.getTimeList());
@@ -261,7 +251,7 @@ public class PatientServiceImpl implements PatientService {
                 dto.toEntity(
                         patient, centerManager,
                         calWage.get("timeWage"), calWage.get("dayWage"), calWage.get("weekWage"),
-                        firstOpt.get(), secondOpt.get(), thirdOpt.get()));
+                        firstAddress, secondAddress, thirdAddress));
 
         //3. 어르신 돌봄 시간 요일 조회 및 삭제
         List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
