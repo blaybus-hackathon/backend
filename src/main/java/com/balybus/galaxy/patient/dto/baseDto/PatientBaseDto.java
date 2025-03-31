@@ -1,4 +1,4 @@
-package com.balybus.galaxy.patient.dto;
+package com.balybus.galaxy.patient.dto.baseDto;
 
 import com.balybus.galaxy.domain.tblCare.dto.CareBaseDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;

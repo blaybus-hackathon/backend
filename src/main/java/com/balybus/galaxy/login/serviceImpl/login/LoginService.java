@@ -1,4 +1,4 @@
-package com.balybus.galaxy.login.serviceImpl;
+package com.balybus.galaxy.login.serviceImpl.login;
 
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenter.dto.CenterResponseDto;

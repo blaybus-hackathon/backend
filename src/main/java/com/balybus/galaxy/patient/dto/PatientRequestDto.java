@@ -6,6 +6,7 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -45,6 +46,12 @@ public class PatientRequestDto {
     public static class UpdatePatientInfo extends PatientBaseDto {
         private Long patientSeq;      //어르신 구분자
 
+    }
+
+    @Data
+    public static class GetPatientList {
+        private Integer pageNo;
+        private Integer pageSize;
     }
 
     @Data

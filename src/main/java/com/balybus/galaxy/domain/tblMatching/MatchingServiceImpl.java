@@ -1,5 +1,6 @@
 package com.balybus.galaxy.domain.tblMatching;
 
+import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,7 @@ public class MatchingServiceImpl {
     private final TblPatientLogRepository patientLogRepository;
     private final HelperRepository helperRepository;
     private final SendMailUtils sendMailUtils;
+    private final CommonServiceImpl commonService;
 
     @Async
     @Transactional
@@ -93,7 +94,7 @@ public class MatchingServiceImpl {
             mailContentList.add(MailMatchingDto.HelperContentDto.builder()
                             .name(helperEntity.getName())
                             .gender(helperEntity.getGender() == 1 ? "남" : "여")
-                            .age(calculateAge(LocalDate.parse(helperEntity.getBirthday(), formatter)))
+                            .age(commonService.calculateAge(LocalDate.parse(helperEntity.getBirthday(), formatter)))
                             .build());
         }
         matchingRepository.saveAll(saveMatchingList);
@@ -119,13 +120,5 @@ public class MatchingServiceImpl {
         } catch (UnsupportedEncodingException | MessagingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private int calculateAge(LocalDate birthDate) {
-        LocalDate currentDate = LocalDate.now();
-        // 생일과 현재 날짜의 차이 계산
-        Period period = Period.between(birthDate, currentDate);
-        // 나이는 Period 객체의 연도를 반환
-        return period.getYears();
     }
 }

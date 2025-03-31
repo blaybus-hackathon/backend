@@ -3,6 +3,7 @@ package com.balybus.galaxy.patient.dto;
 import com.balybus.galaxy.domain.tblCare.dto.CareChoiceListDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
+import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,18 +16,18 @@ import java.util.List;
 public class PatientResponseDto {
     @Getter
     @SuperBuilder
-    public static class basicDto {
+    public static class BasicDto {
         private Long patientSeq;        // 어르신 정보 구분자 값
         private String managerEmail;    // 담당자 이메일
     }
 
     @Getter
     @SuperBuilder
-    public static class SavePatientInfo extends basicDto { }
+    public static class SavePatientInfo extends BasicDto { }
 
     @Getter
     @SuperBuilder
-    public static class UpdatePatientInfo extends basicDto { }
+    public static class UpdatePatientInfo extends BasicDto { }
 
     @Data
     @EqualsAndHashCode(callSuper = true)
@@ -70,6 +71,27 @@ public class PatientResponseDto {
             this.serviceDaily = null;     // 일상생활
         }
 
+    }
+
+    @Getter
+    @Builder
+    public static class GetPatientList {
+        private int totalPage;                  // 전페 페이지 개수
+        private long totalEle;                  // 전체 리스트 개수
+        private boolean hasNext;                // 다음 페이지 존재 여부
+        private List<GetPatientListInfo> list;  // 리스트
+    }
+
+    @Getter
+    @Builder
+    public static class GetPatientListInfo {
+        private Long patientSeq;        // 구분자
+        private String name;            // 이름
+        private String genderStr;       // 성별
+        private int age;                // 나이
+        private String careLevelStr;    // 근무종류
+        private String address;         // 주소지
+        private String inmateStateStr;  // 장기요양등급
     }
 
     @Getter

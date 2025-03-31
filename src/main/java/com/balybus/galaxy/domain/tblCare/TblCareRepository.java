@@ -17,4 +17,13 @@ public interface TblCareRepository extends JpaRepository<TblCare, Long> {
             and care_val & :calValTotal <> 0
             """, nativeQuery = true)
     List<Long> findByCareIdList(@Param("topCareSeq") Long topCareSeq, @Param("calValTotal") int calValTotal);
+
+    @Query(value = """
+            select group_concat(care_name separator ', ')
+            from tbl_care tc
+            where care_yn = true
+            and top_care_seq = :topCareSeq
+            and care_val & :calValTotal <> 0
+            """, nativeQuery = true)
+    String findCalNameListStr(@Param("topCareSeq") Long topCareSeq, @Param("calValTotal") int calValTotal);
 }
