@@ -4,8 +4,6 @@ import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
-
 public interface PatientService {
     PatientResponseDto.SavePatientInfo savePatientInfo(String userEmail, PatientRequestDto.SavePatientInfo dto); // 어르신 등록
     PatientResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, PatientRequestDto.UpdatePatientInfo dto); // 어르신 정보 수정
