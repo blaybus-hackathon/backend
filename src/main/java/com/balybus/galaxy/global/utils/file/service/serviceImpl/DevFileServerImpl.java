@@ -78,4 +78,9 @@ public class DevFileServerImpl extends AbstractFileService {
             photoFileRepository.delete(fileEntity);
         }
     }
+
+    @Override
+    public String getOneImgUrlInternal(String fileUuid) {
+        return amazonS3.getUrl(bucket, fileUuid).toString();
+    }
 }

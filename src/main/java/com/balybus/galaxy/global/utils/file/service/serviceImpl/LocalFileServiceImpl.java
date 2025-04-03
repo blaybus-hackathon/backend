@@ -98,4 +98,9 @@ public class LocalFileServiceImpl extends AbstractFileService {
             photoFileRepository.delete(fileEntity);
         }
     }
+
+    @Override
+    public String getOneImgUrlInternal(String fileUuid) {
+        return Paths.get(archive, fileUuid).toString();
+    }
 }
