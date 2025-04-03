@@ -86,6 +86,7 @@ public class PatientResponseDto {
     @Builder
     public static class GetPatientListInfo {
         private Long patientSeq;        // 구분자
+        private String imgAddress;      // 이미지 주소
         private String name;            // 이름
         private String genderStr;       // 성별
         private int age;                // 나이

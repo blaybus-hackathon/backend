@@ -52,6 +52,20 @@ public abstract class AbstractFileService implements FileService{
     // 각 환경별 삭제 로직은 하위 클래스에서 구현
     public abstract void deleteFileInternal(TblImg fileEntity);
 
+
+    @Override
+    public String getOneImgUrl(Long fileSeq){
+        // 1. 데이터 찾기
+        TblImg fileEntity = photoFileRepository.findById(fileSeq)
+                .orElseThrow(() -> new BadRequestException(ExceptionCode.FILE_NOT_FOUND));
+
+        // 2. 파일 url 반환
+        return getOneImgUrlInternal(fileEntity.getImgUuid());
+    }
+    public abstract String getOneImgUrlInternal(String fileUuid);
+
+
+
     /**
      * 공통적으로 사용될 파일 이름 생성 로직
      * @return String

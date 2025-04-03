@@ -14,6 +14,7 @@ import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.global.utils.file.service.FileService;
 import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
@@ -63,6 +64,7 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressFirstServiceImpl firstAddressService;
     private final TblAddressSecondServiceImpl secondAddressService;
     private final TblAddressThirdServiceImpl thirdAddressService;
+    private final FileService fileService;
 
     /**
      * 관리자 사용자의 어르신 정보 접근 권한 확인
@@ -201,6 +203,7 @@ public class PatientServiceImpl implements PatientService {
             resultList.add(
                     PatientResponseDto.GetPatientListInfo.builder()
                             .patientSeq(entity.getId())
+                            .imgAddress(entity.getImg() == null ? null : fileService.getOneImgUrl(entity.getImg().getId()))
                             .name(entity.getName())
                             .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
                             .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
