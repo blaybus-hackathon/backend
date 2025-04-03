@@ -1,21 +1,33 @@
 package com.balybus.galaxy.login.infrastructure.jwt;
 
+import com.balybus.galaxy.global.config.jwt.CookieUtils;
 import com.balybus.galaxy.global.config.jwt.ExpiredTokenException;
 import com.balybus.galaxy.global.config.jwt.InvalidTokenException;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedis;
+import com.balybus.galaxy.global.config.jwt.redis.TokenRedisRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.lettuce.core.RedisException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.security.Key;
 import java.util.Date;
 
 import static com.balybus.galaxy.global.exception.ExceptionCode.INVALID_REFRESH_TOKEN;
 
+@Slf4j
 @Service
 public class TokenProvider {
+
+    private final TokenRedisRepository tokenRedisRepository;
+    private final CookieUtils cookieUtils;
 
 
     private static final String EMPTY_STRING = "";
@@ -28,12 +40,16 @@ public class TokenProvider {
             @Value("${jwt.issuer}") final String issuer,
             @Value("${jwt.secret-key}") final String secretKey,
             @Value("${jwt.access-expiration-time}") final Long accessExpirationTime,
-            @Value("${jwt.refresh-expiration-time}") final Long refreshExpirationTime
+            @Value("${jwt.refresh-expiration-time}") final Long refreshExpirationTime,
+            final TokenRedisRepository tokenRedisRepository,
+            final CookieUtils cookieUtils
     ) {
         this.issuer = issuer;
         this.secretKey = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.accessExpirationTime = accessExpirationTime;
         this.refreshExpirationTime = refreshExpirationTime;
+        this.tokenRedisRepository = tokenRedisRepository;
+        this.cookieUtils = cookieUtils;
     }
 
     /**
@@ -113,4 +129,52 @@ public class TokenProvider {
         }
         return null;
     }
+
+    @Transactional
+    public String replaceAccessToken(HttpServletRequest request, HttpServletResponse response, String accessToken) throws IOException {
+        try{
+            // redis 엔티티 조회
+            TokenRedis tokenRedis = tokenRedisRepository.findByAccessToken(accessToken).orElseThrow(() -> new InvalidTokenException("다시 로그인 해 주세요."));
+            String refreshToken = tokenRedis.getRefreshToken();
+
+            // 리프레시 토큰 유효성 검사
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(refreshToken);
+
+            log.error("## 토큰 재발급 시작..");
+
+            // authentication 생성
+            String email = getUsername(refreshToken);
+
+            // 새로운 액세스 토큰 발급
+            String newAccessToken = generateAccessToken(email);
+
+            // 쿠키 AccessToken 업데이트
+            cookieUtils.saveCookie(request, response, newAccessToken);
+
+            // redis AccessToken 업데이트
+            tokenRedis.updateAccessToken(newAccessToken);
+            tokenRedisRepository.save(tokenRedis);
+            log.error("## 토큰 재발급 완료!");
+
+            return email;
+
+        } catch (ExpiredJwtException | InvalidTokenException exception) { // 이미 재 발급된 토큰 사용 or  리프레시 토큰 만료
+            log.error(exception.getMessage());
+            response.sendRedirect("/error");
+        } catch (RedisException redisException){
+            log.error(redisException.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Redis 서버 에러");
+        }
+        return null;
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"error\": \"" + message + "\"}");
+    }
+
+
+
 }

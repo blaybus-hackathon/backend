@@ -1,10 +1,17 @@
 package com.balybus.galaxy.global.common;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
+import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
 import com.balybus.galaxy.domain.tblImg.dto.ImgResponseDto;
+import com.balybus.galaxy.login.domain.type.RoleType;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+
 public interface CommonService {
-    /** 이미지 파일 저장 (요양보호사, 관리자, 어르신) */
-    ImgResponseDto.uploadUserImg uploadUserImg(UserDetails userDetails, ImgRequestDto.uploadUserImg dto);
+    ImgResponseDto.UploadUserImg uploadUserImg(UserDetails userDetails, RoleType roleType, ImgRequestDto.uploadUserImg dto);
+    int calculateAge(LocalDate birthDate); //만 나이 계산기
+    String fullAddressString(TblAddressFirst first, TblAddressSecond second, TblAddressThird third); // 주소 반환
 }

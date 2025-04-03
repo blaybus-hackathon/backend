@@ -6,6 +6,7 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +18,7 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor
 @Builder
 @Getter
-public class TblPatient extends BaseEntity {
+public class TblPatient extends BaseEntity implements ChangeProfileImg {
         @Id
         @Column(name = "patient_seq")
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -112,13 +113,19 @@ public class TblPatient extends BaseEntity {
         @Comment("돌봄 요일 시간 협의 여부")
         private Boolean timeNegotiation;
 
-        @Column(name = "patient_request_contents", length = 255)
-        @Comment("기타 요청 사항")
-        private String requestContents;
+//        @Column(name = "patient_request_contents", length = 255)
+//        @Comment("기타 요청 사항")
+//        private String requestContents;
 
         /* ========================================================
          * UPDATE
          * ========================================================*/
+        @Override
+        public TblImg getImg() { return this.img; }
+
+        @Override
+        public void updateImg(TblImg img) { this.img = img; }
+
         public void basicUpdate(PatientRequestDto.UpdatePatientInfo dto,TblAddressFirst tblAddressFirst,
                                 TblAddressSecond tblAddressSecond, TblAddressThird tblAddressThird){
                 this.tblAddressFirst = tblAddressFirst;
@@ -138,6 +145,6 @@ public class TblPatient extends BaseEntity {
                 this.weight = dto.getWeight();
                 this.diseases = dto.getDiseases();
                 this.timeNegotiation = dto.getTimeNegotiation();
-                this.requestContents = dto.getRequestContents();
+//                this.requestContents = dto.getRequestContents();
         }
 }
