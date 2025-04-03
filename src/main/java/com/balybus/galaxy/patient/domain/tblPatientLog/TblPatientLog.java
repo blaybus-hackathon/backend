@@ -52,6 +52,13 @@ public class TblPatientLog extends BaseEntity {
     @Comment("주급")
     private double weekWage;
 
+    @Column(name = "pl_request_contents", length = 255)
+    @Comment("기타 요청 사항")
+    private String requestContents;
+
+
+
+
     // TblPatient 데이블 공통 사항
     @ManyToOne
     @JoinColumn(name = "patient_seq", nullable = false)
@@ -140,9 +147,4 @@ public class TblPatientLog extends BaseEntity {
     @Column(name = "pl_time_negotiation")
     @Comment("돌봄 요일 시간 협의 여부")
     private Boolean timeNegotiation;
-
-    @Column(name = "pl_request_contents", length = 255)
-    @Comment("기타 요청 사항")
-    private String requestContents;
-
 }
