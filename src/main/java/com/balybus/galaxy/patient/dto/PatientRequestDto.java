@@ -57,9 +57,10 @@ public class PatientRequestDto {
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class RecruitHelper extends UpdatePatientInfo {
-        private Boolean wageNegotiation; //급여 협의 여부
-        private int wageState; // 1:시급, 2:일급, 3:주급 구분
-        private int wage; // 급여
+        private Boolean wageNegotiation;    //급여 협의 여부
+        private int wageState;              // 1:시급, 2:일급, 3:주급 구분
+        private int wage;                   // 급여
+        private String requestContents;     // 기타 요청 사항
 
         // entity 전환
         public TblPatientLog toEntity(
@@ -75,6 +76,7 @@ public class PatientRequestDto {
                     .timeWage(timeWage)
                     .dayWage(dayWage)
                     .weekWage(weekWage)
+                    .requestContents(this.requestContents)
                     .patient(patient)
                     .manager(manager)
                     .tblAddressFirst(tblAddressFirst)
