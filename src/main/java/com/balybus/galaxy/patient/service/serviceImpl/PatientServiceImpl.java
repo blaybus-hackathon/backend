@@ -243,8 +243,20 @@ public class PatientServiceImpl implements PatientService {
         TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
         TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
 
-        //2-3. 데이터 수정
-        patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
+        //2-3. TblPatientTime 업데이트 여부에 설정에 따른 어르신 데이터 수정
+        if(dto.getLinkingYn()){
+            //2-3-1. 어르신 데이터 수정
+            patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
+            //2-3-2. 어르신 돌봄 시간 요일 조회 및 삭제
+            List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
+            patientTimeRepository.deleteAll(patientTimeList);
+            //2-3-3. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
+            List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+            for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
+                savePatientTimeList.add(ptDto.toEntity(patient));
+            }
+            patientTimeRepository.saveAll(savePatientTimeList);
+        }
 
         //2-4. 임금 계산
         Map<String, Double> calWage = calWage(dto.getWageState(), dto.getWage(), dto.getTimeList());
@@ -256,24 +268,16 @@ public class PatientServiceImpl implements PatientService {
                         calWage.get("timeWage"), calWage.get("dayWage"), calWage.get("weekWage"),
                         firstAddress, secondAddress, thirdAddress));
 
-        //3. 어르신 돌봄 시간 요일 조회 및 삭제
-        List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
-        patientTimeRepository.deleteAll(patientTimeList);
-
-        //4. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장 (time & timeLog)
-        List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+        //3. TblPatientTimeLog 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
         List<TblPatientTimeLog> savePatientTimeLogList = new ArrayList<>();
         for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
-            savePatientTimeList.add(ptDto.toEntity(patient));
             savePatientTimeLogList.add(ptDto.toLogEntity(patientLog));
         }
 
-        patientTimeRepository.saveAll(savePatientTimeList);
         patientTimeLogRepository.saveAll(savePatientTimeLogList);
 
-        //5. 요양보호사 추천 리스트 매칭
+        //4. 요양보호사 추천 리스트 매칭
         matchingService.matchingSystem(patientLog.getId());
-
 
         return PatientResponseDto.RecruitHelper.builder()
                 .plSeq(patientLog.getId())
