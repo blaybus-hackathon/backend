@@ -331,4 +331,43 @@ public class PatientServiceImpl implements PatientService {
         calWage.put("weekWage", weekWage);
         return calWage;
     }
+
+
+    @Override
+    public PatientResponseDto.GetRecruitList getRecruitList(String userEmail, PatientRequestDto.GetRecruitList dto) {
+        //1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 관리중인 어르신 공고 리스트 조회
+        Pageable page = PageRequest.of(
+                dto.getPageNo()==null ? 0 : dto.getPageNo()
+                , dto.getPageSize()==null ? 10 : dto.getPageSize()
+                , Sort.by(Sort.Order.asc("name"), Sort.Order.desc("birthDate"), Sort.Order.desc("id")));
+        Page<TblPatientLog> listPage = patientLogRepository.findByManagerId(centerManager.getId(), page);
+        List<TblPatientLog> patientEntityList = listPage.getContent();
+
+        //3. 성별/근무종류/주소지/장기요양등급 각 항목 이름 조회 및 dto 리스트 정리
+        List<PatientResponseDto.GetRecruitListInfo> resultList = new ArrayList<>();
+        for (TblPatientLog entity : patientEntityList) {
+            resultList.add(
+                    PatientResponseDto.GetRecruitListInfo.builder()
+                            .patientLogSeq(entity.getId())
+                            .imgAddress(entity.getPatient().getImg() == null ? null : fileService.getOneImgUrl(entity.getPatient().getImg().getId()))
+                            .name(entity.getName())
+                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
+                            .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
+                            .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
+                            .build());
+        }
+
+        //4. 결과 반환
+        return PatientResponseDto.GetRecruitList.builder()
+                .totalPage(listPage.getTotalPages())
+                .totalEle(listPage.getTotalElements())
+                .hasNext(listPage.hasNext())
+                .list(resultList)
+                .build();
+    }
 }

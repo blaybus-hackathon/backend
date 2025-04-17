@@ -106,4 +106,23 @@ public class PatientController {
         return ResponseEntity.ok().body(patientService.recruitHelper(userDetails, dto));
     }
 
+    @GetMapping("/recruit-list")
+    @Operation(summary = "어르신 공고 리스트 조회 API", description = "어르신 공고 리스트 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = PatientResponseDto.SavePatientInfo.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "8000", description = "사용자정의에러코드:해당 어르신 정보를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7001", description = "사용자정의에러코드:조회 권한 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> getRecruitList(@AuthenticationPrincipal UserDetails userDetails,
+                                            PatientRequestDto.GetRecruitList dto) {
+        return ResponseEntity.ok().body(patientService.getRecruitList(userDetails.getUsername(), dto));
+    }
+
 }

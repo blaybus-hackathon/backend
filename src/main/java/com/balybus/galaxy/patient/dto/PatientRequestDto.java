@@ -100,4 +100,12 @@ public class PatientRequestDto {
                     .build();
         }
     }
+
+
+
+    @Data
+    public static class GetRecruitList {
+        private Integer pageNo;
+        private Integer pageSize;
+    }
 }

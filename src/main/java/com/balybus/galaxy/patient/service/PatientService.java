@@ -10,4 +10,5 @@ public interface PatientService {
     PatientResponseDto.GetOnePatientInfo getOnePatientInfo(String userEmail, Long patientSeq); // 어르신 정보 상세 조회
     PatientResponseDto.GetPatientList getPatientList(String userEmail,PatientRequestDto.GetPatientList dto); // 어르신 리스트 조회
     PatientResponseDto.RecruitHelper recruitHelper(UserDetails userDetails, PatientRequestDto.RecruitHelper dto); // 어르신 공고 등록
+    PatientResponseDto.GetRecruitList getRecruitList(String userEmail,PatientRequestDto.GetRecruitList dto); // 어르신 리스트 조회
 }
