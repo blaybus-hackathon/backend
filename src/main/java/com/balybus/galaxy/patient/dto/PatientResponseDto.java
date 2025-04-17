@@ -90,9 +90,9 @@ public class PatientResponseDto {
         private String name;            // 이름
         private String genderStr;       // 성별
         private int age;                // 나이
-        private String careLevelStr;    // 근무종류
+        private String workType;  // 근무종류
         private String address;         // 주소지
-        private String inmateStateStr;  // 장기요양등급
+        private String careLevelStr;    // 장기요양등급
     }
 
     @Getter
@@ -102,5 +102,29 @@ public class PatientResponseDto {
         private Long patientSeq;    // 어르신 정보 구분자 값
         private String name;        // 이름
         private String birthYear;   // 생년월일 중 연도 반환
+    }
+
+
+
+    @Getter
+    @Builder
+    public static class GetRecruitList {
+        private int totalPage;                  // 전페 페이지 개수
+        private long totalEle;                  // 전체 리스트 개수
+        private boolean hasNext;                // 다음 페이지 존재 여부
+        private List<GetRecruitListInfo> list;  // 리스트
+    }
+
+    @Getter
+    @Builder
+    public static class GetRecruitListInfo {
+        private Long patientLogSeq;        // 구분자
+        private String imgAddress;      // 이미지 주소
+        private String name;            // 이름
+        private String genderStr;       // 성별
+        private int age;                // 나이
+        private String workType;  // 근무종류
+        private String address;         // 주소지
+        private String careLevelStr;    // 장기요양등급
     }
 }
