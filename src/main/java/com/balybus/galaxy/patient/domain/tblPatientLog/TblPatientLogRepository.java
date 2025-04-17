@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TblPatientLogRepository extends JpaRepository<TblPatientLog, Long> {
     Page<TblPatientLog> findByManagerId(Long managerSeq, Pageable page);
+    Page<TblPatientLog> findByPatientIdAndManagerId(Long patientSeq, Long managerSeq, Pageable page);
 }

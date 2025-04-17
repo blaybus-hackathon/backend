@@ -101,11 +101,16 @@ public class PatientRequestDto {
         }
     }
 
-
-
     @Data
     public static class GetRecruitList {
         private Integer pageNo;
         private Integer pageSize;
+    }
+
+    @Data
+    public static class GetRecruitPersonalList {
+        private Integer pageNo;
+        private Integer pageSize;
+        private Long patientSeq;
     }
 }
