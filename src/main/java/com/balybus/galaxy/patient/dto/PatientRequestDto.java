@@ -57,6 +57,7 @@ public class PatientRequestDto {
     @Data
     @EqualsAndHashCode(callSuper = true)
     public static class RecruitHelper extends UpdatePatientInfo {
+        private Boolean linkingYn;          //어르신 기본정보로 업데이트 할 것인지 여부
         private Boolean wageNegotiation;    //급여 협의 여부
         private int wageState;              // 1:시급, 2:일급, 3:주급 구분
         private int wage;                   // 급여
@@ -98,5 +99,18 @@ public class PatientRequestDto {
                     .timeNegotiation(this.timeNegotiation)
                     .build();
         }
+    }
+
+    @Data
+    public static class GetRecruitList {
+        private Integer pageNo;
+        private Integer pageSize;
+    }
+
+    @Data
+    public static class GetRecruitPersonalList {
+        private Integer pageNo;
+        private Integer pageSize;
+        private Long patientSeq;
     }
 }

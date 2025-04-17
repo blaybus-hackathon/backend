@@ -243,8 +243,20 @@ public class PatientServiceImpl implements PatientService {
         TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
         TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
 
-        //2-3. 데이터 수정
-        patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
+        //2-3. TblPatientTime 업데이트 여부에 설정에 따른 어르신 데이터 수정
+        if(dto.getLinkingYn()){
+            //2-3-1. 어르신 데이터 수정
+            patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
+            //2-3-2. 어르신 돌봄 시간 요일 조회 및 삭제
+            List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
+            patientTimeRepository.deleteAll(patientTimeList);
+            //2-3-3. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
+            List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+            for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
+                savePatientTimeList.add(ptDto.toEntity(patient));
+            }
+            patientTimeRepository.saveAll(savePatientTimeList);
+        }
 
         //2-4. 임금 계산
         Map<String, Double> calWage = calWage(dto.getWageState(), dto.getWage(), dto.getTimeList());
@@ -256,24 +268,16 @@ public class PatientServiceImpl implements PatientService {
                         calWage.get("timeWage"), calWage.get("dayWage"), calWage.get("weekWage"),
                         firstAddress, secondAddress, thirdAddress));
 
-        //3. 어르신 돌봄 시간 요일 조회 및 삭제
-        List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
-        patientTimeRepository.deleteAll(patientTimeList);
-
-        //4. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장 (time & timeLog)
-        List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+        //3. TblPatientTimeLog 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
         List<TblPatientTimeLog> savePatientTimeLogList = new ArrayList<>();
         for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
-            savePatientTimeList.add(ptDto.toEntity(patient));
             savePatientTimeLogList.add(ptDto.toLogEntity(patientLog));
         }
 
-        patientTimeRepository.saveAll(savePatientTimeList);
         patientTimeLogRepository.saveAll(savePatientTimeLogList);
 
-        //5. 요양보호사 추천 리스트 매칭
+        //4. 요양보호사 추천 리스트 매칭
         matchingService.matchingSystem(patientLog.getId());
-
 
         return PatientResponseDto.RecruitHelper.builder()
                 .plSeq(patientLog.getId())
@@ -326,5 +330,83 @@ public class PatientServiceImpl implements PatientService {
         calWage.put("dayWage", dayWage);
         calWage.put("weekWage", weekWage);
         return calWage;
+    }
+
+
+    @Override
+    public PatientResponseDto.GetRecruitList getRecruitList(String userEmail, PatientRequestDto.GetRecruitList dto) {
+        //1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 관리중인 어르신 공고 리스트 조회
+        Pageable page = PageRequest.of(
+                dto.getPageNo()==null ? 0 : dto.getPageNo()
+                , dto.getPageSize()==null ? 10 : dto.getPageSize()
+                , Sort.by(Sort.Order.asc("name"), Sort.Order.desc("birthDate"), Sort.Order.desc("id")));
+        Page<TblPatientLog> listPage = patientLogRepository.findByManagerId(centerManager.getId(), page);
+        List<TblPatientLog> patientEntityList = listPage.getContent();
+
+        //3. 성별/근무종류/주소지/장기요양등급 각 항목 이름 조회 및 dto 리스트 정리
+        List<PatientResponseDto.GetRecruitListInfo> resultList = new ArrayList<>();
+        for (TblPatientLog entity : patientEntityList) {
+            resultList.add(
+                    PatientResponseDto.GetRecruitListInfo.builder()
+                            .patientLogSeq(entity.getId())
+                            .imgAddress(entity.getPatient().getImg() == null ? null : fileService.getOneImgUrl(entity.getPatient().getImg().getId()))
+                            .name(entity.getName())
+                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
+                            .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
+                            .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
+                            .build());
+        }
+
+        //4. 결과 반환
+        return PatientResponseDto.GetRecruitList.builder()
+                .totalPage(listPage.getTotalPages())
+                .totalEle(listPage.getTotalElements())
+                .hasNext(listPage.hasNext())
+                .list(resultList)
+                .build();
+    }
+
+
+    @Override
+    public PatientResponseDto.GetRecruitList getRecruitPersonalList(String userEmail, PatientRequestDto.GetRecruitPersonalList dto) {
+        //1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 관리중인 어르신 공고 리스트 조회
+        Pageable page = PageRequest.of(
+                dto.getPageNo()==null ? 0 : dto.getPageNo()
+                , dto.getPageSize()==null ? 10 : dto.getPageSize()
+                , Sort.by(Sort.Order.asc("name"), Sort.Order.desc("birthDate"), Sort.Order.desc("id")));
+        Page<TblPatientLog> listPage = patientLogRepository.findByPatientIdAndManagerId(dto.getPatientSeq(), centerManager.getId(), page);
+        List<TblPatientLog> patientEntityList = listPage.getContent();
+
+        //3. 성별/근무종류/주소지/장기요양등급 각 항목 이름 조회 및 dto 리스트 정리
+        List<PatientResponseDto.GetRecruitListInfo> resultList = new ArrayList<>();
+        for (TblPatientLog entity : patientEntityList) {
+            resultList.add(
+                    PatientResponseDto.GetRecruitListInfo.builder()
+                            .patientLogSeq(entity.getId())
+                            .imgAddress(entity.getPatient().getImg() == null ? null : fileService.getOneImgUrl(entity.getPatient().getImg().getId()))
+                            .name(entity.getName())
+                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
+                            .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
+                            .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
+                            .build());
+        }
+
+        //4. 결과 반환
+        return PatientResponseDto.GetRecruitList.builder()
+                .totalPage(listPage.getTotalPages())
+                .totalEle(listPage.getTotalElements())
+                .hasNext(listPage.hasNext())
+                .list(resultList)
+                .build();
     }
 }
