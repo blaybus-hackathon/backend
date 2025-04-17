@@ -209,7 +209,7 @@ public class PatientServiceImpl implements PatientService {
                             .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
                             .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
                             .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
-                            .inmateStateStr(careRepository.findCalNameListStr(TblCareTopEnum.INMATE_STATE.getCareSeq(), entity.getInmateState()))
+                            .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
                             .build());
         }
 

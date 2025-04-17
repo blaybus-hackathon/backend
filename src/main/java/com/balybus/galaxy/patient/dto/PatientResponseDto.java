@@ -90,9 +90,9 @@ public class PatientResponseDto {
         private String name;            // 이름
         private String genderStr;       // 성별
         private int age;                // 나이
-        private String careLevelStr;    // 근무종류
+        private String workType;  // 근무종류
         private String address;         // 주소지
-        private String inmateStateStr;  // 장기요양등급
+        private String careLevelStr;    // 장기요양등급
     }
 
     @Getter
