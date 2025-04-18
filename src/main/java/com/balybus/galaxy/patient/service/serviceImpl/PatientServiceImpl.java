@@ -409,4 +409,33 @@ public class PatientServiceImpl implements PatientService {
                 .list(resultList)
                 .build();
     }
+
+    /**
+     * 어르신 정보 상세 조회
+     * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
+     * @param patientSeq Long
+     * @return PatientResponseDto.GetOnePatientInfo
+     */
+    @Override
+    public PatientResponseDto.GetOneRecruitPatientInfo getOneRecruitPatientInfo(String userEmail, Long patientLogSeq) {
+        //1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //어르신 로그 정보 조회
+        Optional<TblPatientLog> patientLogOpt = patientLogRepository.findById(patientLogSeq);
+        if(patientLogOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT_RECRUIT);
+        TblPatientLog patientLog = patientLogOpt.get();
+
+        //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자)
+        TblPatient patient = checkPatientManagerAuth(patientLog.getPatient().getId(), centerManager.getId());
+
+        //3. 어르신 돌봄 시간 요일 조회
+        List<TblPatientTimeLog> patientTimeLogList = patientTimeLogRepository.findByPatientLog_Id(patient.getId());
+
+        //4. 반환 dto 생성
+        PatientResponseDto.GetOneRecruitPatientInfo resultDto = new PatientResponseDto.GetOneRecruitPatientInfo(patientLog, patientTimeLogList);
+        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, true));
+        resultDto.setCareBaseDtoNull();
+        return resultDto;
+    }
 }

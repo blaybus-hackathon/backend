@@ -24,6 +24,10 @@ public class TblPatientLog extends BaseEntity {
     @Comment("어르신 공고 구분자")
     private Long id;
 
+    @Comment("기본정보 업데이트 여부")
+    @Column(name = "pl_linking_yn", nullable = false)
+    private boolean linkingYn;
+
     @Comment("복리후생(TblCare)")
     @Column(name = "care_seq_welfare", nullable = false)
     private int welfare;
