@@ -413,7 +413,7 @@ public class PatientServiceImpl implements PatientService {
     /**
      * 어르신 정보 상세 조회
      * @param userEmail String:토큰 조회 결과 사용자 이메일 데이터
-     * @param patientSeq Long
+     * @param patientLogSeq Long:어르신 공고 구분자
      * @return PatientResponseDto.GetOnePatientInfo
      */
     @Override
