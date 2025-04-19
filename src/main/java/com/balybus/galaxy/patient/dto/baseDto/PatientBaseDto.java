@@ -42,6 +42,12 @@ public class PatientBaseDto extends CareBaseDto {
             this.ptStartTime = entity.getPtStartTime().format(formatter);  // 시작시간
             this.ptEndTime = entity.getPtEndTime().format(formatter);    // 종료시간
         }
+        public SavePatientTimeInfo(TblPatientTimeLog entity){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            this.ptDate = entity.getPtlDate();             // 요일(1:월 ~ 7:일)
+            this.ptStartTime = entity.getPtlStartTime().format(formatter);  // 시작시간
+            this.ptEndTime = entity.getPtlEndTime().format(formatter);    // 종료시간
+        }
 
         public TblPatientTime toEntity(TblPatient patient) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");

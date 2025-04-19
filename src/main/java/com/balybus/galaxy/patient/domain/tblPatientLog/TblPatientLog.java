@@ -6,6 +6,7 @@ import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -23,6 +24,10 @@ public class TblPatientLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("어르신 공고 구분자")
     private Long id;
+
+    @Comment("기본정보 업데이트 여부")
+    @Column(name = "pl_linking_yn", nullable = false)
+    private boolean linkingYn;
 
     @Comment("복리후생(TblCare)")
     @Column(name = "care_seq_welfare", nullable = false)
@@ -147,4 +152,36 @@ public class TblPatientLog extends BaseEntity {
     @Column(name = "pl_time_negotiation")
     @Comment("돌봄 요일 시간 협의 여부")
     private Boolean timeNegotiation;
+
+    public void basicUpdate(PatientRequestDto.UpdateRecruitPatientInfo dto,
+                            double timeWage, double dayWage, double weekWage,
+                            TblAddressFirst tblAddressFirst, TblAddressSecond tblAddressSecond, TblAddressThird tblAddressThird ){
+        this.linkingYn = dto.getLinkingYn();
+        this.welfare = dto.getWelfare();
+        this.wageNegotiation = dto.getWageNegotiation();
+        this.wageState = dto.getWageState();
+        this.wage = dto.getWage();
+        this.timeWage = timeWage;
+        this.dayWage = dayWage;
+        this.weekWage = weekWage;
+        this.requestContents = dto.getRequestContents();
+
+        this.tblAddressFirst = tblAddressFirst;
+        this.tblAddressSecond = tblAddressSecond;
+        this.tblAddressThird = tblAddressThird;
+        this.careLevel = dto.getCareLevel();
+        this.inmateState = dto.getInmateState();
+        this.workType = dto.getWorkType();
+        this.gender = dto.getGender();
+        this.dementiaSymptom = dto.getDementiaSymptom();
+        this.serviceMeal = dto.getServiceMeal();
+        this.serviceToilet = dto.getServiceToilet();
+        this.serviceMobility = dto.getServiceMobility();
+        this.serviceDaily = dto.getServiceDaily();
+        this.name = dto.getName();
+        this.birthDate = dto.getBirthDate();
+        this.weight = dto.getWeight();
+        this.diseases = dto.getDiseases();
+        this.timeNegotiation = dto.getTimeNegotiation();
+    }
 }
