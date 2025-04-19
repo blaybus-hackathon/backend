@@ -167,4 +167,28 @@ public class PatientController {
         return ResponseEntity.ok().body(patientService.getOneRecruitPatientInfo(userDetails.getUsername(), patientLogSeq));
     }
 
+
+
+    @PostMapping("/recruit-update")
+    @Operation(summary = "어르신 공고 정보 수정 API", description = "어르신 공고 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(schema = @Schema(implementation = PatientResponseDto.UpdateRecruitPatientInfo.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "8001", description = "사용자정의에러코드:해당 어르신 공고를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "8000", description = "사용자정의에러코드:해당 어르신 정보를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7001", description = "사용자정의에러코드:수정 권한 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "1001", description = "사용자정의에러코드:주소값이 잘못 설정되었습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> updateRecruitPatientInfo(@AuthenticationPrincipal UserDetails userDetails,
+                                               @RequestBody PatientRequestDto.UpdateRecruitPatientInfo dto) {
+        return ResponseEntity.ok().body(patientService.updateRecruitPatientInfo(userDetails.getUsername(), dto));
+    }
 }

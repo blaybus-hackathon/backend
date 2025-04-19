@@ -430,12 +430,83 @@ public class PatientServiceImpl implements PatientService {
         TblPatient patient = checkPatientManagerAuth(patientLog.getPatient().getId(), centerManager.getId());
 
         //3. 어르신 돌봄 시간 요일 조회
-        List<TblPatientTimeLog> patientTimeLogList = patientTimeLogRepository.findByPatientLog_Id(patient.getId());
+        List<TblPatientTimeLog> patientTimeLogList = patientTimeLogRepository.findByPatientLog_Id(patientLog.getId());
 
         //4. 반환 dto 생성
         PatientResponseDto.GetOneRecruitPatientInfo resultDto = new PatientResponseDto.GetOneRecruitPatientInfo(patientLog, patientTimeLogList);
         resultDto.setCareChoice(careService.getCareChoiceList(resultDto, true));
         resultDto.setCareBaseDtoNull();
         return resultDto;
+    }
+
+
+    /**
+     * 어르신 공고 등록
+     * @param userName String:토큰 조회 결과 데이터
+     * @param dto PatientRequestDto.RecruitHelper
+     * @return PatientResponseDto.RecruitHelper
+     */
+    @Override
+    @Transactional
+    public PatientResponseDto.UpdateRecruitPatientInfo updateRecruitPatientInfo(String userName, PatientRequestDto.UpdateRecruitPatientInfo dto) {
+        //1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userName);
+
+        //2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자) 및 수정 & 로그 등록
+        //2-1. 어르신 로그 정보 조회
+        Optional<TblPatientLog> patientLogOpt = patientLogRepository.findById(dto.getPatientLogSeq());
+        if(patientLogOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_PATIENT_RECRUIT);
+        TblPatientLog patientLog = patientLogOpt.get();
+
+        //2-2. 어르신 정보 조회 (어르신 구분자 & 관리자 구분자)
+        TblPatient patient = checkPatientManagerAuth(patientLog.getPatient().getId(), centerManager.getId());
+
+        //2-2. 주소 정보 검증
+        TblAddressFirst firstAddress = firstAddressService.validationCheck(dto.getAfSeq());
+        TblAddressSecond secondAddress = secondAddressService.validationCheck(dto.getAfSeq(), dto.getAsSeq());
+        TblAddressThird thirdAddress = thirdAddressService.validationCheck(dto.getAsSeq(), dto.getAtSeq());
+
+        //2-3. TblPatientTime 업데이트 여부에 설정에 따른 어르신 데이터 수정
+        if(dto.getLinkingYn()){
+            //2-3-1. 어르신 데이터 수정
+            patient.basicUpdate(dto, firstAddress, secondAddress, thirdAddress);
+            //2-3-2. 어르신 돌봄 시간 요일 조회 및 삭제
+            List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
+            patientTimeRepository.deleteAll(patientTimeList);
+            //2-3-3. 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
+            List<TblPatientTime> savePatientTimeList = new ArrayList<>();
+            for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
+                savePatientTimeList.add(ptDto.toEntity(patient));
+            }
+            patientTimeRepository.saveAll(savePatientTimeList);
+        }
+
+        //2-4. 임금 계산
+        Map<String, Double> calWage = calWage(dto.getWageState(), dto.getWage(), dto.getTimeList());
+
+        //2-5. 어르신 로그 entity 수정
+        patientLog.basicUpdate(dto,
+                calWage.get("timeWage"), calWage.get("dayWage"), calWage.get("weekWage"),
+                firstAddress, secondAddress, thirdAddress);
+
+        //3-1. TblPatientTimeLog 어르신 돌봄 시간 요일(리스트 정보) 조회 및 삭제
+        List<TblPatientTimeLog> patientTimeLogList = patientTimeLogRepository.findByPatientLog_Id(patientLog.getId());
+        patientTimeLogRepository.deleteAll(patientTimeLogList);
+        //3-2. TblPatientTimeLog 어르신 돌봄 시간 요일(리스트 정보) entity 전환 및 저장
+        List<TblPatientTimeLog> savePatientTimeLogList = new ArrayList<>();
+        for(PatientBaseDto.SavePatientTimeInfo ptDto : dto.getTimeList()){
+            savePatientTimeLogList.add(ptDto.toLogEntity(patientLog));
+        }
+        patientTimeLogRepository.saveAll(savePatientTimeLogList);
+
+        //4. 요양보호사 추천 리스트 매칭
+        if(dto.isReMatchYn()) matchingService.matchingSystem(patientLog.getId());
+
+        return PatientResponseDto.UpdateRecruitPatientInfo.builder()
+                .plSeq(patientLog.getId())
+                .patientSeq(patient.getId())
+                .name(patient.getName())
+                .birthYear(patient.getBirthDate().substring(0, 4))
+                .build();
     }
 }
