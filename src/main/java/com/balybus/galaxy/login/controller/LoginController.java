@@ -143,6 +143,23 @@ public class LoginController {
         return ResponseEntity.ok(helperResponse);
     }
 
+
+
+    /**
+     * 센터 리스트 조회
+     * @param centerDto CenterRequestDto.GetCenterList
+     * @return ResponseEntity<CenterResponseDto.GetCenterList>
+     */
+    @GetMapping("/center-list")
+    @Operation(summary = "센터 리스트 조회 API", description = "센터 리스트 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CenterResponseDto.GetCenterList.class)))
+    })
+    public ResponseEntity<?> getCenterList(CenterRequestDto.GetCenterList centerDto) {
+        return ResponseEntity.ok().body(loginService.getCenterList(centerDto));
+    }
+
     /**
      * 센터 등록
      * @param centerDto CenterDto
