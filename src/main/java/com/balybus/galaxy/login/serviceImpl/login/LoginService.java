@@ -18,6 +18,7 @@ public interface LoginService {
     MemberResponse.SignInDto signIn(MemberRequest.SignInDto loginDto, HttpServletRequest request, HttpServletResponse response);
     MailResponseDto.AuthenticationMail authenticationMail(MailRequestDto.AuthenticationMail dto);
     MailResponseDto.CheckAuthenticationCode checkAuthenticationCode(MailRequestDto.CheckAuthenticationCode dto);
+    CenterResponseDto.GetCenterList getCenterList(CenterRequestDto.GetCenterList centerDto);
     CenterResponseDto.RegisterCenter registerCenter(CenterRequestDto.RegisterCenter centerDto);
     CenterManagerResponseDto.SignUpManager signUpManager(CenterManagerRequestDto.SignUpManager centerDto);
     MemberResponse.FindEmail findEmail(String email);

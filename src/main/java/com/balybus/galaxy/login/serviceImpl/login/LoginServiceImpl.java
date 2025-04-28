@@ -43,6 +43,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -302,6 +306,42 @@ public class LoginServiceImpl implements LoginService {
                 .certNum(certNum)
                 .certDateIssue(certDateIssue)
                 .certSerialNum(certSerialNum)
+                .build();
+    }
+
+    /**
+     * 센터 조회
+     * @param dto CenterRequestDto.GetCenterList
+     * @return CenterResponseDto.GetCenterList
+     */
+    @Override
+    @Transactional
+    public CenterResponseDto.GetCenterList getCenterList(CenterRequestDto.GetCenterList dto) {
+        // 1. 센터 조회
+        Pageable page = PageRequest.of(
+                dto.getPageNo()==null ? 0 : dto.getPageNo()
+                , dto.getPageSize()==null ? 10 : dto.getPageSize()
+                , Sort.by(Sort.Order.asc("centerName"), Sort.Order.desc("id")));
+        Page<TblCenter> listPage = centerRepository.findByCenterNameContainsOrCenterAddressContainsOrCenterCode(dto.getSearchName(), dto.getSearchName(), dto.getSearchName(), page);
+        List<TblCenter> centerEntityList = listPage.getContent();
+
+        //2. dto 전환
+        List<CenterResponseDto.GetCenterListInfo> resultList = new ArrayList<>();
+        for (TblCenter entity : centerEntityList) {
+            resultList.add(
+                    CenterResponseDto.GetCenterListInfo.builder()
+                            .centerSeq(entity.getId())
+                            .centerName(entity.getCenterName())
+                            .centerAddress(entity.getCenterAddress())
+                            .build());
+        }
+
+        //3. 센터 리스트 반환
+        return CenterResponseDto.GetCenterList.builder()
+                .totalPage(listPage.getTotalPages())
+                .totalEle(listPage.getTotalElements())
+                .hasNext(listPage.hasNext())
+                .list(resultList)
                 .build();
     }
 

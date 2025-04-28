@@ -7,6 +7,13 @@ import java.time.LocalDate;
 
 public class CenterRequestDto {
     @Data
+    public static class GetCenterList{
+        private Integer pageNo;
+        private Integer pageSize;
+        private String searchName;        // 센터명
+    }
+
+    @Data
     public static class RegisterCenter{
         private String name;        // 센터 이름
         private String tel;         // 전화번호

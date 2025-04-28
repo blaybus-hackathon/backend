@@ -113,4 +113,11 @@ public class PatientRequestDto {
         private Integer pageSize;
         private Long patientSeq;
     }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class UpdateRecruitPatientInfo extends RecruitHelper {
+        private boolean reMatchYn;      //매칭 추천 리스트 다시 발급 필요 여부
+        private Long patientLogSeq;     //어르신 공고 구분자
+    }
 }
