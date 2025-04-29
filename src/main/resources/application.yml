@@ -12,6 +12,16 @@ springdoc:
     enabled: true
   packages-to-scan: com.balybus.galaxy
 
+management:
+  metrics:
+    tags:
+      application:
+        ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
 cors:
   allowed:
     origins: http://3.37.158.7:8080, http://3.37.158.7:80, http://3.37.158.7:5173, http://3.37.158.7
