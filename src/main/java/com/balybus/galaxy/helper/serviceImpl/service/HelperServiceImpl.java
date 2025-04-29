@@ -295,13 +295,6 @@ public class HelperServiceImpl implements HelperService {
                     .helperName(tblHelperExperienceSaved.getHelper().getName())
                     .filed(tblHelperExperienceSaved.getField())
                     .build();
-
-        } catch (DataIntegrityViolationException e) {
-            throw new BadRequestException(DATA_VALIDATION_ERROR);
-
-        } catch (TransactionSystemException e) {
-            throw new BadRequestException(TRANSACTIONAL_ERROR);
-
         } catch (Exception e) {
             throw new BadRequestException(INTERNAL_SEVER_ERROR);
         }
