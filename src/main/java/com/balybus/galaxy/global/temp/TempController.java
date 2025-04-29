@@ -54,7 +54,12 @@ public class TempController {
 
     /////////////
     // aws s3-multipart 구현
-
+    @Operation(summary = "파일 업로드 API",
+            description = "AWS S3 Multipart Presigned 사진 업로드" )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "파일 저장 성공",
+                    content = @Content(schema = @Schema(implementation = MemberResponse.SignInDto.class)))
+    })
     @PostMapping("/presigned-url")
     public ResponseEntity<Map<String, String>> initiateUpload(@RequestBody ImgRequestDto.PreSignedUrlCreateRequest request) {
         Map<String, String> url = imgService.getPresignedUrl("images", request.getFileName());
@@ -62,19 +67,35 @@ public class TempController {
     }
 
     ///////////////
-
+    @Operation(summary = "이메일 인증 요청", description = "사용자의 이메일로 인증 코드를 전송합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 전송 성공",
+                    content = @Content(schema = @Schema(implementation = String.class)))
+    })
     @PostMapping("/authentication-mail")
     public ResponseEntity<?> authenticationMail(@AuthenticationPrincipal UserDetails userDetails) {
         tempService.authenticationMail(userDetails.getUsername());
         return ResponseEntity.ok("SUCCESS");
     }
 
+    @Operation(summary = "요양보호사 매칭 결과 이메일로 전송", description = "어르신의 요양보호사 매칭 결과를 이메일로 전송합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "추천 리스트 메일 전송 성공",
+                    content = @Content(schema = @Schema(implementation = String.class)))
+    })
     @PostMapping("/matching-mail")
     public ResponseEntity<?> matchingMail(@AuthenticationPrincipal UserDetails userDetails) {
         tempService.matchingMail();
         return ResponseEntity.ok("SUCCESS");
     }
 
+    @Operation(summary = "요양보호사 자동 매칭 실행", description = "어르신 조건에 맞는 요양보호사들을 추천하고 관리자 이메일로 리스트를 전송합니다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200", description = "매칭 및 이메일 전송 성공",
+                    content = @Content(schema = @Schema(implementation = String.class))
+            )
+    })
     @PostMapping("/matching")
     public ResponseEntity<?> matching(@AuthenticationPrincipal UserDetails userDetails) {
         tempService.matching();
