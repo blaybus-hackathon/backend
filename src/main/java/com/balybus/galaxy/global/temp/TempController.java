@@ -30,6 +30,8 @@ public class TempController {
     private final TempService tempService;
     private final TblImgServiceImpl imgService;
 
+    @Operation(summary = "사용자 이름 반환",
+            description = "로그인한 사용자 이름 반환")
     @GetMapping("/user")
     public String getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
         return "Authenticated user: " + userDetails.getUsername();
