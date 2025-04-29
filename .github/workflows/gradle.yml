@@ -28,7 +28,9 @@ jobs:
       run: |
         cd ./src/main/resources 
         touch ./application.yml 
-        echo "${{ secrets.YML }}" > ./application.yml
+        cat << 'EOF' > src/main/resources/application.yml
+        ${{ secrets.YML }}
+        EOF
       shell: bash
 
     - name: Make application-db.yml
