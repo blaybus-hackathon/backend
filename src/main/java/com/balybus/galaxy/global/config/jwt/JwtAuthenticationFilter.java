@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 "/",
                 "/api/sign/**", "/api/token/**", "/api/oauth/**", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
                 "/img/**", "/css/**", "/static/js/**", "/docs/**",
-                "/ws-chat", "/page/**"
+                "/ws-chat", "/page/**", "/actuator/prometheus"
         );
 
         for (String pattern : uriPatterns) {

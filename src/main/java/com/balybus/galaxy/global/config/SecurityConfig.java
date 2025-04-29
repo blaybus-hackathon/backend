@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                                .requestMatchers("/actuator/prometheus").permitAll()
                                 .requestMatchers("/ws-chat").permitAll()
                                 .requestMatchers("/page/**").permitAll()
                                 .requestMatchers("/api/update-profile").permitAll()
