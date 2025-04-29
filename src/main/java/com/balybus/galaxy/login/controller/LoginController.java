@@ -130,7 +130,7 @@ public class LoginController {
     @Operation(summary = "요양 보호사 회원 가입", description = "요양 보호사 회원 정보를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원 가입 성공, 유효하지 않은 자격증을 반환합니다.",
-                    content = @Content(schema = @Schema(implementation = TblHelperResponse.class))),
+                    content = @Content(schema = @Schema(implementation = HelperCertDTO.class))),
             @ApiResponse(responseCode = "4001", description = "회원가입 정보를 확인해 주세요."),
             @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.")
     })
