@@ -11,10 +11,14 @@ import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
+import com.balybus.galaxy.domain.tblMatching.TblMatching;
+import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.service.FileService;
+import com.balybus.galaxy.helper.domain.TblHelper;
+import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
@@ -45,6 +49,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.balybus.galaxy.domain.tblMatching.MatchState.PERMIT_TUNE;
+import static com.balybus.galaxy.global.exception.ExceptionCode.NOT_FOUND_HELPER;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -65,6 +72,8 @@ public class PatientServiceImpl implements PatientService {
     private final TblAddressSecondServiceImpl secondAddressService;
     private final TblAddressThirdServiceImpl thirdAddressService;
     private final FileService fileService;
+    private final TblMatchingRepository tblMatchingRepository;
+    private final HelperRepository helperRepository;
 
     /**
      * 관리자 사용자의 어르신 정보 접근 권한 확인
@@ -507,6 +516,56 @@ public class PatientServiceImpl implements PatientService {
                 .patientSeq(patient.getId())
                 .name(patient.getName())
                 .birthYear(patient.getBirthDate().substring(0, 4))
+                .build();
+    }
+
+    @Override
+    public PatientResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail) {
+        // 1. 관리자 정보 조회
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        // 2. 연관된 어르신 정보 로그 테이블 모두 조회
+        List<TblPatientLog> tblPatientLog = patientLogRepository.findAllByManagerId(centerManager.getId());
+
+        // 매칭중인 어르신 리스트(최종 반환 값)
+        List<PatientResponseDto.MatchingPatientInfo> matchingPatientInfoList = new ArrayList<>();
+
+        for(TblPatientLog ptLog : tblPatientLog) {
+            // 1. 어르신 매칭 테이블 반환(매칭 중 상태이며 해당 어르신 관계에 있는 테이블)
+            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), PERMIT_TUNE);
+
+            // 2. 매칭 중인 어르신의 요양 보호사 리스트
+            List<PatientResponseDto.MatchedHelperInfo> matchedHelperInfoList = new ArrayList<>();
+
+            // 3. 어르신 매칭 상태별 해당하는 요양 보호사 반환
+            for(TblMatching matching : tblMatching) {
+                // 4. 요양 보호사 검색
+                TblHelper tblHelper = helperRepository.findById(matching.getHelper().getId())
+                        .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+                matchedHelperInfoList.add(PatientResponseDto.MatchedHelperInfo.builder()
+                                .helperSeq(tblHelper.getId())
+                                .name(tblHelper.getName())
+                                .gender(tblHelper.getGender())
+                                .age(tblHelper.getBirthday())
+                        .build());
+            }
+            // 5. 매칭 중인 어르신 정보
+            PatientResponseDto.MatchingPatientInfo matchingPatientInfo = PatientResponseDto.MatchingPatientInfo.builder()
+                    .patientSeq(ptLog.getId())
+                    .name(ptLog.getName())
+                    .gender(ptLog.getGender())
+                    .birthDate(ptLog.getBirthDate())
+                    .workType(ptLog.getPatient().getWorkType())
+                    .tblAddressFirst(ptLog.getTblAddressFirst())
+                    .tblAddressSecond(ptLog.getTblAddressSecond())
+                    .tblAddressThird(ptLog.getTblAddressThird())
+                    .matchedHelperInfos(matchedHelperInfoList)
+                    .build();
+            matchingPatientInfoList.add(matchingPatientInfo);
+        }
+
+        return PatientResponseDto.MatchingPatientInfoList.builder()
+                .matchingPatientInfoList(matchingPatientInfoList)
                 .build();
     }
 }

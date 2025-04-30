@@ -1,5 +1,8 @@
 package com.balybus.galaxy.patient.dto;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
+import com.balybus.galaxy.address.domain.TblAddressSecond;
+import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.domain.tblCare.dto.CareChoiceListDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
@@ -199,5 +202,34 @@ public class PatientResponseDto {
         private Long patientSeq;    // 어르신 정보 구분자 값
         private String name;        // 이름
         private String birthYear;   // 생년월일 중 연도 반환
+    }
+
+    @Getter
+    @Builder
+    public static class MatchingPatientInfoList{
+        private List<MatchingPatientInfo> matchingPatientInfoList;
+    }
+
+    @Getter
+    @Builder
+    public static class MatchingPatientInfo {
+        private Long patientSeq; // 어르신 구분자
+        private String name; // 어르신 이름
+        private Integer gender; // 어르신 성별
+        private String birthDate; // 어르신 생년월일
+        private int workType; // 희망 근무 종류
+        private TblAddressFirst tblAddressFirst; // 시.도
+        private TblAddressSecond tblAddressSecond; // 시.군.구
+        private TblAddressThird tblAddressThird; // 읍.면.동
+        private List<MatchedHelperInfo> matchedHelperInfos;
+    }
+
+    @Getter
+    @Builder
+    public static class MatchedHelperInfo {
+        private Long helperSeq; // 매칭된 요양 보호사 구분자
+        private String name; // 매칭된 요양 보호사 이름
+        private Integer gender; // 매칭된 요양 보호사 성별
+        private String age; // 매칭된 요양 보호사 나이
     }
 }
