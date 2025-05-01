@@ -2,7 +2,6 @@ package com.balybus.galaxy.domain.tblCenter;
 
 import com.balybus.galaxy.domain.BaseEntity;
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
-import com.balybus.galaxy.domain.tblImg.TblImg;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

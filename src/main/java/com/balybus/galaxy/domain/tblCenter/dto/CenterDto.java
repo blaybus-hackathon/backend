@@ -1,7 +1,6 @@
 package com.balybus.galaxy.domain.tblCenter.dto;
 
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
-import com.balybus.galaxy.domain.tblImg.TblImg;
 import lombok.*;
 
 import java.time.LocalDate;
