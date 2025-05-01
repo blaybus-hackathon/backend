@@ -3,6 +3,8 @@ package com.balybus.galaxy.centerManager.dto;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 public class CmResponseDto {
     @Getter
     @Builder
@@ -21,6 +23,19 @@ public class CmResponseDto {
     @Builder
     public static class UpdateManager {
         private Long cmSeq;             //관리자 구분자
+    }
+
+    @Getter
+    @Builder
+    public static class GetOneCenter {
+        private Long centerSeq;
+        private String name;        // 센터 이름
+        private String tel;         // 전화번호
+        private Boolean carYn;      // 목욕차량 소유 여부
+        private String address;     // 주소
+        private String grade;       // 센터 등급
+        private LocalDate openDate; // 운영 시작일
+        private String introduce;   // 한줄소개
     }
 
     @Getter

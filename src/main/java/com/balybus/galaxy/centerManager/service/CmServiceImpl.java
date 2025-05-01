@@ -63,6 +63,29 @@ public class CmServiceImpl implements CmService {
     }
 
     @Override
+    public CmResponseDto.GetOneCenter getOneCenter(String userEmail, Long centerSeq) {
+        //1. 관리자 정보 유효성 검사
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+        if(!centerManager.getCenter().getId().equals(centerSeq)) throw new BadRequestException(ExceptionCode.UNAUTHORIZED);
+
+        //2. 센터 정보 조회
+        Optional<TblCenter> centerOpt = centerRepository.findById(centerSeq);
+        if(centerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.CENTER_NOT_FOUND);
+
+        TblCenter center = centerOpt.get();
+        return CmResponseDto.GetOneCenter.builder()
+                .centerSeq(center.getId())
+                .name(center.getCenterName())
+                .tel(center.getCenterTel())
+                .carYn(center.isCenterCarYn())
+                .address(center.getCenterAddress())
+                .grade(center.getCenterGrade())
+                .openDate(center.getCenterOpenDate())
+                .introduce(center.getCenterIntroduce())
+                .build();
+    }
+
+    @Override
     @Transactional
     public CmResponseDto.UpdateCenter updateCenter(String userEmail, CenterRequestDto.UpdateCenter dto) {
         //1. 관리자 정보 유효성 검사

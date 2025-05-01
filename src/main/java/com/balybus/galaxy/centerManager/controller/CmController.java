@@ -74,6 +74,29 @@ public class CmController {
         return ResponseEntity.ok().body(cmService.updateManager(userDetails.getUsername(), dto));
     }
 
+
+    /**
+     * 센터 정보 상세 조회
+     * @param userDetails UserDetails
+     * @return ResponseEntity<CmResponseDto.GetOneManager>
+     */
+    @GetMapping("/center-find/{centerSeq}")
+    @Operation(summary="센터 정보 상세 조회 API", description = "로그인되어 있는 관리자 계정을 기준으로 로그인 사용자의 소속 센터 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CmResponseDto.GetOneManager.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4005", description = "사용자정의에러코드:접근 권한이 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> getOneCenter(@AuthenticationPrincipal UserDetails userDetails,
+                                          @PathVariable("centerSeq") Long centerSeq){
+        return ResponseEntity.ok().body(cmService.getOneCenter(userDetails.getUsername(), centerSeq));
+    }
+
     /**
      * 센터 정보 수정
      * @param userDetails UserDetails
