@@ -16,10 +16,13 @@ public class CmResponseDto {
         private Long imgSeq;            //이미지 구분자
         private String imgAddress;      //이미지 주소
     }
+
     @Getter
     @Builder
     public static class UpdateManager {
+        private Long cmSeq;             //관리자 구분자
     }
+
     @Getter
     @Builder
     public static class UpdateCenter {
