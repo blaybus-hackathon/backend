@@ -2,6 +2,7 @@ package com.balybus.galaxy.domain.tblCenter.dto;
 
 import com.balybus.galaxy.domain.tblCenter.TblCenter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 
@@ -35,5 +36,12 @@ public class CenterRequestDto {
                     .centerIntroduce(this.introduce)
                     .build();
         }
+    }
+
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class UpdateCenter extends RegisterCenter{
+        private Long centerSeq;
     }
 }

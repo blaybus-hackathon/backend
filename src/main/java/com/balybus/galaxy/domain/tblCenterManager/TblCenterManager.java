@@ -56,4 +56,8 @@ public class TblCenterManager extends BaseEntity implements ChangeProfileImg {
 
     @Override
     public void updateImg(TblImg img) { this.img = img; }
+
+    public void updatePosition(String cmPosition){
+        this.cmPosition = cmPosition;
+    }
 }
