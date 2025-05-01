@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CenterDto {
     private Long id;
-    private Long imgSeq;
+//    private Long imgSeq;
     private String name;
     private String tel;
     private Boolean carYn;
@@ -28,7 +28,7 @@ public class CenterDto {
     public static CenterDto fromEntity(TblCenter center) {
         return CenterDto.builder()
                 .id(center.getId())
-                .imgSeq(center.getImg() == null ? null : center.getImg().getId())
+//                .imgSeq(center.getImg() == null ? null : center.getImg().getId())
                 .name(center.getCenterName())
                 .tel(center.getCenterTel())
                 .carYn(center.isCenterCarYn())
@@ -43,7 +43,7 @@ public class CenterDto {
 
     public TblCenter toEntity() {
         return TblCenter.builder()
-                .img(this.imgSeq == null ? null : TblImg.builder().id(this.imgSeq).build())
+//                .img(this.imgSeq == null ? null : TblImg.builder().id(this.imgSeq).build())
                 .centerName(this.name)
                 .centerTel(this.tel)
                 .centerCarYn(this.carYn)

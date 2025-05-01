@@ -1,6 +1,7 @@
 package com.balybus.galaxy.domain.tblCenter;
 
 import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblImg.TblImg;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,10 +24,10 @@ public class TblCenter extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;            //구분자
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @Comment("이미지 구분자")
-    @JoinColumn(name = "img_seq")
-    private TblImg img;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @Comment("이미지 구분자")
+//    @JoinColumn(name = "img_seq")
+//    private TblImg img;   // 센터 이미지는 없다.
 
     @Comment(value="센터코드")
     @Column(length = 6, nullable = false, unique = true)
@@ -58,4 +59,18 @@ public class TblCenter extends BaseEntity {
     @Comment(value="한줄 소개")
     @Column(length = 100)
     private String centerIntroduce;     //한줄 소개
+
+
+    /* ==================================================
+     * UPDATE
+     * ================================================== */
+    public void updateCenter(CenterRequestDto.UpdateCenter dto){
+        this.centerName = dto.getName();
+        this.centerTel = dto.getTel();
+        this.centerCarYn = dto.getCarYn();
+        this.centerAddress = dto.getAddress();
+        this.centerGrade = dto.getGrade();
+        this.centerOpenDate = dto.getOpenDate();
+        this.centerIntroduce = dto.getIntroduce();
+    }
 }

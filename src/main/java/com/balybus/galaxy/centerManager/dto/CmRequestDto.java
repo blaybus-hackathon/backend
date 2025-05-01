@@ -12,8 +12,4 @@ public class CmRequestDto {
         private MultipartFile photoFile;        //이미지 파일
         private String cmPosition;              //직책
     }
-    @Data
-    public static class UpdateCenter{
-
-    }
 }

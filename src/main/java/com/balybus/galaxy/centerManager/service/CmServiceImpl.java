@@ -2,6 +2,9 @@ package com.balybus.galaxy.centerManager.service;
 
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
+import com.balybus.galaxy.domain.tblCenter.TblCenter;
+import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.global.common.CommonServiceImpl;
@@ -13,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CmServiceImpl implements CmService {
@@ -21,6 +26,7 @@ public class CmServiceImpl implements CmService {
     private final FileService fileService;
 
     private final TblCenterManagerRepository centerManagerRepository;
+    private final TblCenterRepository centerRepository;
     @Override
     public CmResponseDto.GetOneManager getOneManager(String userEmail) {
         //1. 로그인 정보를 기준으로 관리자 정보를 탐색한다. (관리자 정보가 없을 경우, 에러 메시지 반환)
@@ -57,8 +63,28 @@ public class CmServiceImpl implements CmService {
     }
 
     @Override
-    public CmResponseDto.UpdateCenter updateCenter(String userEmail, CmRequestDto.UpdateCenter dto) {
-        return null;
+    @Transactional
+    public CmResponseDto.UpdateCenter updateCenter(String userEmail, CenterRequestDto.UpdateCenter dto) {
+        //1. 관리자 정보 유효성 검사
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+        if(!centerManager.getCenter().getId().equals(dto.getCenterSeq())) throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
+
+        //2. 센터 정보 조회
+        Optional<TblCenter> centerOpt = centerRepository.findById(centerManager.getCenter().getId());
+        if(centerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.CENTER_NOT_FOUND);
+
+        //3. 기존에 등록된 센터 주소가 있는지 확인하기
+        Optional<TblCenter> centerAddressOpt = centerRepository.findByCenterAddress(dto.getAddress());
+        if(centerAddressOpt.isPresent()){
+            if(!centerAddressOpt.get().getId().equals(centerOpt.get().getId()))
+                throw new BadRequestException(ExceptionCode.CENTER_EXIST);
+        }
+
+        //4. 센터 정보 수정
+        TblCenter center = centerOpt.get();
+        center.updateCenter(dto);
+
+        return CmResponseDto.UpdateCenter.builder().centerSeq(center.getId()).build();
     }
 
 }

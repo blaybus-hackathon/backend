@@ -26,5 +26,6 @@ public class CmResponseDto {
     @Getter
     @Builder
     public static class UpdateCenter {
+        private Long centerSeq;
     }
 }
