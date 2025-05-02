@@ -218,9 +218,9 @@ public class PatientResponseDto {
         private Integer gender; // 어르신 성별
         private String birthDate; // 어르신 생년월일
         private int workType; // 희망 근무 종류
-        private TblAddressFirst tblAddressFirst; // 시.도
-        private TblAddressSecond tblAddressSecond; // 시.군.구
-        private TblAddressThird tblAddressThird; // 읍.면.동
+        private String tblAddressFirst; // 시.도
+        private String tblAddressSecond; // 시.군.구
+        private String tblAddressThird; // 읍.면.동
         private List<MatchedHelperInfo> matchedHelperInfos;
     }
 

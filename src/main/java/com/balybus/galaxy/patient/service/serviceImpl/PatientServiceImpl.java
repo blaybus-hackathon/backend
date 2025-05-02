@@ -556,9 +556,9 @@ public class PatientServiceImpl implements PatientService {
                     .gender(ptLog.getGender())
                     .birthDate(ptLog.getBirthDate())
                     .workType(ptLog.getPatient().getWorkType())
-                    .tblAddressFirst(ptLog.getTblAddressFirst())
-                    .tblAddressSecond(ptLog.getTblAddressSecond())
-                    .tblAddressThird(ptLog.getTblAddressThird())
+                    .tblAddressFirst(ptLog.getTblAddressFirst().getName())
+                    .tblAddressSecond(ptLog.getTblAddressSecond().getName())
+                    .tblAddressThird(ptLog.getTblAddressThird().getName())
                     .matchedHelperInfos(matchedHelperInfoList)
                     .build();
             matchingPatientInfoList.add(matchingPatientInfo);
