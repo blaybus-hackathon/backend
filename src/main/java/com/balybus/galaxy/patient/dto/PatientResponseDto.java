@@ -232,4 +232,13 @@ public class PatientResponseDto {
         private Integer gender; // 매칭된 요양 보호사 성별
         private String age; // 매칭된 요양 보호사 나이
     }
+
+    //////////
+
+    @Getter
+    @Builder
+    public static class MatchedPatientInfoList{
+        private List<MatchingPatientInfo> matchedPatientInfoList;
+        private List<MatchingPatientInfo> matchingRejectedPatientInfoList;
+    }
 }
