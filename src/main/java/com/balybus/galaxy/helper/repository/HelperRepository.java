@@ -47,14 +47,11 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                     ifnull(d.service_daily, 0) as service_daily,	-- 0~1 / 선택된 개수로 나눔
                     ifnull(d.wage_score, 0) as wage_score,		-- 0,1 / 계산된 시금,주급,일급 기준으로 해당 금액보다 적거나 같으면 1, 아니면 0
                     ifnull(d.helper_exp, 0) as helper_exp,		-- 0,1 / 신규:0 경력:1
-                    ifnull(d.cert_score, 0)	as cert_score	-- 0~1 / 4로 나눔
+                    ifnull(d.cert_score, 0)	as cert_score	-- 0~1 / 5로 나눔 && 0은 불가능(필수 자격증이 있어야 하므로, cert_score 가 0인 경우는 제외한다.)
                 from (select
                     c.*,
                     th2.helper_exp,
-                    ((case when th2.helper_post_partum_cert_no is not null then 1 else 0 end +
-                    case when th2.helper_nurse_cert_no is not null then 1 else 0 end +
-                    case when th2.helper_other_certs is not null then 1 else 0 end +
-                    case when th2.helper_care_cert_no is not null then 1 else 0 end)/4) as cert_score,
+                    (select count(*) as cert_score from tbl_helper_cert thc where thc.helper_seq = c.helper_seq)/5 as cert_score,
                     ((case
                         when th2.helper_wage_state = 1 then th2.helper_wage <= tpl.pl_time_wage
                         when th2.helper_wage_state = 2 then th2.helper_wage <= tpl.pl_day_wage
@@ -97,15 +94,15 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                             thwt.helper_seq,
                             th.helper_time_negotiation,
                             sum(case
-                                when greatest(thwt.hwt_start_time, tpt.ptl_start_time) <= least(thwt.hwt_end_time, tpt.ptl_end_time)
+                                when greatest(cast(thwt.hwt_start_time as time), tpt.ptl_start_time) <= least(cast(thwt.hwt_end_time as time), tpt.ptl_end_time)
                                 then floor(timestampdiff(second,
-                                    greatest(thwt.hwt_start_time, tpt.ptl_start_time),
-                                    least(thwt.hwt_end_time, tpt.ptl_end_time)) / 60) /
+                                    greatest(cast(thwt.hwt_start_time as time), tpt.ptl_start_time),
+                                    least(cast(thwt.hwt_end_time as time), tpt.ptl_end_time)) / 60) /
                                     (timestampdiff(second, tpt.ptl_start_time, tpt.ptl_end_time) / 60)
                                 else 0
                             end) as time_score,
                             (count(case
-                                when greatest(thwt.hwt_start_time, tpt.ptl_start_time) <= least(thwt.hwt_end_time, tpt.ptl_end_time)
+                                when greatest(cast(thwt.hwt_start_time as time), tpt.ptl_start_time) <= least(cast(thwt.hwt_end_time as time), tpt.ptl_end_time)
                                 then 1
                                 else null
                             end)/7) as date_score
@@ -115,14 +112,15 @@ public interface HelperRepository extends JpaRepository<TblHelper, Long> {
                         and (
                             th.helper_time_negotiation = 1
                             or (thwt.hwt_date = tpt.ptl_date
-                                and thwt.hwt_end_time >= tpt.ptl_start_time
-                                and thwt.hwt_start_time <= tpt.ptl_end_time)
+                                and cast(thwt.hwt_end_time as time) >= tpt.ptl_start_time
+                                and cast(thwt.hwt_start_time as time) <= tpt.ptl_end_time)
                         )
                         group by thwt.helper_seq, th.helper_time_negotiation
                     ) as b
                     on a.helper_seq = b.helper_seq) as c
                 join tbl_helper th2 on th2.helper_seq = c.helper_seq
                 join tbl_patient_log tpl on tpl.pl_seq = :plSeq) as d
+                where d.cert_score > 0
                 order by d.location_score, total_score desc
                 limit 10
             """, nativeQuery = true)
