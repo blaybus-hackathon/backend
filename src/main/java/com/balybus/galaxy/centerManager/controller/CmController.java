@@ -123,4 +123,28 @@ public class CmController {
                                           @RequestBody CenterRequestDto.UpdateCenter dto){
         return ResponseEntity.ok().body(cmService.updateCenter(userDetails.getUsername(), dto));
     }
+
+
+
+
+    /**
+     * 관리자 main 페이지 통계 대시보드 정보 조회
+     * @param userDetails UserDetails
+     * @return ResponseEntity<CmResponseDto.GetOneManager>
+     */
+    @GetMapping("/statistics-dashboard")
+    @Operation(summary="관리자 main 페이지 통계 대시보드 정보 조회 API", description = "관리자 main 페이지 통계 대시보드 정보를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CmResponseDto.GetOneManager.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4005", description = "사용자정의에러코드:접근 권한이 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> getStatisticsDashboard(@AuthenticationPrincipal UserDetails userDetails){
+        return ResponseEntity.ok().body(cmService.getStatisticsDashboard(userDetails.getUsername()));
+    }
 }

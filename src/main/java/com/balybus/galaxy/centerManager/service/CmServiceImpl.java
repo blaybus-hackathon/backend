@@ -7,6 +7,7 @@ import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
 import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.common.CommonServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +29,8 @@ public class CmServiceImpl implements CmService {
 
     private final TblCenterManagerRepository centerManagerRepository;
     private final TblCenterRepository centerRepository;
+    private final TblMatchingRepository matchingRepository;
+
     @Override
     public CmResponseDto.GetOneManager getOneManager(String userEmail) {
         //1. 로그인 정보를 기준으로 관리자 정보를 탐색한다. (관리자 정보가 없을 경우, 에러 메시지 반환)
@@ -108,6 +112,18 @@ public class CmServiceImpl implements CmService {
         center.updateCenter(dto);
 
         return CmResponseDto.UpdateCenter.builder().centerSeq(center.getId()).build();
+    }
+
+    @Override
+    public CmResponseDto.GetStatisticsDashboard getStatisticsDashboard(String userEmail) {
+        //1. 관리자 정보 유효성 검사
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 관리하고 있는 공고 조회
+        List<Object[]> getStatistics = matchingRepository.findByCmSeqToGetStatisticsDashboard(centerManager.getId());
+        return getStatistics.isEmpty() ?
+                new CmResponseDto.GetStatisticsDashboard()
+                : new CmResponseDto.GetStatisticsDashboard(getStatistics.get(0));
     }
 
 }
