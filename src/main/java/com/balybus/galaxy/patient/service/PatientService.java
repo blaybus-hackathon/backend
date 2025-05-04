@@ -14,4 +14,6 @@ public interface PatientService {
     PatientResponseDto.GetRecruitList getRecruitPersonalList(String userEmail,PatientRequestDto.GetRecruitPersonalList dto); // 어르신 개인 공고 리스트 조회
     PatientResponseDto.GetOneRecruitPatientInfo getOneRecruitPatientInfo(String userEmail, Long patientLogSeq); // 어르신 정보 상세 조회
     PatientResponseDto.UpdateRecruitPatientInfo updateRecruitPatientInfo(String userEmail, PatientRequestDto.UpdateRecruitPatientInfo dto); // 어르신 정보 상세 조회
+    PatientResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail); // 어르신 매칭중 리스트 반화
+    PatientResponseDto.MatchedPatientInfoList matchedPatientInfoList(String userEmail); // 어르신 매칭 완료 리스트 반화
 }
