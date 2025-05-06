@@ -42,6 +42,9 @@ public enum ExceptionCode {
     UNAUTHORIZED(4005, "권한이 없습니다."),
     ALREADY_EXISTS_USER_EMAIL(4007, "카카오 이메일이 이미 존재합니다."),
     DO_NOT_LOGIN(4008, "로그인이 필요합니다."),
+    TOO_MUCH_MAIL_REQUEST(4009, "10분 후에 이메일 전송 요청이 가능합니다."),
+    REQUIRED_EMAIL_VERIFICATION(4010, "인증되지 않은 이메일입니다."),
+    AFTER_10_MINUTES(4011, "전송요청 후 10분 이내에 인증이 필요합니다."),
 
     // 5xxx 서버에러
     INTERNAL_SEVER_ERROR(5000, "서버에서 에러가 발생하였습니다."),
