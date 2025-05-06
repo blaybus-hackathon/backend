@@ -101,6 +101,8 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "인증코드 발급 및 전송 성공",
                     content = @Content(schema = @Schema(implementation = MailResponseDto.AuthenticationMail.class))),
             @ApiResponse(responseCode = "4000", description = "사용자정의에러코드:등록된 이메일 사용자가 존재합니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4009", description = "사용자정의에러코드:10분 후에 이메일 전송 요청이 가능합니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> authenticationMail(@RequestBody MailRequestDto.AuthenticationMail dto) {

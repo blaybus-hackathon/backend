@@ -51,12 +51,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
-import static com.balybus.galaxy.global.exception.ExceptionCode.LOGIN_ID_EXIST;
 
 @Slf4j
 @Service
@@ -142,12 +141,20 @@ public class LoginServiceImpl implements LoginService {
     public MailResponseDto.AuthenticationMail authenticationMail(MailRequestDto.AuthenticationMail dto) {
         //1. 등록된 이메일 인지 확인
         if(memberRepository.findByEmail(dto.getEmail()).isPresent())
-            throw new BadRequestException(LOGIN_ID_EXIST);
+            throw new BadRequestException(ExceptionCode.LOGIN_ID_EXIST);
 
-        //2. 인증코드 생성
+
+        //2. 10분에 한번 요청 가능하도록 제한
+        Optional<TblAuthenticationMail> entityOpt = authenticationMailRepository.findByEmail(dto.getEmail());
+        if(entityOpt.isPresent() && entityOpt.get().getUpdateDatetime().plusMinutes(10L).isAfter(LocalDateTime .now())){
+            log.info(String.valueOf(entityOpt.get().getUpdateDatetime().plusMinutes(10L)));
+            throw new BadRequestException(ExceptionCode.TOO_MUCH_MAIL_REQUEST);
+        }
+
+        //3. 인증코드 생성
         String code = createAuthenticationCode();
 
-        //3. 인증코드 이메일 전송
+        //4. 인증코드 이메일 전송
         SendMailRequest request = SendMailRequest.builder()
                 .toMail(dto.getEmail())
                 .title("이메일 인증")
@@ -161,10 +168,10 @@ public class LoginServiceImpl implements LoginService {
             throw new RuntimeException(e);
         }
 
-        //4. 인증코드 저장
-        Optional<TblAuthenticationMail> entityOpt = authenticationMailRepository.findByEmail(dto.getEmail());
+        //5. 인증코드 저장
         TblAuthenticationMail entity = entityOpt.orElseGet(() -> TblAuthenticationMail.builder()
                                                                         .email(dto.getEmail())
+                                                                        .certificationYn(false)
                                                                         .build());
         entity.updateCode(code);
         Long amSeq = authenticationMailRepository.save(entity).getId();
@@ -215,7 +222,7 @@ public class LoginServiceImpl implements LoginService {
     private TblUser signUpLogin(String email, String pw, RoleType roleType, LoginType loginType) {
         // 1. email 중복성 검사
         if(memberRepository.findByEmail(email).isPresent())
-            throw new BadRequestException(LOGIN_ID_EXIST);
+            throw new BadRequestException(ExceptionCode.LOGIN_ID_EXIST);
 
         // 2. 비밀번호 암호화
         String encryptedPassword = bCryptPasswordEncoder.encode(pw);
