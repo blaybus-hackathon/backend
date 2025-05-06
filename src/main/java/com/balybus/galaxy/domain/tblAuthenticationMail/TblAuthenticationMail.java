@@ -26,5 +26,11 @@ public class TblAuthenticationMail extends BaseEntity {
     /* ==================================================
      * UPDATE
      * ================================================== */
-    public void updateCode(String code) { this.code = code; }
+    public void updateCode(String code) {
+        this.code = code;
+        this.certificationYn = false;
+    }
+    public void approve() {
+        this.certificationYn = true;
+    }
 }

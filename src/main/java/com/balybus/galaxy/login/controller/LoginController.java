@@ -134,7 +134,8 @@ public class LoginController {
             @ApiResponse(responseCode = "200", description = "회원 가입 성공, 유효하지 않은 자격증을 반환합니다.",
                     content = @Content(schema = @Schema(implementation = HelperCertDTO.class))),
             @ApiResponse(responseCode = "4001", description = "회원가입 정보를 확인해 주세요."),
-            @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.")
+            @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다."),
+            @ApiResponse(responseCode = "4010", description = "인증되지 않은 이메일입니다.")
     })
     @PutMapping("/up/helper")
     public ResponseEntity<List<HelperCertDTO>> signUp(@RequestBody SignUpDTO signUpDTO) {
@@ -192,6 +193,8 @@ public class LoginController {
             @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "4003", description = "사용자정의에러코드:센터 정보를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4010", description = "사용자정의에러코드:인증되지 않은 이메일입니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> signUpManager(@RequestBody CenterManagerRequestDto.SignUpManager signUpDTO) {
