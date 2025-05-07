@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class HelperSearchResponse {
-    private List<TblHelper> helpers;
     List<HelperSearchInfo> helperSearchInfos;
 
     @Getter
@@ -23,7 +22,7 @@ public class HelperSearchResponse {
     static public class HelperSearchInfo {
         private String email;
         private String name;
-        private String gender;
+        private Integer gender;
         private String age;
         private String experience;
         private String workTerm;
