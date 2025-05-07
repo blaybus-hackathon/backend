@@ -22,6 +22,6 @@ public class HelperResponse {
     private List<HelperCertDTO> certificates;
     private boolean carOwnYn;
     private boolean eduYn;
-    private int wage;
-    private int wageState;
+    private Integer wage;
+    private Integer wageState;
 }

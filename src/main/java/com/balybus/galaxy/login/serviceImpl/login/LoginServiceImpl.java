@@ -262,11 +262,22 @@ public class LoginServiceImpl implements LoginService {
 
         if(helper != null) {
             List<HelperCertDTO> certList = new ArrayList<>();
-            certList.add(signUpRequest.getEssentialCertNo());
-            certList.add(signUpRequest.getCareCertNo());
-            certList.add(signUpRequest.getNurseCertNo());
-            certList.add(signUpRequest.getPostPartumCertNo());
-            certList.add(signUpRequest.getHelperOtherCerts());
+            if(signUpRequest.getEssentialCertNo() != null) {
+                certList.add(signUpRequest.getEssentialCertNo());
+            }
+            if(signUpRequest.getCareCertNo() != null) {
+                certList.add(signUpRequest.getCareCertNo());
+            }
+            if(signUpRequest.getNurseCertNo() != null) {
+                certList.add(signUpRequest.getNurseCertNo());
+            }
+            if(signUpRequest.getPostPartumCertNo() != null) {
+                certList.add(signUpRequest.getPostPartumCertNo());
+            }
+            if(signUpRequest.getHelperOtherCerts() != null) {
+                certList.add(signUpRequest.getHelperOtherCerts());
+            }
+
 
             String name = signUpRequest.getName();
             String birthday = signUpRequest.getBirthday();
