@@ -14,5 +14,6 @@ public class MailResponseDto {
     @Builder
     public static class CheckAuthenticationCode{
         private boolean checker;
+        private String msg;
     }
 }

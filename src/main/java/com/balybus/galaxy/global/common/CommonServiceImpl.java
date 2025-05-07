@@ -101,8 +101,14 @@ public class CommonServiceImpl implements CommonService {
         return authValidation;
     }
 
-    // 서버에 이미지 파일 저장
-    private ImgResponseDto.UploadUserImg uploadImage(JpaRepository<? extends ChangeProfileImg, Long> repository,
+    /**
+     * 서버에 이미지 파일 저장
+     * @param repository JpaRepository
+     * @param seq Long
+     * @param photoFile MultipartFile
+     * @return ImgResponseDto.UploadUserImg
+     */
+    public ImgResponseDto.UploadUserImg uploadImage(JpaRepository<? extends ChangeProfileImg, Long> repository,
                                                             Long seq, MultipartFile photoFile) {
         Long newImgSeq = updateUserProfileImage(repository, seq, photoFile);
         return ImgResponseDto.UploadUserImg.builder()
