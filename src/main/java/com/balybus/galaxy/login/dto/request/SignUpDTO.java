@@ -10,7 +10,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class SignUpDTO {
+public class    SignUpDTO {
     private RoleType roleType;
     private String email;
     private String password;
