@@ -27,5 +27,18 @@ public class TblChatMsg extends BaseEntity {
     @JoinColumn(name="sender_seq", nullable = false)
     private TblUser sender;     //송신자 구분자
 
+    @Comment(value="채팅 내용")
     private String content;
+
+    @Comment(value="읽음 여부")
+    private boolean readYn;
+
+    /* ==================================================
+     * UPDATE
+     * ================================================== */
+
+    public void chRead(){
+        this.readYn = true;
+    }
+
 }
