@@ -11,6 +11,7 @@ import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.global.utils.file.service.FileService;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.repository.HelperRepository;
 import com.balybus.galaxy.login.domain.type.RoleType;
@@ -36,6 +37,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ChatServiceImpl implements ChatService {
+    private final FileService fileService;
+
     private final TblChatRoomRepository chatRoomRepository;
     private final TblChatMsgRepository chatMsgRepository;
     private final MemberRepository memberRepository;
@@ -85,6 +88,7 @@ public class ChatServiceImpl implements ChatService {
                 .chatRoom(chatRoom)
                 .sender(senderEntity)
                 .content(dto.getContent())
+                .readYn(false)
                 .build());
 
         //5. dto 반환
@@ -131,11 +135,33 @@ public class ChatServiceImpl implements ChatService {
         // 3. entity -> dto 전환
         List<ChatRoomResponseDto.FindList> result = new ArrayList<>();
         for(Object[] entity : objectList) {
-            // 3-1. dto 전환 및 리스트 추가
+            //3-1. 채팅 상대 정보 조회
+            Long partnerId = (Long) entity[1];
+            Optional<TblUser> partnerUserOpt = memberRepository.findById(partnerId);
+            if(partnerUserOpt.isEmpty()) continue;
+
+            //3-2. 채팅 상대 이미지 주소 조회
+            TblUser partnerUser = partnerUserOpt.get();
+            String partnerImgStr = null;
+            try{
+                partnerImgStr = getPartnerImg(partnerUser);
+            } catch(BadRequestException e){
+                continue;
+            }
+
+            //3-3. 마지막 대화 및 안읽은 대화 개수 카운트
+            Long chatRoomId = (Long) entity[0];
+            Optional<TblChatMsg> chatMsgOpt = chatMsgRepository.findTop1ByChatRoom_IdOrderByIdDesc(chatRoomId);
+
+            // 3-3. dto 전환 및 리스트 추가
             result.add(ChatRoomResponseDto.FindList.builder()
-                    .chatRoomId((Long) entity[0])
-                    .partnerId((Long) entity[1])
+                    .chatRoomId(chatRoomId)
+                    .partnerId(partnerId)
                     .partnerName((String) entity[2])
+                    .partnerImgAddress(partnerImgStr)
+                    .lastChatContent(chatMsgOpt.map(TblChatMsg::getContent).orElse(null))
+                    .lastChatSendTime(chatMsgOpt.map(TblChatMsg::getCreateDatetime).orElse(null))
+                    .notReadCnt(chatMsgRepository.countByChatRoomIdAndSenderIdAndReadYn(chatRoomId, partnerUser.getId(), false))
                     .patientLogId((Long) entity[3])
                     .patientLogName((String) entity[4])
                     .build());
@@ -144,6 +170,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public ChatMsgResponseDto.FindChatDetail findChatDetail(ChatMsgRequestDto.FindChatDetail dto, String userEmail) {
         //1. 로그인 사용자 조회
         Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail);
@@ -157,7 +184,20 @@ public class ChatServiceImpl implements ChatService {
             throw new BadRequestException(ExceptionCode.WS_NOT_FOUND_CHAT_ROOM);
         TblChatRoom chatRoomEntity = chatRoomOpt.get();
 
-        //3. 채팅 내역 조회
+        //3. 채팅 상대 조회
+        Optional<TblUser> partnerUserOpt = memberRepository.findById(
+                userEntity.getId().equals(chatRoomEntity.getUserA().getId())
+                        ? chatRoomEntity.getUserB().getId()
+                        : chatRoomEntity.getUserA().getId());
+        if(partnerUserOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.INVALID_REQUEST);
+        TblUser partnerUser = partnerUserOpt.get();
+        String partnerImgStr = getPartnerImg(partnerUser);
+
+        //4. 상대 전송 채팅 읽음 처리
+        setRead(chatRoomEntity.getId(), partnerUser.getId());
+
+        //5. 채팅 내역 조회
         Pageable page = PageRequest.of(dto.getPageNo(), 30, Sort.by(Sort.Direction.DESC, "id"));
         Page<TblChatMsg> chatListPage = chatMsgRepository.findByChatRoom_Id(dto.getChatRoomId(), page);
 
@@ -168,12 +208,43 @@ public class ChatServiceImpl implements ChatService {
                     .senderYn(userEntity.equals(entity.getSender()))
                     .content(entity.getContent())
                     .sendTime(entity.getCreateDatetime())
+                    .readYn(entity.isReadYn())
                     .build());
         }
 
         return ChatMsgResponseDto.FindChatDetail.builder()
                 .hasNext(chatListPage.hasNext())
+                .partnerImgAddress(partnerImgStr)
                 .list(chatListDto)
                 .build();
+    }
+
+    /**
+     * 대화 상대 이미지 조회
+     * @param partnerUser TblUser:대화상대 로그인 entity
+     * @return String:이미지 주소
+     */
+    private String getPartnerImg(TblUser partnerUser){
+        String partnerImgStr = null;
+        if(RoleType.MEMBER.equals(partnerUser.getUserAuth())){ // 요양보호사
+            Optional<TblHelper> helperOpt = helperRepository.findByUserId(partnerUser.getId());
+            if(helperOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_REQUEST);
+            partnerImgStr = helperOpt.get().getImg() == null ? null : fileService.getOneImgUrl(helperOpt.get().getImg().getId());
+        } else if(RoleType.MANAGER.equals(partnerUser.getUserAuth())){ // 관리자
+            Optional<TblCenterManager> centerManagerOpt = centerManagerRepository.findByMember_Id(partnerUser.getId());
+            if(centerManagerOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_REQUEST);
+            partnerImgStr = centerManagerOpt.get().getImg() == null ? null : fileService.getOneImgUrl(centerManagerOpt.get().getImg().getId());
+        } else throw new BadRequestException(ExceptionCode.INVALID_REQUEST); // 이외 대화 불가
+
+        return partnerImgStr;
+    }
+
+    private void setRead(Long chatRoomId, Long partnerUserId){
+        // 로그인 사용자가 참여중인 채팅방이라는 전제로 아래 로직 실행.
+        //1. 상대방이 송신한 채팅 중, 읽지 않은 메시지 전체 조회
+        List<TblChatMsg> notReadChatList = chatMsgRepository.findByChatRoomIdAndSenderIdAndReadYn(chatRoomId, partnerUserId, false);
+
+        //2. 해당 데이터 전부 읽음 처리
+        notReadChatList.forEach(TblChatMsg::chRead);
     }
 }
