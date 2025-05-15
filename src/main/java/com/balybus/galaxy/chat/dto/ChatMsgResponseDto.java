@@ -23,6 +23,7 @@ public class ChatMsgResponseDto {
     @Builder
     public static class FindChatDetail {
         private boolean hasNext;
+        private String partnerImgAddress;
         private List<FindChatDetailList> list;
     }
 
@@ -32,5 +33,6 @@ public class ChatMsgResponseDto {
         private boolean senderYn;
         private String content;
         private LocalDateTime sendTime;
+        private boolean readYn;
     }
 }

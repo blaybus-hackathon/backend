@@ -51,6 +51,8 @@ public class ChatController {
                     content = @Content(schema = @Schema(implementation = ChatMsgResponseDto.FindChatDetail.class))),
             @ApiResponse(responseCode = "3010", description = "사용자정의에러코드:로그인한 회원을 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "1000", description = "사용자정의에러코드:채팅 상대 정보가 유효하지 않습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "9004", description = "사용자정의에러코드:채팅방 정보를 찾을 수 없습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
