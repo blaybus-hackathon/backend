@@ -1,5 +1,6 @@
 package com.balybus.galaxy.helper.serviceImpl.service;
 
+import com.balybus.galaxy.address.domain.TblAddressFirst;
 import com.balybus.galaxy.address.domain.TblAddressSecond;
 import com.balybus.galaxy.address.domain.TblAddressThird;
 import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
@@ -163,7 +164,7 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        List<com.balybus.galaxy.address.domain.TblAddressFirst> addressFirstList = tblAddressFirstRepository.findAllById(helperWorkLocationDTO.getAddressFirstIds());
+        List<TblAddressFirst> addressFirstList = tblAddressFirstRepository.findAllById(helperWorkLocationDTO.getAddressFirstIds());
         List<TblAddressSecond> addressSecondList = tblAddressSecondRepository.findAllById(helperWorkLocationDTO.getAddressSecondIds());
         List<TblAddressThird> addressThirds = tblAddressThirdRepository.findAllById(helperWorkLocationDTO.getAddressThirdIds());
 
@@ -308,15 +309,15 @@ public class HelperServiceImpl implements HelperService {
                 .map(helper -> {
                     boolean[] checkInfo = new boolean[4];
 
-                    String genderStr = "";
+                    int genderStr = 1;
                     // 성별 계산
                     if(!helperSearchDTO.getGenders().isEmpty() && helperSearchDTO.getGenders().contains(helper.getGender())) {
                         checkInfo[0] = true;
                         if(helper.getGender() == 0 && helperSearchDTO.getGenders().contains(0)) {
-                            genderStr = "남자";
+                            genderStr = 0;
                         }
                         else if(helper.getGender() == 1 && helperSearchDTO.getGenders().contains(1)) {
-                            genderStr = "여자";
+                            genderStr = 1;
                         }
                     }
 

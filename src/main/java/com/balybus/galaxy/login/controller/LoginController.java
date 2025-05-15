@@ -137,9 +137,9 @@ public class LoginController {
             @ApiResponse(responseCode = "4000", description = "로그인 아이디가 이미 존재합니다."),
             @ApiResponse(responseCode = "4010", description = "인증되지 않은 이메일입니다.")
     })
-    @PutMapping("/up/helper")
+    @PostMapping("/up/helper")
     public ResponseEntity<List<HelperCertDTO>> signUp(@RequestBody SignUpDTO signUpDTO) {
-        if(signUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
+        if(SignUpDTO.hasNullDataBeforeSignUp(signUpDTO)) {
             throw new BadRequestException(SIGNUP_INFO_NULL);
         }
         List<HelperCertDTO> helperResponse = loginService.signUp(signUpDTO);

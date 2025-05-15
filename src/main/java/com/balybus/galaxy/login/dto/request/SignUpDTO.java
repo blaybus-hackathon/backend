@@ -10,7 +10,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
-public class SignUpDTO {
+public class    SignUpDTO {
     private RoleType roleType;
     private String email;
     private String password;
@@ -28,15 +28,10 @@ public class SignUpDTO {
     private boolean carOwnYn; // 차량 소유 여부
     private boolean eduYn; // 치매 교육 이수 여부
 
-    public static boolean hasNullDataBeforeSignUp(SignUpDTO dto) {
+    public static boolean   hasNullDataBeforeSignUp(SignUpDTO dto) {
         return dto.getRoleType() == null ||
                 dto.getName() == null ||
                 dto.getPhone() == null ||
-                dto.getAddressDetail() == null ||
-                dto.getEssentialCertNo() == null ||
-                dto.getCareCertNo() == null ||
-                dto.getNurseCertNo() == null ||
-                dto.getPostPartumCertNo() == null ||
-                dto.getHelperOtherCerts() == null;
+                dto.getAddressDetail() == null;
     }
 }
