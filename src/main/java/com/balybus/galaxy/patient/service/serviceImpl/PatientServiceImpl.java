@@ -538,7 +538,7 @@ public class PatientServiceImpl implements PatientService {
 
         for(TblPatientLog ptLog : tblPatientLog) {
             // 1. 어르신 매칭 테이블 반환(매칭 중 상태이며 해당 어르신 관계에 있는 테이블)
-            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), PERMIT_TUNE);
+            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), INIT);
 
             // 2. 매칭 중인 어르신의 요양 보호사 리스트
             List<PatientResponseDto.MatchedHelperInfo> matchedHelperInfoList = new ArrayList<>();
