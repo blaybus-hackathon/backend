@@ -1,5 +1,6 @@
 package com.balybus.galaxy.helper.serviceImpl;
 
+import com.balybus.galaxy.helper.aspect.AccessorHelper;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
 import com.balybus.galaxy.login.dto.request.HelperCertDTO;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 public interface HelperService {
     HelperResponse getAllHelperInfo(UserDetails userDetails);
-    void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO);
+    void updateProfile(AccessorHelper accessorHelper, HelperProfileDTO helperProfileDTO);
     WageUpdateResponse updateWage(UserDetails userDetails, WageUpdateDTO wageUpdateDTO);
     HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails);
     List<TblAddressFirstResponse> getFirstAddress();

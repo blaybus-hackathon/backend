@@ -7,6 +7,7 @@ import com.balybus.galaxy.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.address.repository.TblAddressThirdRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.helper.aspect.AccessorHelper;
 import com.balybus.galaxy.helper.domain.*;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
@@ -102,14 +103,11 @@ public class HelperServiceImpl implements HelperService {
     }
 
     @Override
-    public void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO) {
-        String username = userDetails.getUsername();
-
-        TblUser tblUser = memberRepository.findByEmail(username)
-                .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
-
-        TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
-                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+    public void updateProfile(
+            AccessorHelper accessor,
+            HelperProfileDTO helperProfileDTO
+    ) {
+        TblHelper tblHelper = accessor.getHelper();
 
         tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
         tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());

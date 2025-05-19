@@ -1,5 +1,7 @@
 package com.balybus.galaxy.helper.controller;
 
+import com.balybus.galaxy.helper.aspect.AccessorHelper;
+import com.balybus.galaxy.helper.aspect.CurrentHelper;
 import com.balybus.galaxy.helper.domain.TblHelper;
 import com.balybus.galaxy.helper.dto.request.*;
 import com.balybus.galaxy.helper.dto.response.*;
@@ -73,7 +75,6 @@ public class HelperController {
     /**
      * 요양 보호사 프로필 업데이트
      * @param helperProfileDTO
-     * @param userDetails
      * @return
      */
     @Operation(summary = "요양 보호사 프로필 업데이트", description = "현재 로그인한 요양 보호사 프로필 업데이트")
@@ -84,8 +85,9 @@ public class HelperController {
             @ApiResponse(responseCode = "3010", description = "로그인한 회원을 찾을 수 없습니다.")
     })
     @PutMapping("/update-profile")
-    public ResponseEntity<String> updateProfile(@RequestBody HelperProfileDTO helperProfileDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        helperService.updateProfile(userDetails, helperProfileDTO);
+    public ResponseEntity<String> updateProfile(@RequestBody HelperProfileDTO helperProfileDTO,
+                                                @CurrentHelper AccessorHelper accessorHelper) {
+        helperService.updateProfile(accessorHelper, helperProfileDTO);
         return ResponseEntity.ok("프로필이 정상적으로 업데이트 되었습니다.");
     }
 
