@@ -3,6 +3,7 @@ package com.balybus.galaxy.oauth.service;
 import com.balybus.galaxy.global.config.aop.TimeTrace;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
+import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.oauth.client.KakaoApiToken;
 import com.balybus.galaxy.oauth.client.KakaoApiUserInfo;
 import com.balybus.galaxy.oauth.domain.TblKakao;
@@ -13,7 +14,6 @@ import com.balybus.galaxy.oauth.dto.response.KakaoResponse;
 import com.balybus.galaxy.oauth.dto.response.OauthToken;
 import com.balybus.galaxy.oauth.repository.TblKakaoRepository;
 import com.balybus.galaxy.login.serviceImpl.login.LoginServiceImpl;
-import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.domain.type.LoginType;
 import com.balybus.galaxy.member.dto.request.MemberRequest;
 import com.balybus.galaxy.member.repository.MemberRepository;
@@ -25,7 +25,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -63,29 +66,30 @@ public class UserService {
     @TimeTrace
     public KakaoResponse kakaoLogin(KakaoRequest code, HttpServletRequest request, HttpServletResponse response) {
         // 인가 코드를 통해 access_token 발급
-        OauthToken oauthToken = getAccessToken(code.getCode());
-        log.info(oauthToken.getAccessToken());
-
-        KakaoUser userInfo = getUserInfo(oauthToken.getAccessToken());
-        log.info("카카오 사용자 정보: {}", userInfo);
+//        OauthToken oauthToken = getAccessToken(code.getCode());
+//        log.info(oauthToken.getAccessToken());
+//
+//        KakaoUser userInfo = getUserInfo(oauthToken.getAccessToken());
+//        log.info("카카오 사용자 정보: {}", userInfo);
 
         // FeignClient를 사용한 통신
-//        OauthToken oauthToken = kakaoApiClient.getToken(
-//                "authorization_code",
-//                clientId,
-//                redirectUri,
-//                code.getCode()
-//        );
-//
-//        KakaoUserFeign userInfo = kakaoApiUserInfo.getUserInfo("Bearer " + oauthToken.getAccessToken());
-//
+        OauthToken oauthToken = kakaoApiClient.getToken(
+                "authorization_code",
+                clientId,
+                redirectUri,
+                code.getCode()
+        );
+
+        KakaoUserFeign userInfo = kakaoApiUserInfo.getUserInfo("Bearer " + oauthToken.getAccessToken());
+
         Optional<TblKakao> kakaoUser = tblKakaoRepository.findByKakaoEmail(userInfo.getEmail());
         Optional<TblUser> tblUser = memberRepository.findByEmail(userInfo.getEmail());
 
         ///
 
         if(kakaoUser.isEmpty() && tblUser.isPresent()) {
-            // 기존 아이디로 자동 로그인 시키기
+            // 케이스 1: 카카오 연동 정보는 없으나, 우리 서비스에 동일 이메일로 가입된 회원이 있는 경우
+            // -> 기존 아이디로 자동 로그인 시키기 (카카오 계정과 기존 계정 자동 연동 및 로그인)
             String email = tblUser.get().getEmail();
             loginService.signIn(MemberRequest.SignInDto.builder()
                     .userId(email)
@@ -94,7 +98,8 @@ public class UserService {
         }
         else if(kakaoUser.isEmpty() && tblUser.isEmpty()) {
             tblKakaoRepository.save(TblKakao.of(userInfo));
-            //이메일과 닉네임을 전달하고 kakao로그인 구분자를 전달해주어 프론트 측에서 이후 회원가입 진행시 해당 정보를 다시 넘겨줄수 있도록 하면 좋을거 같습니다.
+            // 케이스 2: 카카오 연동 정보도 없고, 우리 서비스 회원 정보도 없는 경우 (완전 신규)
+            // -> 카카오 정보를 TblKakao에 저장하고, 프론트에 추가 회원가입 진행 안내
             return KakaoResponse.builder()
                     .email(userInfo.getEmail())
                     .nickName(userInfo.getNickname())
@@ -103,7 +108,9 @@ public class UserService {
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isEmpty()) {
-            //이메일과 닉네임을 전달하고 kakao로그인 구분자를 전달해주어 프론트 측에서 이후 회원가입 진행시 해당 정보를 다시 넘겨줄수 있도록 하면 좋을거 같습니다.
+            // 케이스 3: 카카오 연동 정보는 있으나, 우리 서비스 회원 정보가 없는 경우
+            // (예: 과거에 카카오로 우리 서비스에 접근 시도했으나, 회원가입을 완료하지 않은 경우 또는 다른 경로로 TblKakao만 생성된 경우)
+            // -> 프론트에 추가 회원가입 진행 안내 (TblKakao 정보는 이미 있으므로 업데이트 또는 그대로 사용)
             return KakaoResponse.builder()
                     .email(userInfo.getEmail())
                     .nickName(userInfo.getNickname())
@@ -112,7 +119,8 @@ public class UserService {
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isPresent()) {
-            // TblKakao와 TblUser 모두 있다면, 로그인 시도이므로 기존 일반 로그인의 로직(LoginServiceImpl 클래스내 signIn 매소드)을 사용하여 데이터를 넘겨주면 됩니다.
+            // 케이스 4: 카카오 연동 정보도 있고, 우리 서비스 회원 정보도 있는 경우 (이미 연동된 기존 회원)
+            // -> 카카오 계정 기반으로 로그인 처리
             loginService.signIn(MemberRequest.SignInDto.builder()
                             .userId(kakaoUser.get().getKakaoEmail())
                             .userPw(tblUser.get().getPassword())
