@@ -1,7 +1,7 @@
-package com.balybus.galaxy.kakao.domain;
+package com.balybus.galaxy.oauth.domain;
 
 import com.balybus.galaxy.domain.BaseEntity;
-import com.balybus.galaxy.kakao.dto.request.KakaoUser;
+import com.balybus.galaxy.oauth.dto.request.KakaoUser;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;

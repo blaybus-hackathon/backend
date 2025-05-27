@@ -45,6 +45,8 @@ public enum ExceptionCode {
     TOO_MUCH_MAIL_REQUEST(4009, "10분 후에 이메일 전송 요청이 가능합니다."),
     REQUIRED_EMAIL_VERIFICATION(4010, "인증되지 않은 이메일입니다."),
     AFTER_10_MINUTES(4011, "전송요청 후 10분 이내에 인증이 필요합니다."),
+    TOKEN_INFO_INVALID(4012, "Oauth토큰 값을 확인해 주세요"),
+    KAKAO_TOKEN_FAILED(4013, "카카오 토큰을 가져오는데 실패했습니다."),
 
     // 5xxx 서버에러
     INTERNAL_SEVER_ERROR(5000, "서버에서 에러가 발생하였습니다."),
