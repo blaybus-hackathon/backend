@@ -1,4 +1,4 @@
-package com.balybus.galaxy.kakao.dto.request;
+package com.balybus.galaxy.oauth.dto.request;
 
 import lombok.Data;
 
