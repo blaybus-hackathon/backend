@@ -93,7 +93,7 @@ public class ResizeHandler implements RequestHandler<S3Event, String> {
             // 리사이즈된 이미지를 S3에 저장
             logger.log("Writing to: " + dstBucket + "/" + key);
             try {
-                s3Client.putObject(new PutObjectRequest(dstBucket, key, is, meta).withCannedAcl(CannedAccessControlList.PublicRead));
+                s3Client.putObject(new PutObjectRequest(dstBucket, key, is, meta));
             } catch (AmazonServiceException e) {
                 logger.log(e.getErrorMessage());
                 System.exit(1);
