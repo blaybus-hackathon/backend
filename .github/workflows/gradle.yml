@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: main
 env:
-  S3_BUCKET_NAME: dolbom-s3
+  S3_BUCKET_NAME: galaxy-dev-bucket
   
 permissions:
   contents: read
