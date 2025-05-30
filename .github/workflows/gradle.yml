@@ -100,8 +100,8 @@ jobs:
           docker build --no-cache --build-arg JAR_FILE=$JAR_FILE -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus .
               
           # 🔹 Docker Hub에 푸시
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus:latest
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend:latest
 
     - name: Sync Bucket
       env:
@@ -132,7 +132,7 @@ jobs:
           
           # ✅ 최신 이미지 가져오기
           echo "🚀 Pulling the latest Docker image..."
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus:latest
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/blaybus-backend:latest
           
           # ✅ 기존 컨테이너 종료 및 네트워크 정리
           echo "🛑 Stopping and removing existing containers..."
