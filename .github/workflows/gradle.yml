@@ -124,7 +124,7 @@ jobs:
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
         script: |
-          cd /home/ubuntu
+          cd /home/ubuntu/galaxtDev
 
           # ✅ 실행 중인 모든 컨테이너 정리
           echo "🛑 Stopping all running containers..."
