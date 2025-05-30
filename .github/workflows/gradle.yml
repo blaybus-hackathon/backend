@@ -88,6 +88,9 @@ jobs:
       run: |
           chmod +x ./gradlew
           ./gradlew clean build --exclude-task test
+          
+    - name: Check generated JAR file
+      run: ls -l build/libs/
 
     - name: Docker build & push to docker repo
       run: |
