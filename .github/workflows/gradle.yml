@@ -97,7 +97,7 @@ jobs:
           JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
           
           # 🔹 빌드 시 실행 가능한 JAR 사용
-          docker build --no-cache --build-arg JAR_FILE=$JAR_FILE -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus .
+          docker build --no-cache --build-arg JAR_FILE=$JAR_FILE -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend .
               
           # 🔹 Docker Hub에 푸시
           docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend:latest
