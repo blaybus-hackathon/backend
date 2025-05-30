@@ -1,4 +1,4 @@
-package com.balybus.galaxy.kakao.dto.response;
+package com.balybus.galaxy.oauth.dto.response;
 
 import com.balybus.galaxy.member.domain.type.LoginType;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
-package com.balybus.galaxy.kakao.repository;
+package com.balybus.galaxy.oauth.repository;
 
-import com.balybus.galaxy.kakao.domain.TblKakao;
+import com.balybus.galaxy.oauth.domain.TblKakao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
