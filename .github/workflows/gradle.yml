@@ -121,7 +121,7 @@ jobs:
         key: ${{ secrets.KEY }}
         envs: GITHUB_SHA
         script: |
-          cd /home/ubuntu/galaxtDev
+          cd /home/ubuntu/galaxyDev
 
           echo "🛑 Stopping and removing existing backend-container"
           docker-compose down backend-container
