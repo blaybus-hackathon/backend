@@ -87,20 +87,14 @@ jobs:
     - name: Build with Gradle
       run: |
           chmod +x ./gradlew
-          ./gradlew clean bootJar -x test
+          ./gradlew clean build --exclude-task test
 
     - name: Docker build & push to docker repo
       run: |
           echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           
-          # 🔹 실행 가능한 JAR 파일을 가져오기 위해 수정
-          JAR_FILE=$(ls build/libs/*SNAPSHOT.jar | head -n 1)
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend .
           
-          # 🔹 빌드 시 실행 가능한 JAR 사용
-          docker build --no-cache --build-arg JAR_FILE=$JAR_FILE -t ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend .
-              
-          # 🔹 Docker Hub에 푸시
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/blaybus-backend:latest
 
     - name: Sync Bucket
