@@ -1,9 +1,9 @@
 package com.balybus.galaxy.patient.dto;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
-import com.balybus.galaxy.address.domain.TblAddressSecond;
-import com.balybus.galaxy.address.domain.TblAddressThird;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
+import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
+import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;

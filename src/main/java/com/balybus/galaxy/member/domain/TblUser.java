@@ -1,7 +1,7 @@
 package com.balybus.galaxy.member.domain;
 
-import com.balybus.galaxy.domain.BaseEntity;
-import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.global.domain.BaseEntity;
+import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.type.LoginType;
 import jakarta.persistence.*;
 import lombok.*;
