@@ -57,6 +57,4 @@ public class CommonServiceImpl implements CommonService {
         }
         return resultDto;
     }
-
-
 }
