@@ -1,9 +1,7 @@
 package com.balybus.galaxy.patient.dto;
 
 import com.balybus.galaxy.global.domain.tblCare.dto.CareChoiceListDto;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
-import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
 import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLog;
 import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.Builder;

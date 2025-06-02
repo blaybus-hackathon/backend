@@ -7,7 +7,6 @@ import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
-import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

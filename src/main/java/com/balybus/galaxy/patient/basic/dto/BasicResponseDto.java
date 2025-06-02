@@ -3,7 +3,6 @@ package com.balybus.galaxy.patient.basic.dto;
 import com.balybus.galaxy.global.domain.tblCare.dto.CareChoiceListDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
-import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.Builder;
 import lombok.Data;
