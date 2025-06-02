@@ -13,12 +13,12 @@ import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressThi
 import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
 import com.balybus.galaxy.global.utils.file.service.FileService;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
+import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
+import com.balybus.galaxy.patient.basic.dto.BasicResponseDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTimeRepository;
-import com.balybus.galaxy.patient.dto.PatientRequestDto;
-import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,7 @@ public class BasicServiceImpl implements BasicService{
      */
     @Override
     @Transactional
-    public PatientResponseDto.SavePatientInfo savePatientInfo(String userEmail, PatientRequestDto.SavePatientInfo dto) {
+    public BasicResponseDto.SavePatientInfo savePatientInfo(String userEmail, BasicRequestDto.SavePatientInfo dto) {
         //1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
@@ -80,7 +80,7 @@ public class BasicServiceImpl implements BasicService{
         patientTimeRepository.saveAll(savePatientTimeList);
 
         //4. 어르신 정보 구분자 값, 담당자 이메일 반환
-        return PatientResponseDto.SavePatientInfo.builder()
+        return BasicResponseDto.SavePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .managerEmail(userEmail)
                 .build();
@@ -94,7 +94,7 @@ public class BasicServiceImpl implements BasicService{
      */
     @Override
     @Transactional
-    public PatientResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, PatientRequestDto.UpdatePatientInfo dto) {
+    public BasicResponseDto.UpdatePatientInfo updatePatientInfo(String userEmail, BasicRequestDto.UpdatePatientInfo dto) {
         //1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
@@ -122,7 +122,7 @@ public class BasicServiceImpl implements BasicService{
         patientTimeRepository.saveAll(savePatientTimeList);
 
         //5. 어르신 정보 구분자 값, 이름, 생년월일 중 연도 반환
-        return PatientResponseDto.UpdatePatientInfo.builder()
+        return BasicResponseDto.UpdatePatientInfo.builder()
                 .patientSeq(patient.getId())
                 .managerEmail(userEmail)
                 .build();
@@ -135,7 +135,7 @@ public class BasicServiceImpl implements BasicService{
      * @return PatientResponseDto.GetOnePatientInfo
      */
     @Override
-    public PatientResponseDto.GetOnePatientInfo getOnePatientInfo(String userEmail, Long patientSeq) {
+    public BasicResponseDto.GetOnePatientInfo getOnePatientInfo(String userEmail, Long patientSeq) {
         //1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
@@ -146,14 +146,14 @@ public class BasicServiceImpl implements BasicService{
         List<TblPatientTime> patientTimeList = patientTimeRepository.findByPatient_Id(patient.getId());
 
         //4. 반환 dto 생성
-        PatientResponseDto.GetOnePatientInfo resultDto = new PatientResponseDto.GetOnePatientInfo(patient, patientTimeList);
+        BasicResponseDto.GetOnePatientInfo resultDto = new BasicResponseDto.GetOnePatientInfo(patient, patientTimeList);
         resultDto.setCareChoice(commonService.getCareChoiceList(resultDto, false));
         resultDto.setCareBaseDtoNull();
         return resultDto;
     }
 
     @Override
-    public PatientResponseDto.GetPatientList getPatientList(String userEmail, PatientRequestDto.GetPatientList dto) {
+    public BasicResponseDto.GetPatientList getPatientList(String userEmail, BasicRequestDto.GetPatientList dto) {
         //1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
@@ -166,10 +166,10 @@ public class BasicServiceImpl implements BasicService{
         List<TblPatient> patientEntityList = listPage.getContent();
 
         //3. 성별/근무종류/주소지/장기요양등급 각 항목 이름 조회 및 dto 리스트 정리
-        List<PatientResponseDto.GetPatientListInfo> resultList = new ArrayList<>();
+        List<BasicResponseDto.GetPatientListInfo> resultList = new ArrayList<>();
         for (TblPatient entity : patientEntityList) {
             resultList.add(
-                    PatientResponseDto.GetPatientListInfo.builder()
+                    BasicResponseDto.GetPatientListInfo.builder()
                             .patientSeq(entity.getId())
                             .imgAddress(entity.getImg() == null ? null : fileService.getOneImgUrl(entity.getImg().getId()))
                             .name(entity.getName())
@@ -182,7 +182,7 @@ public class BasicServiceImpl implements BasicService{
         }
 
         //4. 결과 반환
-        return PatientResponseDto.GetPatientList.builder()
+        return BasicResponseDto.GetPatientList.builder()
                 .totalPage(listPage.getTotalPages())
                 .totalEle(listPage.getTotalElements())
                 .hasNext(listPage.hasNext())

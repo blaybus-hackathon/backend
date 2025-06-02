@@ -7,7 +7,7 @@ import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
 import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
-import com.balybus.galaxy.patient.dto.PatientRequestDto;
+import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -122,7 +122,7 @@ public class TblPatient extends BaseEntity implements ChangeProfileImg {
         @Override
         public void updateImg(TblImg img) { this.img = img; }
 
-        public void basicUpdate(PatientRequestDto.UpdatePatientInfo dto,TblAddressFirst tblAddressFirst,
+        public void basicUpdate(BasicRequestDto.UpdatePatientInfo dto, TblAddressFirst tblAddressFirst,
                                 TblAddressSecond tblAddressSecond, TblAddressThird tblAddressThird){
                 this.tblAddressFirst = tblAddressFirst;
                 this.tblAddressSecond = tblAddressSecond;

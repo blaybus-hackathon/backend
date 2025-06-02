@@ -1,9 +1,9 @@
 package com.balybus.galaxy.patient.basic;
 
 import com.balybus.galaxy.global.exception.ErrorResponse;
+import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
+import com.balybus.galaxy.patient.basic.dto.BasicResponseDto;
 import com.balybus.galaxy.patient.basic.service.BasicServiceImpl;
-import com.balybus.galaxy.patient.dto.PatientRequestDto;
-import com.balybus.galaxy.patient.dto.PatientResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,7 +26,7 @@ public class BasicController {
     @Operation(summary = "어르신 정보 등록 API", description = "어르신 정보를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "등록 성공",
-                    content = @Content(schema = @Schema(implementation = PatientResponseDto.SavePatientInfo.class))),
+                    content = @Content(schema = @Schema(implementation = BasicResponseDto.SavePatientInfo.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -35,7 +35,7 @@ public class BasicController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> savePatientInfo(@AuthenticationPrincipal UserDetails userDetails,
-                                             @RequestBody PatientRequestDto.SavePatientInfo dto) {
+                                             @RequestBody BasicRequestDto.SavePatientInfo dto) {
         return ResponseEntity.ok().body(basicService.savePatientInfo(userDetails.getUsername(), dto));
     }
 
@@ -43,7 +43,7 @@ public class BasicController {
     @Operation(summary = "어르신 정보 수정 API", description = "어르신 정보를 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
-                    content = @Content(schema = @Schema(implementation = PatientResponseDto.UpdatePatientInfo.class))),
+                    content = @Content(schema = @Schema(implementation = BasicResponseDto.UpdatePatientInfo.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -56,7 +56,7 @@ public class BasicController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> updatePatientInfo(@AuthenticationPrincipal UserDetails userDetails,
-                                               @RequestBody PatientRequestDto.UpdatePatientInfo dto) {
+                                               @RequestBody BasicRequestDto.UpdatePatientInfo dto) {
         return ResponseEntity.ok().body(basicService.updatePatientInfo(userDetails.getUsername(), dto));
     }
 
@@ -64,7 +64,7 @@ public class BasicController {
     @Operation(summary = "어르신 정보 상세 조회 API", description = "어르신 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
-                    content = @Content(schema = @Schema(implementation = PatientResponseDto.GetOnePatientInfo.class))),
+                    content = @Content(schema = @Schema(implementation = BasicResponseDto.GetOnePatientInfo.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -83,7 +83,7 @@ public class BasicController {
     @Operation(summary = "어르신 리스트 조회 API", description = "어르신 리스트 정보를 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
-                    content = @Content(schema = @Schema(implementation = PatientResponseDto.GetPatientList.class))),
+                    content = @Content(schema = @Schema(implementation = BasicResponseDto.GetPatientList.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -94,7 +94,7 @@ public class BasicController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<?> getPatientList(@AuthenticationPrincipal UserDetails userDetails,
-                                            PatientRequestDto.GetPatientList dto) {
+                                            BasicRequestDto.GetPatientList dto) {
         return ResponseEntity.ok().body(basicService.getPatientList(userDetails.getUsername(), dto));
     }
 }
