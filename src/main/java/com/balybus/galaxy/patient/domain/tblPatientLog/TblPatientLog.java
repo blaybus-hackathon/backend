@@ -6,7 +6,7 @@ import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
-import com.balybus.galaxy.patient.dto.PatientRequestDto;
+import com.balybus.galaxy.patient.recruit.dto.RecruitRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -153,7 +153,7 @@ public class TblPatientLog extends BaseEntity {
     @Comment("돌봄 요일 시간 협의 여부")
     private Boolean timeNegotiation;
 
-    public void basicUpdate(PatientRequestDto.UpdateRecruitPatientInfo dto,
+    public void basicUpdate(RecruitRequestDto.UpdateRecruitPatientInfo dto,
                             double timeWage, double dayWage, double weekWage,
                             TblAddressFirst tblAddressFirst, TblAddressSecond tblAddressSecond, TblAddressThird tblAddressThird ){
         this.linkingYn = dto.getLinkingYn();
