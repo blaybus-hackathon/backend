@@ -1,4 +1,4 @@
-package com.balybus.galaxy.centerManager.controller;
+package com.balybus.galaxy.centerManager;
 
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
