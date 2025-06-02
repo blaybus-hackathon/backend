@@ -1,4 +1,4 @@
-package com.balybus.galaxy.chat.domain.tblChatRoom;
+package com.balybus.galaxy.global.domain.tblChatRoom;
 
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.member.domain.TblUser;

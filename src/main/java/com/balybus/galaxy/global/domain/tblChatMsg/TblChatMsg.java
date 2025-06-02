@@ -1,6 +1,6 @@
-package com.balybus.galaxy.chat.domain.tblChatMsg;
+package com.balybus.galaxy.global.domain.tblChatMsg;
 
-import com.balybus.galaxy.chat.domain.tblChatRoom.TblChatRoom;
+import com.balybus.galaxy.global.domain.tblChatRoom.TblChatRoom;
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;

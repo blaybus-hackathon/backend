@@ -1,4 +1,4 @@
-package com.balybus.galaxy.chat.domain.tblChatMsg;
+package com.balybus.galaxy.global.domain.tblChatMsg;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

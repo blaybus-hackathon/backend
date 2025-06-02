@@ -1,9 +1,9 @@
 package com.balybus.galaxy.chat.service;
 
-import com.balybus.galaxy.chat.domain.tblChatMsg.TblChatMsg;
-import com.balybus.galaxy.chat.domain.tblChatMsg.TblChatMsgRepository;
-import com.balybus.galaxy.chat.domain.tblChatRoom.TblChatRoom;
-import com.balybus.galaxy.chat.domain.tblChatRoom.TblChatRoomRepository;
+import com.balybus.galaxy.global.domain.tblChatMsg.TblChatMsg;
+import com.balybus.galaxy.global.domain.tblChatMsg.TblChatMsgRepository;
+import com.balybus.galaxy.global.domain.tblChatRoom.TblChatRoom;
+import com.balybus.galaxy.global.domain.tblChatRoom.TblChatRoomRepository;
 import com.balybus.galaxy.chat.dto.ChatMsgRequestDto;
 import com.balybus.galaxy.chat.dto.ChatMsgResponseDto;
 import com.balybus.galaxy.chat.dto.ChatRoomResponseDto;

@@ -1,4 +1,4 @@
-package com.balybus.galaxy.chat.domain.tblChatRoom;
+package com.balybus.galaxy.global.domain.tblChatRoom;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
