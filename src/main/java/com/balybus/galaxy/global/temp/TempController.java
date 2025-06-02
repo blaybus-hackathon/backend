@@ -1,9 +1,7 @@
 package com.balybus.galaxy.global.temp;
 
-import com.amazonaws.services.s3.model.*;
-import com.balybus.galaxy.domain.tblImg.TblImgServiceImpl;
-import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
-import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.global.domain.tblImg.TblImgServiceImpl;
+import com.balybus.galaxy.global.domain.tblImg.dto.ImgRequestDto;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,12 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Map;
-
-import static com.balybus.galaxy.global.exception.ExceptionCode.UPLOAD_FAILED;
 
 @RestController
 @RequiredArgsConstructor

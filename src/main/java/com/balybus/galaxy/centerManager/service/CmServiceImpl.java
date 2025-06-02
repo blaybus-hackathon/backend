@@ -2,17 +2,17 @@ package com.balybus.galaxy.centerManager.service;
 
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
-import com.balybus.galaxy.domain.tblCenter.TblCenter;
-import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
-import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
-import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
-import com.balybus.galaxy.global.common.CommonServiceImpl;
+import com.balybus.galaxy.global.domain.tblCenter.TblCenter;
+import com.balybus.galaxy.global.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.global.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
+import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.service.FileService;
-import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
+import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CmServiceImpl implements CmService {
     private final LoginAuthCheckServiceImpl loginAuthCheckService;
-    private final CommonServiceImpl commonService;
+    private final CodeServiceImpl commonService;
     private final FileService fileService;
 
     private final TblCenterManagerRepository centerManagerRepository;

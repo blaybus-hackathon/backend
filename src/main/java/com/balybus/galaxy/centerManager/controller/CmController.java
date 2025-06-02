@@ -3,7 +3,7 @@ package com.balybus.galaxy.centerManager.controller;
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
 import com.balybus.galaxy.centerManager.service.CmServiceImpl;
-import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.global.domain.tblCenter.dto.CenterRequestDto;
 import com.balybus.galaxy.global.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

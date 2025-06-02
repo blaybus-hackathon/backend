@@ -1,6 +1,6 @@
 package com.balybus.galaxy.patient.dto.baseDto;
 
-import com.balybus.galaxy.domain.tblCare.dto.CareBaseDto;
+import com.balybus.galaxy.global.domain.tblCare.dto.CareBaseDto;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
 import com.balybus.galaxy.patient.domain.tblPatientTime.TblPatientTime;

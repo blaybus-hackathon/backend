@@ -1,6 +1,6 @@
 package com.balybus.galaxy.global.utils.file;
 
-import com.balybus.galaxy.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.domain.tblImg.TblImg;
 
 public interface ChangeProfileImg {
     /* =========================================

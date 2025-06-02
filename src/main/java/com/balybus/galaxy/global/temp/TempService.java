@@ -1,6 +1,6 @@
 package com.balybus.galaxy.global.temp;
 
-import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
+import com.balybus.galaxy.global.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
