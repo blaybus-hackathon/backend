@@ -1,11 +1,11 @@
-package com.balybus.galaxy.patient.domain.tblPatientLog;
+package com.balybus.galaxy.global.domain.tblPatientLog;
 
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
 import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
 import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.recruit.dto.RecruitRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

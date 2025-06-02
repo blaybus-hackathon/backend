@@ -1,7 +1,7 @@
 package com.balybus.galaxy.login.classic.service.loginAuth;
 
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
 
 public interface LoginAuthCheckService {
     TblCenterManager checkManager(String userEmail); // 관리자 권한 확인

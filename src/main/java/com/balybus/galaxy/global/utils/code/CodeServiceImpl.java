@@ -13,7 +13,7 @@ import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.global.utils.file.service.FileService;
 import com.balybus.galaxy.careAssistant.repository.HelperRepository;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatientRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

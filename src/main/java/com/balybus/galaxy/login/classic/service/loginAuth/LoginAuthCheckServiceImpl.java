@@ -7,8 +7,8 @@ import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

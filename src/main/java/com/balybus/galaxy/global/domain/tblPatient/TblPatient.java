@@ -1,4 +1,4 @@
-package com.balybus.galaxy.patient.domain.tblPatient;
+package com.balybus.galaxy.global.domain.tblPatient;
 
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
 import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;

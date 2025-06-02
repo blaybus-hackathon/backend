@@ -1,4 +1,4 @@
-package com.balybus.galaxy.patient.domain.tblPatient;
+package com.balybus.galaxy.global.domain.tblPatient;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

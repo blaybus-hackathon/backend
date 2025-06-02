@@ -1,4 +1,4 @@
-package com.balybus.galaxy.patient.domain.tblPatientTimeLog;
+package com.balybus.galaxy.global.domain.tblPatientTimeLog;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,7 +1,7 @@
-package com.balybus.galaxy.patient.domain.tblPatientTime;
+package com.balybus.galaxy.global.domain.tblPatientTime;
 
 import com.balybus.galaxy.global.domain.BaseEntity;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;

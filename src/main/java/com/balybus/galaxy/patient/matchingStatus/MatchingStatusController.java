@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/patient")
+@RequestMapping("/api/patient-match-status")
 public class MatchingStatusController {
     private final MatchingStatusServiceImpl matchingStatusService;
     @Operation(summary = "어르신 매칭 대기 중 리스트 반환 API", description = "매칭 대기 중인 어르신 정보를 반환합니다.")
@@ -32,7 +32,7 @@ public class MatchingStatusController {
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get-matching-waiting-patient-list")
+    @GetMapping("/waiting-patient-list")
     public ResponseEntity<?> getMatchingWaitingPatientList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(matchingStatusService.matchingPatientInfoList(userDetails.getUsername()));
     }
@@ -46,7 +46,7 @@ public class MatchingStatusController {
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get-matching-patient-list")
+    @GetMapping("/matching-patient-list")
     public ResponseEntity<?> getMatchingPatientList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(matchingStatusService.matchingPatientInfoList(userDetails.getUsername()));
     }
@@ -60,7 +60,7 @@ public class MatchingStatusController {
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/get-matched-patient-list")
+    @GetMapping("/matched-patient-list")
     public ResponseEntity<?> getMatchedPatientList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(matchingStatusService.matchedPatientInfoList(userDetails.getUsername()));
     }

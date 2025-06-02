@@ -5,8 +5,8 @@ import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
 import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
-import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
-import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

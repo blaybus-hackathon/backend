@@ -1,9 +1,9 @@
 package com.balybus.galaxy.patient.recruit.dto;
 
 import com.balybus.galaxy.global.domain.tblCare.dto.CareChoiceListDto;
-import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
-import com.balybus.galaxy.patient.domain.tblPatientTimeLog.TblPatientTimeLog;
-import com.balybus.galaxy.patient.dto.baseDto.PatientBaseDto;
+import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.global.domain.tblPatientTimeLog.TblPatientTimeLog;
+import com.balybus.galaxy.patient.PatientBaseDto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

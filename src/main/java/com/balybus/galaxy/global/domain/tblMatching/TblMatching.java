@@ -2,7 +2,7 @@ package com.balybus.galaxy.global.domain.tblMatching;
 
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.careAssistant.domain.TblHelper;
-import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
