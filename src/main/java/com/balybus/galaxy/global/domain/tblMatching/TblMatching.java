@@ -30,7 +30,7 @@ public class TblMatching extends BaseEntity {
     @Comment("어르신 공고 구분자")
     private TblPatientLog patientLog;           // 어르신 공고 구분자
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "helper_seq")
     @Comment("요양보호사 구분자")
     private TblHelper helper;           // 요양보호사 구분자
