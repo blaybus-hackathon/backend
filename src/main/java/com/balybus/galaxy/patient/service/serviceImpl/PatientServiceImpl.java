@@ -574,18 +574,21 @@ public class PatientServiceImpl implements PatientService {
                         .build());
             }
             // 5. 매칭 중인 어르신 정보
-            PatientResponseDto.MatchingPatientInfo matchingPatientInfo = PatientResponseDto.MatchingPatientInfo.builder()
-                    .patientSeq(ptLog.getPatient().getId())
-                    .name(ptLog.getName())
-                    .gender(ptLog.getGender())
-                    .birthDate(ptLog.getBirthDate())
-                    .workType(ptLog.getPatient().getWorkType())
-                    .tblAddressFirst(ptLog.getTblAddressFirst().getName())
-                    .tblAddressSecond(ptLog.getTblAddressSecond().getName())
-                    .tblAddressThird(ptLog.getTblAddressThird().getName())
-                    .matchedHelperInfos(matchedHelperInfoList)
-                    .build();
-            matchingPatientInfoList.add(matchingPatientInfo);
+            PatientResponseDto.MatchingPatientInfo matchingPatientInfo;
+            if(!matchedHelperInfoList.isEmpty()) {
+                matchingPatientInfo = PatientResponseDto.MatchingPatientInfo.builder()
+                        .patientSeq(ptLog.getPatient().getId())
+                        .name(ptLog.getName())
+                        .gender(ptLog.getGender())
+                        .birthDate(ptLog.getBirthDate())
+                        .workType(ptLog.getPatient().getWorkType())
+                        .tblAddressFirst(ptLog.getTblAddressFirst().getName())
+                        .tblAddressSecond(ptLog.getTblAddressSecond().getName())
+                        .tblAddressThird(ptLog.getTblAddressThird().getName())
+                        .matchedHelperInfos(matchedHelperInfoList)
+                        .build();
+                matchingPatientInfoList.add(matchingPatientInfo);
+            }
         }
 
         return PatientResponseDto.MatchingPatientInfoList.builder()
