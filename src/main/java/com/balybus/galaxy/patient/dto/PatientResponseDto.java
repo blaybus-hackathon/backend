@@ -219,6 +219,7 @@ public class PatientResponseDto {
         private String tblAddressSecond; // 시.군.구
         private String tblAddressThird; // 읍.면.동
         private List<MatchedHelperInfo> matchedHelperInfos;
+        private int careLevel; // 장기 요양 등급
     }
 
     @Getter

@@ -522,13 +522,28 @@ public class PatientServiceImpl implements PatientService {
                 .build();
     }
 
+
     /**
-     * 매칭중 어르신 정보 반환(관리자 입장)
+     * 매칭 대기 어르신 정보 반환(관리자 입장)
+     * @param userEmail 관리자 이메일
+     * @return
+     */
+    @Override
+    public PatientResponseDto.MatchingPatientInfoList matchingWaitPatientInfoList(String userEmail) {
+        return getPatientInfoListByMatchingState(userEmail, INIT);
+    }
+
+    /**
+     * 매칭 중 어르신 정보 반환(관리자 입장)
      * @param userEmail 관리자 이메일
      * @return
      */
     @Override
     public PatientResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail) {
+        return getPatientInfoListByMatchingState(userEmail, MATCH_REQUEST);
+    }
+
+    private PatientResponseDto.MatchingPatientInfoList getPatientInfoListByMatchingState(String userEmail, MatchState matchState) {
         // 1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
@@ -540,7 +555,7 @@ public class PatientServiceImpl implements PatientService {
 
         for(TblPatientLog ptLog : tblPatientLog) {
             // 1. 어르신 매칭 테이블 반환(매칭 중 상태이며 해당 어르신 관계에 있는 테이블)
-            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), INIT);
+            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), matchState);
 
             // 2. 매칭 중인 어르신의 요양 보호사 리스트
             List<PatientResponseDto.MatchedHelperInfo> matchedHelperInfoList = new ArrayList<>();
@@ -552,31 +567,35 @@ public class PatientServiceImpl implements PatientService {
                         .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
                 matchedHelperInfoList.add(PatientResponseDto.MatchedHelperInfo.builder()
-                                .helperSeq(tblHelper.getId())
-                                .name(tblHelper.getName())
-                                .gender(tblHelper.getGender())
-                                .age(tblHelper.getBirthday())
+                        .helperSeq(tblHelper.getId())
+                        .name(tblHelper.getName())
+                        .gender(tblHelper.getGender())
+                        .age(tblHelper.getBirthday())
                         .build());
             }
             // 5. 매칭 중인 어르신 정보
-            PatientResponseDto.MatchingPatientInfo matchingPatientInfo = PatientResponseDto.MatchingPatientInfo.builder()
-                    .patientSeq(ptLog.getPatient().getId())
-                    .name(ptLog.getName())
-                    .gender(ptLog.getGender())
-                    .birthDate(ptLog.getBirthDate())
-                    .workType(ptLog.getPatient().getWorkType())
-                    .tblAddressFirst(ptLog.getTblAddressFirst().getName())
-                    .tblAddressSecond(ptLog.getTblAddressSecond().getName())
-                    .tblAddressThird(ptLog.getTblAddressThird().getName())
-                    .matchedHelperInfos(matchedHelperInfoList)
-                    .build();
-            matchingPatientInfoList.add(matchingPatientInfo);
+            PatientResponseDto.MatchingPatientInfo matchingPatientInfo;
+            if(!matchedHelperInfoList.isEmpty()) {
+                matchingPatientInfo = PatientResponseDto.MatchingPatientInfo.builder()
+                        .patientSeq(ptLog.getPatient().getId())
+                        .name(ptLog.getName())
+                        .gender(ptLog.getGender())
+                        .birthDate(ptLog.getBirthDate())
+                        .workType(ptLog.getPatient().getWorkType())
+                        .tblAddressFirst(ptLog.getTblAddressFirst().getName())
+                        .tblAddressSecond(ptLog.getTblAddressSecond().getName())
+                        .tblAddressThird(ptLog.getTblAddressThird().getName())
+                        .matchedHelperInfos(matchedHelperInfoList)
+                        .build();
+                matchingPatientInfoList.add(matchingPatientInfo);
+            }
         }
 
         return PatientResponseDto.MatchingPatientInfoList.builder()
                 .matchingPatientInfoList(matchingPatientInfoList)
                 .build();
     }
+
 
     /**
      * 매칭 완료(수락) 및 매칭 거절 상태인 어르신 정보 리스트 반환(관리자 입장)
@@ -592,7 +611,7 @@ public class PatientServiceImpl implements PatientService {
         List<TblPatientLog> tblPatientLog = patientLogRepository.findAllByManagerId(centerManager.getId());
 
         // 매칭 완료(수락) 상태인 어르신 리스트(최종 반환 값)
-        List<PatientResponseDto.MatchingPatientInfo> matchingPatientInfoList = getPatientListByMatchState(tblPatientLog, MATCH_FIN);
+        List<PatientResponseDto.MatchingPatientInfo> matchingPatientInfoList = getPatientListByMatchState(tblPatientLog, PERMIT_TUNE);
 
         // 매칭 거절 상태인 어르신 리스트(최종 반환 값)
         List<PatientResponseDto.MatchingPatientInfo> matchingRejectedHelperInfoList = getPatientListByMatchState(tblPatientLog, REJECT);
@@ -643,5 +662,6 @@ public class PatientServiceImpl implements PatientService {
         }
         return matchingPatientInfoList;
     }
+
 
 }
