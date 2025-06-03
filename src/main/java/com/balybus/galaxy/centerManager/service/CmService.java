@@ -2,7 +2,7 @@ package com.balybus.galaxy.centerManager.service;
 
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
-import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.global.domain.tblCenter.dto.CenterRequestDto;
 
 public interface CmService {
     CmResponseDto.GetOneManager getOneManager(String userEmail); //센터 관리자 정보 조회

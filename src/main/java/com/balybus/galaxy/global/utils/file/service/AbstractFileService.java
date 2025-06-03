@@ -1,7 +1,7 @@
 package com.balybus.galaxy.global.utils.file.service;
 
-import com.balybus.galaxy.domain.tblImg.TblImg;
-import com.balybus.galaxy.domain.tblImg.TblImgRepository;
+import com.balybus.galaxy.global.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.domain.tblImg.TblImgRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public abstract class AbstractFileService implements FileService{
     public TblImg uploadOneImgFile(MultipartFile file) {
         TblImg resultDto = null;
         //1. 파일이 없을 경우, 실행 안함.
-        if (file.getSize() >= 1) {
+        if (file != null && file.getSize() >= 1) {
             String[] contentType = file.getContentType().split("/");
             //2. 이미지 파일이 아닌 경우, 등록 안함.
             if ("image".equals(contentType[0])) {

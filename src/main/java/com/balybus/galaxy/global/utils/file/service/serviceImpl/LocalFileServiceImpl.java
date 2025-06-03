@@ -1,7 +1,7 @@
 package com.balybus.galaxy.global.utils.file.service.serviceImpl;
 
-import com.balybus.galaxy.domain.tblImg.TblImg;
-import com.balybus.galaxy.domain.tblImg.TblImgRepository;
+import com.balybus.galaxy.global.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.domain.tblImg.TblImgRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.service.AbstractFileService;

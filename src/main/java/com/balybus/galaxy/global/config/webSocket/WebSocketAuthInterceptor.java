@@ -1,7 +1,7 @@
 package com.balybus.galaxy.global.config.webSocket;
 
 import com.balybus.galaxy.global.config.jwt.CookieUtils;
-import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
+import com.balybus.galaxy.login.classic.infrastructure.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;

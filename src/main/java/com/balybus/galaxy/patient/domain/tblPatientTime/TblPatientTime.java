@@ -1,6 +1,6 @@
 package com.balybus.galaxy.patient.domain.tblPatientTime;
 
-import com.balybus.galaxy.domain.BaseEntity;
+import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import jakarta.persistence.*;
 import lombok.*;

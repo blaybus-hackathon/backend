@@ -1,11 +1,11 @@
 package com.balybus.galaxy.patient.domain.tblPatient;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
-import com.balybus.galaxy.address.domain.TblAddressSecond;
-import com.balybus.galaxy.address.domain.TblAddressThird;
-import com.balybus.galaxy.domain.BaseEntity;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblImg.TblImg;
+import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
+import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
+import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
+import com.balybus.galaxy.global.domain.BaseEntity;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblImg.TblImg;
 import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.patient.dto.PatientRequestDto;
 import jakarta.persistence.*;

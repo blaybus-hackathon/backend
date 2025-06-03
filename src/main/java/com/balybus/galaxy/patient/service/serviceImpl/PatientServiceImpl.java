@@ -1,26 +1,27 @@
 package com.balybus.galaxy.patient.service.serviceImpl;
 
-import com.balybus.galaxy.address.domain.TblAddressFirst;
-import com.balybus.galaxy.address.domain.TblAddressSecond;
-import com.balybus.galaxy.address.domain.TblAddressThird;
-import com.balybus.galaxy.address.serviceImpl.service.TblAddressFirstServiceImpl;
-import com.balybus.galaxy.address.serviceImpl.service.TblAddressSecondServiceImpl;
-import com.balybus.galaxy.address.serviceImpl.service.TblAddressThirdServiceImpl;
-import com.balybus.galaxy.domain.tblCare.TblCareRepository;
-import com.balybus.galaxy.domain.tblCare.TblCareTopEnum;
-import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblMatching.MatchState;
-import com.balybus.galaxy.domain.tblMatching.MatchingServiceImpl;
-import com.balybus.galaxy.domain.tblMatching.TblMatching;
-import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
-import com.balybus.galaxy.global.common.CommonServiceImpl;
+import com.balybus.galaxy.global.common.service.CommonServiceImpl;
+import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
+import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
+import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
+import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressFirstServiceImpl;
+import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressSecondServiceImpl;
+import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressThirdServiceImpl;
+import com.balybus.galaxy.global.domain.tblCare.TblCareRepository;
+import com.balybus.galaxy.global.domain.tblCare.TblCareTopEnum;
+import com.balybus.galaxy.global.domain.tblCare.service.TblCareServiceImpl;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblMatching.MatchState;
+import com.balybus.galaxy.global.domain.tblMatching.MatchingServiceImpl;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatching;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
+import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.service.FileService;
-import com.balybus.galaxy.helper.domain.TblHelper;
-import com.balybus.galaxy.helper.repository.HelperRepository;
-import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
+import com.balybus.galaxy.careAssistant.domain.TblHelper;
+import com.balybus.galaxy.careAssistant.repository.HelperRepository;
+import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.patient.domain.tblPatient.TblPatientRepository;
 import com.balybus.galaxy.patient.domain.tblPatientLog.TblPatientLog;
@@ -50,7 +51,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.balybus.galaxy.domain.tblMatching.MatchState.*;
+import static com.balybus.galaxy.global.domain.tblMatching.MatchState.*;
 import static com.balybus.galaxy.global.exception.ExceptionCode.NOT_FOUND_HELPER;
 
 @Slf4j
@@ -68,13 +69,14 @@ public class PatientServiceImpl implements PatientService {
     private final LoginAuthCheckServiceImpl loginAuthCheckService;
     private final MatchingServiceImpl matchingService;
     private final TblCareServiceImpl careService;
-    private final CommonServiceImpl commonService;
+    private final CodeServiceImpl codeService;
     private final TblAddressFirstServiceImpl firstAddressService;
     private final TblAddressSecondServiceImpl secondAddressService;
     private final TblAddressThirdServiceImpl thirdAddressService;
     private final FileService fileService;
     private final TblMatchingRepository tblMatchingRepository;
     private final HelperRepository helperRepository;
+    private final CommonServiceImpl commonService;
 
     /**
      * 관리자 사용자의 어르신 정보 접근 권한 확인
@@ -189,7 +191,7 @@ public class PatientServiceImpl implements PatientService {
 
         //4. 반환 dto 생성
         PatientResponseDto.GetOnePatientInfo resultDto = new PatientResponseDto.GetOnePatientInfo(patient, patientTimeList);
-        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, false));
+        resultDto.setCareChoice(commonService.getCareChoiceList(resultDto, false));
         resultDto.setCareBaseDtoNull();
         return resultDto;
     }
@@ -215,8 +217,8 @@ public class PatientServiceImpl implements PatientService {
                             .patientSeq(entity.getId())
                             .imgAddress(entity.getImg() == null ? null : fileService.getOneImgUrl(entity.getImg().getId()))
                             .name(entity.getName())
-                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
-                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .age(codeService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(codeService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
                             .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
                             .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
                             .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
@@ -364,8 +366,8 @@ public class PatientServiceImpl implements PatientService {
                             .patientLogSeq(entity.getId())
                             .imgAddress(entity.getPatient().getImg() == null ? null : fileService.getOneImgUrl(entity.getPatient().getImg().getId()))
                             .name(entity.getName())
-                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
-                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .age(codeService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(codeService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
                             .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
                             .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
                             .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
@@ -403,8 +405,8 @@ public class PatientServiceImpl implements PatientService {
                             .patientLogSeq(entity.getId())
                             .imgAddress(entity.getPatient().getImg() == null ? null : fileService.getOneImgUrl(entity.getPatient().getImg().getId()))
                             .name(entity.getName())
-                            .age(commonService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
-                            .address(commonService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
+                            .age(codeService.calculateAge(LocalDate.parse(entity.getBirthDate(), java.time.format.DateTimeFormatter.BASIC_ISO_DATE)))
+                            .address(codeService.fullAddressString(entity.getTblAddressFirst(), entity.getTblAddressSecond(), entity.getTblAddressThird()))
                             .genderStr(careRepository.findCalNameListStr(TblCareTopEnum.GENDER.getCareSeq(), entity.getGender()))
                             .careLevelStr(careRepository.findCalNameListStr(TblCareTopEnum.CARE_LEVEL.getCareSeq(), entity.getCareLevel()))
                             .workType(careRepository.findCalNameListStr(TblCareTopEnum.WORK_TYPE.getCareSeq(), entity.getInmateState()))
@@ -444,7 +446,7 @@ public class PatientServiceImpl implements PatientService {
 
         //4. 반환 dto 생성
         PatientResponseDto.GetOneRecruitPatientInfo resultDto = new PatientResponseDto.GetOneRecruitPatientInfo(patientLog, patientTimeLogList);
-        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, true));
+        resultDto.setCareChoice(commonService.getCareChoiceList(resultDto, true));
         resultDto.setCareBaseDtoNull();
         return resultDto;
     }
