@@ -28,10 +28,17 @@ public class    SignUpDTO {
     private boolean carOwnYn; // 차량 소유 여부
     private boolean eduYn; // 치매 교육 이수 여부
 
-    public static boolean   hasNullDataBeforeSignUp(SignUpDTO dto) {
-        return dto.getRoleType() == null ||
-                dto.getName() == null ||
-                dto.getPhone() == null ||
-                dto.getAddressDetail() == null;
+//    public static boolean   hasNullDataBeforeSignUp(SignUpDTO dto) {
+//        return dto.getRoleType() == null ||
+//                dto.getName() == null ||
+//                dto.getPhone() == null ||
+//                dto.getAddressDetail() == null;
+//    }
+
+    public boolean hasNullDataBeforeSignUp(){
+        return this.roleType == null ||
+                this.name == null ||
+                this.phone == null ||
+                this.addressDetail == null;
     }
 }

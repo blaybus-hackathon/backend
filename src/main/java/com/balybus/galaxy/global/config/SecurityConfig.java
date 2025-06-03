@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 .requestMatchers("/ws-chat").permitAll()
                                 .requestMatchers("/page/**").permitAll()
                                 .requestMatchers("/api/update-profile").permitAll()
-                                .requestMatchers("/api/sign/**").permitAll()
+                                .requestMatchers("/api/sign/**","/api/sign-up/**").permitAll()
                                 .requestMatchers("/api/token/**", "/api/oauth/kakao-signup").permitAll()
                                 .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()

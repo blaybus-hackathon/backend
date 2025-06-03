@@ -35,7 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean checkUri(String requestUri) {
         List<String> uriPatterns = List.of(
                 "/",
-                "/api/sign/**", "/api/token/**", "/api/oauth/**", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
+                "/api/sign/**", "/api/sign-up/**", "/api/token/**", "/api/oauth/**",
+                "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
                 "/img/**", "/css/**", "/static/js/**", "/docs/**",
                 "/ws-chat", "/page/**", "/actuator/prometheus"
         );
