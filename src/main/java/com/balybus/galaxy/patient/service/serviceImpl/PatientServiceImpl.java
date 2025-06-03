@@ -588,7 +588,7 @@ public class PatientServiceImpl implements PatientService {
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         // 2. 연관된 어르신 정보 로그 테이블 모두 조회
-        List<TblPatientLog> tblPatientLog = patientLogRepository.findAllByManagerIdWithPatient(centerManager.getId());
+        List<TblPatientLog> tblPatientLog = patientLogRepository.findAllByManagerId(centerManager.getId());
 
         // 매칭 완료(수락) 상태인 어르신 리스트(최종 반환 값)
         List<PatientResponseDto.MatchingPatientInfo> matchingPatientInfoList = getPatientListByMatchState(tblPatientLog, MATCH_FIN);
