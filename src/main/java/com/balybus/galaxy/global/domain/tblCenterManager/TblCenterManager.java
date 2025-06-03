@@ -3,7 +3,7 @@ package com.balybus.galaxy.global.domain.tblCenterManager;
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblCenter.TblCenter;
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
-import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
+import com.balybus.galaxy.global.domain.tblImg.service.ChangeProfileImg;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,6 @@ package com.balybus.galaxy.global.domain.tblImg.service;
 
 import com.balybus.galaxy.global.domain.tblImg.dto.ImgRequestDto;
 import com.balybus.galaxy.global.domain.tblImg.dto.ImgResponseDto;
-import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -11,7 +11,7 @@ import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressFir
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressSecondServiceImpl;
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressThirdServiceImpl;
 import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
-import com.balybus.galaxy.global.utils.file.service.FileService;
+import com.balybus.galaxy.global.utils.file.FileService;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
 import com.balybus.galaxy.patient.basic.dto.BasicResponseDto;

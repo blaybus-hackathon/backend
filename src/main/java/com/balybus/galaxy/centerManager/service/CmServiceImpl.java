@@ -11,7 +11,7 @@ import com.balybus.galaxy.global.domain.tblImg.service.TblImgServiceImpl;
 import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.global.utils.file.service.FileService;
+import com.balybus.galaxy.global.utils.file.FileService;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
