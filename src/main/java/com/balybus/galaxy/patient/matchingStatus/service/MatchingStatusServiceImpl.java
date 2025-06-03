@@ -36,7 +36,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
     /**
      * 매칭 대기 어르신 정보 반환(관리자 입장)
      * @param userEmail 관리자 이메일
-     * @return
+     * @return MatchingStatusResponseDto.MatchingPatientInfoList
      */
     @Override
     public MatchingStatusResponseDto.MatchingPatientInfoList matchingWaitPatientInfoList(String userEmail) {
@@ -46,7 +46,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
     /**
      * 매칭 중 어르신 정보 반환(관리자 입장)
      * @param userEmail 관리자 이메일
-     * @return
+     * @return MatchingStatusResponseDto.MatchingPatientInfoList
      */
     @Override
     public MatchingStatusResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail) {
@@ -109,7 +109,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
     /**
      * 매칭 완료(수락) 및 매칭 거절 상태인 어르신 정보 리스트 반환(관리자 입장)
      * @param userEmail 관리자 이메일
-     * @return
+     * @return MatchingStatusResponseDto.MatchedPatientInfoList
      */
     @Override
     public MatchingStatusResponseDto.MatchedPatientInfoList matchedPatientInfoList(String userEmail) {
