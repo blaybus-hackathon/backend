@@ -1,11 +1,11 @@
 package com.balybus.galaxy.patient.basic.service;
 
-import com.balybus.galaxy.global.common.service.CommonServiceImpl;
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
 import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
 import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.tblCare.TblCareRepository;
 import com.balybus.galaxy.global.domain.tblCare.TblCareTopEnum;
+import com.balybus.galaxy.global.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressFirstServiceImpl;
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressSecondServiceImpl;
@@ -49,7 +49,7 @@ public class BasicServiceImpl implements BasicService{
     private final TblAddressSecondServiceImpl secondAddressService;
     private final TblAddressThirdServiceImpl thirdAddressService;
     private final FileService fileService;
-    private final CommonServiceImpl commonService;
+    private final TblCareServiceImpl careService;
 
     /**
      * 어르신 정보 등록
@@ -147,7 +147,7 @@ public class BasicServiceImpl implements BasicService{
 
         //4. 반환 dto 생성
         BasicResponseDto.GetOnePatientInfo resultDto = new BasicResponseDto.GetOnePatientInfo(patient, patientTimeList);
-        resultDto.setCareChoice(commonService.getCareChoiceList(resultDto, false));
+        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, false));
         resultDto.setCareBaseDtoNull();
         return resultDto;
     }
