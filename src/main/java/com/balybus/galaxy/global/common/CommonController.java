@@ -1,10 +1,8 @@
 package com.balybus.galaxy.global.common;
 
-import com.balybus.galaxy.global.domain.tblCare.dto.CareRequestDto;
-import com.balybus.galaxy.global.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.global.domain.tblImg.dto.ImgRequestDto;
+import com.balybus.galaxy.global.domain.tblImg.service.TblImgServiceImpl;
 import com.balybus.galaxy.global.exception.ErrorResponse;
-import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cmn")
 public class CommonController {
 
-    private final CodeServiceImpl commonService;
+    private final TblImgServiceImpl commonService;
 
     @PostMapping("/upload-img/{roleType}")
     @Operation(summary = "프로필 이미지 변경 및 업로드 API",
