@@ -34,7 +34,7 @@ public class MatchingStatusController {
     })
     @GetMapping("/waiting-patient-list")
     public ResponseEntity<?> getMatchingWaitingPatientList(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(matchingStatusService.matchingPatientInfoList(userDetails.getUsername()));
+        return ResponseEntity.ok().body(matchingStatusService.matchingWaitPatientInfoList(userDetails.getUsername()));
     }
 
     @Operation(summary = "어르신 매칭 중 리스트 반환 API", description = "매칭 중인 어르신 정보를 반환합니다.")
