@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.balybus.galaxy.global.domain.tblMatching.MatchState.*;
 import static com.balybus.galaxy.global.exception.ExceptionCode.NOT_FOUND_HELPER;
@@ -50,59 +52,75 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
      */
     @Override
     public MatchingStatusResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail) {
-        return getPatientInfoListByMatchingState(userEmail, MATCH_REQUEST);
+            return getPatientInfoListByMatchingState(userEmail, MATCH_REQUEST);
     }
 
-    private MatchingStatusResponseDto.MatchingPatientInfoList getPatientInfoListByMatchingState(String userEmail, MatchState matchState) {
+    @Transactional(readOnly = true)
+    protected MatchingStatusResponseDto.MatchingPatientInfoList getPatientInfoListByMatchingState(
+            String userEmail, MatchState matchState) {
+
         // 1. 관리자 정보 조회
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
-        // 2. 연관된 어르신 정보 로그 테이블 모두 조회
-        List<TblPatientLog> tblPatientLog = patientLogRepository.findAllByManagerId(centerManager.getId());
+        // 2. 한 번의 쿼리로 모든 필요한 데이터 조회 (N+1 문제 해결!)
+        List<TblMatching> allMatchings = tblMatchingRepository
+                .findMatchingByManagerIdAndMatchState(centerManager.getId(), matchState);
 
-        // 매칭중인 어르신 리스트(최종 반환 값)
-        List<MatchingStatusResponseDto.MatchingPatientInfo> matchingPatientInfoList = new ArrayList<>();
+        // 3. 데이터 그룹핑 및 변환
+        return buildMatchingPatientInfoList(allMatchings);
+    }
 
-        for(TblPatientLog ptLog : tblPatientLog) {
-            // 1. 어르신 매칭 테이블 반환(매칭 중 상태이며 해당 어르신 관계에 있는 테이블)
-            List<TblMatching> tblMatching = tblMatchingRepository.findByPatientLog_idAndMatchState(ptLog.getId(), matchState);
+    private MatchingStatusResponseDto.MatchingPatientInfoList buildMatchingPatientInfoList(
+            List<TblMatching> matchings) {
 
-            // 2. 매칭 중인 어르신의 요양 보호사 리스트
-            List<MatchingStatusResponseDto.MatchedHelperInfo> matchedHelperInfoList = new ArrayList<>();
+        // PatientLog별로 그룹핑
+        Map<Long, List<TblMatching>> matchingsByPatient = matchings.stream()
+                .collect(Collectors.groupingBy(m -> m.getPatientLog().getId()));
 
-            // 3. 어르신 매칭 상태별 해당하는 요양 보호사 반환
-            for(TblMatching matching : tblMatching) {
-                // 4. 요양 보호사 검색
-                TblHelper tblHelper = helperRepository.findById(matching.getHelper().getId())
-                        .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
-
-                matchedHelperInfoList.add(MatchingStatusResponseDto.MatchedHelperInfo.builder()
-                        .helperSeq(tblHelper.getId())
-                        .name(tblHelper.getName())
-                        .gender(tblHelper.getGender())
-                        .age(tblHelper.getBirthday())
-                        .build());
-            }
-            // 5. 매칭 중인 어르신 정보
-            MatchingStatusResponseDto.MatchingPatientInfo matchingPatientInfo;
-            if(!matchedHelperInfoList.isEmpty()) {
-                matchingPatientInfo = MatchingStatusResponseDto.MatchingPatientInfo.builder()
-                        .patientSeq(ptLog.getPatient().getId())
-                        .name(ptLog.getName())
-                        .gender(ptLog.getGender())
-                        .birthDate(ptLog.getBirthDate())
-                        .workType(ptLog.getPatient().getWorkType())
-                        .tblAddressFirst(ptLog.getTblAddressFirst().getName())
-                        .tblAddressSecond(ptLog.getTblAddressSecond().getName())
-                        .tblAddressThird(ptLog.getTblAddressThird().getName())
-                        .matchedHelperInfos(matchedHelperInfoList)
-                        .build();
-                matchingPatientInfoList.add(matchingPatientInfo);
-            }
-        }
+        List<MatchingStatusResponseDto.MatchingPatientInfo> matchingPatientInfoList =
+                matchingsByPatient.entrySet().stream()
+                        .map(entry -> buildMatchingPatientInfo(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList());
 
         return MatchingStatusResponseDto.MatchingPatientInfoList.builder()
                 .matchingPatientInfoList(matchingPatientInfoList)
+                .build();
+    }
+
+    private MatchingStatusResponseDto.MatchingPatientInfo buildMatchingPatientInfo(
+            Long patientLogId, List<TblMatching> matchings) {
+
+        if (matchings.isEmpty()) {
+            return null;
+        }
+
+        TblPatientLog patientLog = matchings.get(0).getPatientLog();
+
+        List<MatchingStatusResponseDto.MatchedHelperInfo> helperInfos = matchings.stream()
+                .map(this::buildMatchedHelperInfo)
+                .collect(Collectors.toList());
+
+        return MatchingStatusResponseDto.MatchingPatientInfo.builder()
+                .patientSeq(patientLog.getPatient().getId())
+                .name(patientLog.getName())
+                .gender(patientLog.getGender())
+                .birthDate(patientLog.getBirthDate())
+                .workType(patientLog.getPatient().getWorkType())
+                .tblAddressFirst(patientLog.getTblAddressFirst().getName())
+                .tblAddressSecond(patientLog.getTblAddressSecond().getName())
+                .tblAddressThird(patientLog.getTblAddressThird().getName())
+                .matchedHelperInfos(helperInfos)
+                .build();
+    }
+
+    private MatchingStatusResponseDto.MatchedHelperInfo buildMatchedHelperInfo(TblMatching matching) {
+        TblHelper helper = matching.getHelper();
+
+        return MatchingStatusResponseDto.MatchedHelperInfo.builder()
+                .helperSeq(helper.getId())
+                .name(helper.getName())
+                .gender(helper.getGender())
+                .age(helper.getBirthday())
                 .build();
     }
 

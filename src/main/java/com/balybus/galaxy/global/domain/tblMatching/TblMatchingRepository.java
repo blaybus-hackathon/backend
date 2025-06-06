@@ -14,6 +14,36 @@ public interface TblMatchingRepository extends JpaRepository<TblMatching, Long> 
     Optional<TblMatching> findByPatientLog_idAndHelper_id(Long plSeq, Long helperSeq);
     List<TblMatching> findByPatientLog_idAndMatchState(Long plSeq, MatchState matchState);
 
+    // N+1 문제 해결을 위한 JOIN FETCH 쿼리
+    @Query("""
+            SELECT m FROM TblMatching m
+            JOIN FETCH m.helper h
+            JOIN FETCH m.patientLog pl
+            JOIN FETCH pl.patient p
+            JOIN FETCH pl.tblAddressFirst af
+            JOIN FETCH pl.tblAddressSecond as
+            JOIN FETCH pl.tblAddressThird at
+            WHERE m.patientLog.id IN :patientLogIds AND m.matchState = :matchState""")
+    List<TblMatching> findMatchingWithAllDataByPatientLogIdsAndMatchState(
+            @Param("patientLogIds") List<Long> patientLogIds,
+            @Param("matchState") MatchState matchState
+    );
+
+    // 특정 관리자의 매칭 정보를 한 번에 조회
+    @Query(value = """
+            SELECT m FROM TblMatching m
+            JOIN FETCH m.helper h
+            JOIN FETCH m.patientLog pl
+            JOIN FETCH pl.patient p
+            JOIN FETCH pl.tblAddressFirst af
+            JOIN FETCH pl.tblAddressSecond as
+            JOIN FETCH pl.tblAddressThird at
+            WHERE pl.manager.id = :managerId AND m.matchState = :matchState""")
+    List<TblMatching> findMatchingByManagerIdAndMatchState(
+            @Param("managerId") Long managerId,
+            @Param("matchState") MatchState matchState
+    );
+
     @Query(value = """
             select
             	count(case when (a.reject_count = 0 and a.match_fin_count = 0 and a.permit_tune_count = 0 and a.match_request_count = 0 and a.init_count > 0) then 1 end) as new_match_count	-- 신규 매칭 건수 : 해당 계정으로 관리하고 있는 완료되지 않은 매칭(공고) 건수 - init 만으로 구성된공고 개수
