@@ -1,10 +1,10 @@
-package com.balybus.galaxy.global.utils.file.service.serviceImpl;
+package com.balybus.galaxy.global.utils.file.serviceImpl;
 
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
 import com.balybus.galaxy.global.domain.tblImg.TblImgRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.global.utils.file.service.AbstractFileService;
+import com.balybus.galaxy.global.utils.file.AbstractFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;

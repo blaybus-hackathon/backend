@@ -1,4 +1,4 @@
-package com.balybus.galaxy.global.utils.file;
+package com.balybus.galaxy.global.domain.tblImg.service;
 
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
 

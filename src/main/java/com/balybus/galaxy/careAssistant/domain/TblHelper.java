@@ -2,7 +2,7 @@ package com.balybus.galaxy.careAssistant.domain;
 
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
-import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
+import com.balybus.galaxy.global.domain.tblImg.service.ChangeProfileImg;
 import com.balybus.galaxy.member.domain.TblUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

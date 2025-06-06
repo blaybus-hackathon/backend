@@ -11,7 +11,7 @@ import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.global.utils.file.service.FileService;
+import com.balybus.galaxy.global.utils.file.FileService;
 import com.balybus.galaxy.careAssistant.domain.TblHelper;
 import com.balybus.galaxy.careAssistant.repository.HelperRepository;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;

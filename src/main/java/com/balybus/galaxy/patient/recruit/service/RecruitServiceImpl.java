@@ -1,11 +1,11 @@
 package com.balybus.galaxy.patient.recruit.service;
 
-import com.balybus.galaxy.global.common.service.CommonServiceImpl;
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
 import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
 import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.tblCare.TblCareRepository;
 import com.balybus.galaxy.global.domain.tblCare.TblCareTopEnum;
+import com.balybus.galaxy.global.domain.tblCare.service.TblCareServiceImpl;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblMatching.MatchingServiceImpl;
 import com.balybus.galaxy.global.exception.BadRequestException;
@@ -14,7 +14,7 @@ import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressFir
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressSecondServiceImpl;
 import com.balybus.galaxy.global.utils.address.service.serviceImpl.TblAddressThirdServiceImpl;
 import com.balybus.galaxy.global.utils.code.CodeServiceImpl;
-import com.balybus.galaxy.global.utils.file.service.FileService;
+import com.balybus.galaxy.global.utils.file.FileService;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
@@ -59,7 +59,7 @@ public class RecruitServiceImpl implements RecruitService {
     private final TblAddressSecondServiceImpl secondAddressService;
     private final TblAddressThirdServiceImpl thirdAddressService;
     private final FileService fileService;
-    private final CommonServiceImpl commonService;
+    private final TblCareServiceImpl careService;
 
 
     /**
@@ -274,7 +274,7 @@ public class RecruitServiceImpl implements RecruitService {
 
         //4. 반환 dto 생성
         RecruitResponseDto.GetOneRecruitPatientInfo resultDto = new RecruitResponseDto.GetOneRecruitPatientInfo(patientLog, patientTimeLogList);
-        resultDto.setCareChoice(commonService.getCareChoiceList(resultDto, true));
+        resultDto.setCareChoice(careService.getCareChoiceList(resultDto, true));
         resultDto.setCareBaseDtoNull();
         return resultDto;
     }

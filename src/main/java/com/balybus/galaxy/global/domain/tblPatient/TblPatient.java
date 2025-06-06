@@ -6,7 +6,7 @@ import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
 import com.balybus.galaxy.global.domain.BaseEntity;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblImg.TblImg;
-import com.balybus.galaxy.global.utils.file.ChangeProfileImg;
+import com.balybus.galaxy.global.domain.tblImg.service.ChangeProfileImg;
 import com.balybus.galaxy.patient.basic.dto.BasicRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
