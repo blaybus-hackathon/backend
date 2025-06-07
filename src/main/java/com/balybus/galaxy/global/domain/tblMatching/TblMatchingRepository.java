@@ -15,6 +15,35 @@ public interface TblMatchingRepository extends JpaRepository<TblMatching, Long> 
     List<TblMatching> findByPatientLog_idAndMatchState(Long plSeq, MatchState matchState);
 
     @Query(value = """
+            SELECT m FROM TblMatching m
+            JOIN FETCH m.helper h
+            JOIN FETCH m.patientLog pl
+            JOIN FETCH pl.patient p
+            JOIN FETCH pl.tblAddressFirst af
+            JOIN FETCH pl.tblAddressSecond as
+            JOIN FETCH pl.tblAddressThird at
+            WHERE pl.manager.id = :managerId AND m.matchState = :matchState""")
+    List<TblMatching> findMatchingByManagerIdAndMatchState(
+            @Param("managerId") Long managerId,
+            @Param("matchState") MatchState matchState
+    );
+
+    @Query("""
+            SELECT m FROM TblMatching m
+            JOIN FETCH m.helper h
+            JOIN FETCH m.patientLog pl
+            JOIN FETCH pl.patient p
+            JOIN FETCH pl.tblAddressFirst af
+            JOIN FETCH pl.tblAddressSecond as
+            JOIN FETCH pl.tblAddressThird at
+            WHERE pl.manager.id = :managerId
+            AND m.matchState IN :matchStates""")
+    List<TblMatching> findMatchingByManagerIdAndMatchStates(
+            @Param("managerId") Long managerId,
+            @Param("matchStates") List<MatchState> matchStates
+    );
+
+    @Query(value = """
             select
             	count(case when (a.reject_count = 0 and a.match_fin_count = 0 and a.permit_tune_count = 0 and a.match_request_count = 0 and a.init_count > 0) then 1 end) as new_match_count	-- 신규 매칭 건수 : 해당 계정으로 관리하고 있는 완료되지 않은 매칭(공고) 건수 - init 만으로 구성된공고 개수
             	,count(a.pl_seq) as total -- 전체 매칭 건수 : 해당 계정으로 관리하고 있는 매칭(공고) 건수
