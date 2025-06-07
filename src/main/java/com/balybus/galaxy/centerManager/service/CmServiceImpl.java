@@ -2,17 +2,17 @@ package com.balybus.galaxy.centerManager.service;
 
 import com.balybus.galaxy.centerManager.dto.CmRequestDto;
 import com.balybus.galaxy.centerManager.dto.CmResponseDto;
-import com.balybus.galaxy.domain.tblCenter.TblCenter;
-import com.balybus.galaxy.domain.tblCenter.TblCenterRepository;
-import com.balybus.galaxy.domain.tblCenter.dto.CenterRequestDto;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManager;
-import com.balybus.galaxy.domain.tblCenterManager.TblCenterManagerRepository;
-import com.balybus.galaxy.domain.tblMatching.TblMatchingRepository;
-import com.balybus.galaxy.global.common.CommonServiceImpl;
+import com.balybus.galaxy.global.domain.tblCenter.TblCenter;
+import com.balybus.galaxy.global.domain.tblCenter.TblCenterRepository;
+import com.balybus.galaxy.global.domain.tblCenter.dto.CenterRequestDto;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.global.domain.tblImg.service.TblImgServiceImpl;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
-import com.balybus.galaxy.global.utils.file.service.FileService;
-import com.balybus.galaxy.login.serviceImpl.loginAuth.LoginAuthCheckServiceImpl;
+import com.balybus.galaxy.global.utils.file.FileService;
+import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CmServiceImpl implements CmService {
     private final LoginAuthCheckServiceImpl loginAuthCheckService;
-    private final CommonServiceImpl commonService;
+    private final TblImgServiceImpl imgService;
     private final FileService fileService;
 
     private final TblCenterManagerRepository centerManagerRepository;
@@ -57,7 +57,7 @@ public class CmServiceImpl implements CmService {
 
         //2. 이미지 변경 여부가 true 인 경우, 이미지 데이터 변경
         if(dto.isImgChangeYn()){
-            commonService.uploadImage(centerManagerRepository, centerManager.getId(), dto.getPhotoFile());
+            imgService.uploadImage(centerManagerRepository, centerManager.getId(), dto.getPhotoFile());
         }
 
         //3. 직책 데이터 변경

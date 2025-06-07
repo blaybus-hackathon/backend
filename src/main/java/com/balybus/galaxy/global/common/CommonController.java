@@ -1,10 +1,11 @@
 package com.balybus.galaxy.global.common;
 
-import com.balybus.galaxy.domain.tblCare.dto.CareRequestDto;
-import com.balybus.galaxy.domain.tblCare.service.TblCareServiceImpl;
-import com.balybus.galaxy.domain.tblImg.dto.ImgRequestDto;
+import com.balybus.galaxy.global.domain.tblCare.dto.CareRequestDto;
+import com.balybus.galaxy.global.domain.tblCare.service.TblCareServiceImpl;
+import com.balybus.galaxy.global.domain.tblImg.dto.ImgRequestDto;
+import com.balybus.galaxy.global.domain.tblImg.service.TblImgServiceImpl;
 import com.balybus.galaxy.global.exception.ErrorResponse;
-import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.member.dto.response.MemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,9 +25,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cmn")
 public class CommonController {
 
-    private final CommonServiceImpl commonService;
+    private final TblImgServiceImpl imgService;
     private final TblCareServiceImpl careService;
 
+    /* ==========================================================================
+     * 파일 이미지 - TblImgServiceImpl imgService
+     * ========================================================================== */
     @PostMapping("/upload-img/{roleType}")
     @Operation(summary = "프로필 이미지 변경 및 업로드 API",
             description = "주체(요양보호사, 관리자, 어르신)의 프로필 이미지를 업로드하고 서버에 저장하는 기능을 제공합니다. " +
@@ -50,9 +54,13 @@ public class CommonController {
     public ResponseEntity<?> uploadUserImg(@AuthenticationPrincipal UserDetails userDetails,
                                            @PathVariable RoleType roleType,
                                            ImgRequestDto.uploadUserImg dto) {
-        return ResponseEntity.ok().body(commonService.uploadUserImg(userDetails, roleType, dto));
+        return ResponseEntity.ok().body(imgService.uploadUserImg(userDetails, roleType, dto));
     }
 
+
+    /* ==========================================================================
+     * 어르신 정보 코드 - TblCareServiceImpl careService
+     * ========================================================================== */
     @GetMapping("/all-care-list")
     @Operation(summary = "어르신 정보 관련 코드화 리스트 조회 API",
             description = "어르신 정보에 사용되는 코드화된 데이터 리스트를 반환합니다." +
@@ -80,8 +88,6 @@ public class CommonController {
         return ResponseEntity.ok().body(careService.getServiceCodeList());
     }
 
-
-
     @PostMapping("/part-request-care-list")
     @Operation(summary = "어르신 정보 중 요청한 내용에 대한 코드화 리스트 조회 API",
             description = "필요한 종류의 정보를 리스트로 정리해 전달하면 각각에 대한 코드화된 데이터 리스트를 반환합니다." +
@@ -98,5 +104,4 @@ public class CommonController {
     public ResponseEntity<?> getRequestCodeList(@RequestBody CareRequestDto.GetRequestCodeList dto) {
         return ResponseEntity.ok().body(careService.getRequestCodeList(dto));
     }
-
 }

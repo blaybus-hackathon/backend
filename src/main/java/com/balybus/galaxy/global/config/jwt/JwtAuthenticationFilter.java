@@ -1,6 +1,6 @@
 package com.balybus.galaxy.global.config.jwt;
 
-import com.balybus.galaxy.login.infrastructure.jwt.TokenProvider;
+import com.balybus.galaxy.login.classic.infrastructure.jwt.TokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -35,7 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private boolean checkUri(String requestUri) {
         List<String> uriPatterns = List.of(
                 "/",
-                "/api/sign/**", "/api/token/**", "/api/oauth/**", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
+                "/api/sign/**", "/api/sign-up/**", "/api/token/**", "/api/oauth/**",
+                "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
                 "/img/**", "/css/**", "/static/js/**", "/docs/**",
                 "/ws-chat", "/page/**", "/actuator/prometheus"
         );

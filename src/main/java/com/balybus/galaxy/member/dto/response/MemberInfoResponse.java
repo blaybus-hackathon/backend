@@ -1,6 +1,6 @@
 package com.balybus.galaxy.member.dto.response;
 
-import com.balybus.galaxy.login.domain.type.RoleType;
+import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
