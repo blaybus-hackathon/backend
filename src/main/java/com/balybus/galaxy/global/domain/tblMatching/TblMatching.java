@@ -117,4 +117,7 @@ public class TblMatching extends BaseEntity {
     public void useNo(){
         this.useYn = false;
     }
+    public void updateMatchState(MatchState matchState){
+        this.matchState = matchState;
+    }
 }

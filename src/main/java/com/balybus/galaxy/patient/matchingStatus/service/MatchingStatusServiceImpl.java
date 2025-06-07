@@ -5,8 +5,12 @@ import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblMatching.MatchState;
 import com.balybus.galaxy.global.domain.tblMatching.TblMatching;
 import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
+import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.exception.BadRequestException;
+import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
 import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
+import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusRequestDto;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.balybus.galaxy.global.domain.tblMatching.MatchState.*;
 
@@ -132,5 +137,45 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
                 .tblAddressThird(ptLog.getTblAddressThird().getName())
                 .matchedHelperInfos(matchedHelperInfoList)
                 .build();
+    }
+
+
+    /**
+     * 어르신 공고 매칭 상태 변경
+     * @param userEmail String:로그인 사용자 이메일
+     * @param dto MatchingStatusRequestDto.UpdatePatientMatchStatus: 상태 변경 값 및 완료의 경우, 매칭 상대 데이터 전달
+     * @return MatchingStatusResponseDto.UpdatePatientMatchStatus
+     */
+    @Override
+    @Transactional
+    public MatchingStatusResponseDto.UpdatePatientMatchStatus updatePatientMatchStatus(String userEmail, MatchingStatusRequestDto.UpdatePatientMatchStatus dto) {
+        //0. 로그인 사용자 유효성 검사
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //1. dto 에서 매칭 id 로 매칭 정보 조회
+        Optional<TblMatching> matchingOpt = tblMatchingRepository.findById(dto.getMatchingId());
+        if(matchingOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_REQUEST);
+        TblMatching matching = matchingOpt.get();
+
+        //2. 로그인 사용자가 해당 매칭을 관리할 수 있는 관리자인지 유효성 검사
+        TblPatientLog patientLog = matching.getPatientLog();
+        TblPatient patient = loginAuthCheckService.checkPatientManagerAuth(patientLog.getPatient().getId(), centerManager.getId());
+
+        //3. 공고의 매칭 상태 유효성 검사(해당 공고에 MATCH_FIN 인 결과가 있는지 확인)
+        Optional<TblMatching> checkMatched = tblMatchingRepository.findByPatientLog_idAndMatchState(patientLog.getId(), MATCH_FIN);
+        if(checkMatched.isPresent() && !checkMatched.get().getId().equals(matching.getId())){
+            // 공고의 매칭 상태 == MATCH_FIN && 공고의 매칭 id != dto 매칭 id)
+            return MatchingStatusResponseDto.UpdatePatientMatchStatus.builder()
+                    .code(400)
+                    .msg("FAIL::이미 매칭이 완료된 공고입니다.")
+                    .build();
+        } else {
+            //4. dto 로 전달받은 매칭 상태로 값을 변경한다.
+            matching.updateMatchState(dto.getMatchState());
+            return MatchingStatusResponseDto.UpdatePatientMatchStatus.builder()
+                    .code(200)
+                    .msg("SUCCESS")
+                    .build();
+        }
     }
 }
