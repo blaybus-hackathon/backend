@@ -9,6 +9,8 @@ import com.balybus.galaxy.chat.dto.ChatMsgResponseDto;
 import com.balybus.galaxy.chat.dto.ChatRoomResponseDto;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
 import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManagerRepository;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatching;
+import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.file.FileService;
@@ -32,6 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.balybus.galaxy.global.domain.tblMatching.MatchState.MATCH_FIN;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,6 +49,7 @@ public class ChatServiceImpl implements ChatService {
     private final TblCenterManagerRepository centerManagerRepository;
     private final HelperRepository helperRepository;
     private final TblPatientLogRepository patientLogRepository;
+    private final TblMatchingRepository matchingRepository;
 
     /**
      * 전송하는 채팅 DB 저장
@@ -153,7 +158,11 @@ public class ChatServiceImpl implements ChatService {
             Long chatRoomId = (Long) entity[0];
             Optional<TblChatMsg> chatMsgOpt = chatMsgRepository.findTop1ByChatRoom_IdOrderByIdDesc(chatRoomId);
 
-            // 3-3. dto 전환 및 리스트 추가
+            //3-4. 매칭 처리와 관련한 상태 값 조회 및 전달
+            Long patientLogId = (Long) entity[3];
+            Optional<TblMatching> checkMatched = matchingRepository.findByPatientLog_idAndMatchState(patientLogId, MATCH_FIN);
+
+            //3-5. dto 전환 및 리스트 추가
             result.add(ChatRoomResponseDto.FindList.builder()
                     .chatRoomId(chatRoomId)
                     .partnerId(partnerId)
@@ -162,8 +171,9 @@ public class ChatServiceImpl implements ChatService {
                     .lastChatContent(chatMsgOpt.map(TblChatMsg::getContent).orElse(null))
                     .lastChatSendTime(chatMsgOpt.map(TblChatMsg::getCreateDatetime).orElse(null))
                     .notReadCnt(chatMsgRepository.countByChatRoomIdAndSenderIdAndReadYn(chatRoomId, partnerUser.getId(), false))
-                    .patientLogId((Long) entity[3])
+                    .patientLogId(patientLogId)
                     .patientLogName((String) entity[4])
+                    .matchedFinYn(checkMatched.isPresent())
                     .build());
         }
         return result;
