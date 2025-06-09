@@ -1,6 +1,7 @@
 package com.balybus.galaxy.patient.matchingStatus;
 
 import com.balybus.galaxy.global.exception.ErrorResponse;
+import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusRequestDto;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
 import com.balybus.galaxy.patient.matchingStatus.service.MatchingStatusServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,9 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -63,5 +62,21 @@ public class MatchingStatusController {
     @GetMapping("/matched-patient-list")
     public ResponseEntity<?> getMatchedPatientList(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok().body(matchingStatusService.matchedPatientInfoList(userDetails.getUsername()));
+    }
+
+
+    @Operation(summary = "어르신 공고 매칭 상태 변경 API", description = "매칭 완료 / 거절 상태인 어르신 정보를 반환합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "반환 성공",
+                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.UpdatePatientMatchStatus.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("")
+    public ResponseEntity<?> updatePatientMatchStatus(@AuthenticationPrincipal UserDetails userDetails,
+                                                      @RequestBody MatchingStatusRequestDto.UpdatePatientMatchStatus dto) {
+        return ResponseEntity.ok().body(matchingStatusService.updatePatientMatchStatus(userDetails.getUsername(), dto));
     }
 }

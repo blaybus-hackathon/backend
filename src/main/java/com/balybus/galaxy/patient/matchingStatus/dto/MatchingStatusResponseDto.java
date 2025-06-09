@@ -43,4 +43,12 @@ public class MatchingStatusResponseDto {
         private List<MatchingPatientInfo> matchedPatientInfoList;
         private List<MatchingPatientInfo> matchingRejectedPatientInfoList;
     }
+
+
+    @Getter
+    @Builder
+    public static class UpdatePatientMatchStatus{
+        private int code;
+        private String msg; //업데이트 결과 반환
+    }
 }
