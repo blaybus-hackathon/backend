@@ -21,5 +21,6 @@ public class ChatRoomResponseDto {
 
         private Long patientLogId;                  // 어르신 공고 구분자
         private String patientLogName;              // 어르신 공고에 기록된 어르신 성함
+        private boolean matchedFinYn;               // 어르신 공고 매칭 완료 여부
     }
 }

@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface TblMatchingRepository extends JpaRepository<TblMatching, Long> {
     List<TblMatching> findByPatientLog_id(Long plSeq);
     Optional<TblMatching> findByPatientLog_idAndHelper_id(Long plSeq, Long helperSeq);
-    List<TblMatching> findByPatientLog_idAndMatchState(Long plSeq, MatchState matchState);
+    Optional<TblMatching> findByPatientLog_idAndMatchState(Long plSeq, MatchState matchState);
 
     @Query(value = """
             SELECT m FROM TblMatching m
