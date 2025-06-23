@@ -104,7 +104,8 @@ public class UserService implements UserServiceImpl {
                     .email(userInfo.getEmail())
                     .nickName(userInfo.getNickname())
                     .loginType(LoginType.KAKAO_LOGIN)
-                    .description("카카오 회원 등록 완료. 회원가입을 진행해 주세요.")
+                    .roleType(code.getRoleType())
+                    .description("-카카오 회원 등록 완료 했습니다. 회원가입을 진행해 주세요.")
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isEmpty()) {
@@ -115,7 +116,8 @@ public class UserService implements UserServiceImpl {
                     .email(userInfo.getEmail())
                     .nickName(userInfo.getNickname())
                     .loginType(LoginType.KAKAO_LOGIN)
-                    .description("회원가입을 진행해 주세요.")
+                    .roleType(code.getRoleType())
+                    .description("카카오 연동 정보는 있으나, 우리 서비스 회원 정보가 없습니다. 회원가입을 진행해 주세요.")
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isPresent()) {
@@ -131,7 +133,8 @@ public class UserService implements UserServiceImpl {
                 .email(userInfo.getEmail())
                 .nickName(userInfo.getNickname())
                 .loginType(LoginType.KAKAO_LOGIN)
-                .description("로그인이 정상적으로 완료되었습니다.")
+                .roleType(code.getRoleType())
+                .description("카카오 로그인이 정상적으로 완료되었습니다.")
                 .build();
     }
 
