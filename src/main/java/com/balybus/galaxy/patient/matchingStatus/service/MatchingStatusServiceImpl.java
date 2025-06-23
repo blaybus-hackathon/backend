@@ -153,7 +153,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
         TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
 
         //1. dto 에서 매칭 id 로 매칭 정보 조회
-        Optional<TblMatching> matchingOpt = tblMatchingRepository.findById(dto.getMatchingId());
+        Optional<TblMatching> matchingOpt = tblMatchingRepository.findByPatientLog_idAndHelper_id(dto.getPatientLogSeq(), dto.getHelperSeq());
         if(matchingOpt.isEmpty()) throw new BadRequestException(ExceptionCode.INVALID_REQUEST);
         TblMatching matching = matchingOpt.get();
 
