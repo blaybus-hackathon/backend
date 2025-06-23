@@ -17,6 +17,7 @@ public class MatchingStatusResponseDto {
     @Builder
     public static class MatchingPatientInfo {
         private Long patientSeq; // 어르신 구분자
+        private Long patientLogSeq; // 어르신 공고 구분자
         private String name; // 어르신 이름
         private Integer gender; // 어르신 성별
         private String birthDate; // 어르신 생년월일
