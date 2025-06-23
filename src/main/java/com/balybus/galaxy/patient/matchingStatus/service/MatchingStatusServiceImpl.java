@@ -128,6 +128,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
         TblPatientLog ptLog = matching.getPatientLog();
         return MatchingStatusResponseDto.MatchingPatientInfo.builder()
                 .patientSeq(ptLog.getPatient().getId())
+                .patientLogSeq(ptLog.getId())
                 .name(ptLog.getName())
                 .gender(ptLog.getGender())
                 .birthDate(ptLog.getBirthDate())
