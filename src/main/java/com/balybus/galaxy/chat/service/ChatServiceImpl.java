@@ -257,4 +257,56 @@ public class ChatServiceImpl implements ChatService {
         //2. 해당 데이터 전부 읽음 처리
         notReadChatList.forEach(TblChatMsg::chRead);
     }
+
+
+    /**
+     * 채팅방 나가기
+     * @param dto ChatMsgRequestDto.OutChatRoom
+     * @param userEmail String
+     * @return ChatMsgResponseDto.OutChatRoom
+     */
+    @Override
+    @Transactional
+    public ChatMsgResponseDto.OutChatRoom outChatRoom(ChatMsgRequestDto.OutChatRoom dto, String userEmail) {
+        //1. 로그인 사용자 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail);
+        if(userOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+
+        //2. 채팅방 번호로 채팅방 조회
+        Optional<TblChatRoom> chatRoomOpt = chatRoomRepository.findById(dto.getChatRoomId());
+        if(chatRoomOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.WS_NOT_FOUND_CHAT_ROOM);
+
+        //3. 해당 채팅방에 로그인 사용자가 A인지 B인지 분류
+        TblUser user = userOpt.get();
+        TblChatRoom chatRoom = chatRoomOpt.get();
+        if(chatRoom.getUserA().getId().equals(user.getId()) && !chatRoom.isOutUserA()){
+            //3-1. A일 경우, A의 방 나가기 여부 true 로 변경
+            chatRoom.outUser(true);
+        } else if (chatRoom.getUserB().getId().equals(user.getId()) && !chatRoom.isOutUserB()){
+            //3-2. B일 경우, B의 방 나가기 여부 true 로 변경
+            chatRoom.outUser(false);
+        } else {
+            //3-3. A & B 모두 아닐 경우, 잘못된 접근 ExceptionCode.UNAUTHORIZED 발생
+            throw new BadRequestException(ExceptionCode.UNAUTHORIZED);
+        }
+
+        //4. A와 B 모두 나가기 여부 확인
+        if(chatRoom.isOutUserA() && chatRoom.isOutUserB()){ // 모두 나가기 == true 인 경우
+            //4-1. 해당 채팅방에 해당하는 채팅 내역을 전체 조회한다.
+            List<TblChatMsg> chatMsgList = chatMsgRepository.findByChatRoom_Id(dto.getChatRoomId());
+            //4-2. 채팅 내역을 전체 삭제한다.
+            chatMsgRepository.deleteAll(chatMsgList);
+
+            //4-3. 채팅방을 삭제한다.
+            chatRoomRepository.delete(chatRoom);
+        }
+
+        //5. 성공작업 결과를 알리는 메시지를 담아 return 한다.
+        return ChatMsgResponseDto.OutChatRoom.builder()
+                .code(200)
+                .msg("채팅방 나가기 완료")
+                .build();
+    }
 }

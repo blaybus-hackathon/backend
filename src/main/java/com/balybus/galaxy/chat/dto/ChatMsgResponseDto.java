@@ -35,4 +35,11 @@ public class ChatMsgResponseDto {
         private LocalDateTime sendTime;
         private boolean readYn;
     }
+
+    @Getter
+    @Builder
+    public static class OutChatRoom {
+        private int code;
+        private String msg;
+    }
 }
