@@ -72,6 +72,7 @@ public enum ExceptionCode {
     WS_NOT_FOUND_RECEIVER(9002, "수신자 정보를 찾을 수 없습니다."),
     WS_NOT_FOUND_PATIENT_LOG(9003, "환자 정보를 찾을 수 없습니다."),
     WS_NOT_FOUND_CHAT_ROOM(9004, "채팅방 정보를 찾을 수 없습니다."),
+    WS_FIN_CHAT_ROOM(9005, "상대 또는 자신이 나가기한 채팅방으로 더 이상 채팅 입력이 불가능합니다."),
     ;
 
 

@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface TblChatMsgRepository extends JpaRepository<TblChatMsg, Long> {
     Page<TblChatMsg> findByChatRoom_Id(Long chatRoomId, Pageable page);
+    List<TblChatMsg> findByChatRoom_Id(Long chatRoomId);
     Optional<TblChatMsg> findTop1ByChatRoom_IdOrderByIdDesc(Long chatRoomId);
     Long countByChatRoomIdAndSenderIdAndReadYn(Long chatRoomId, Long senderId, boolean readYn);
     List<TblChatMsg> findByChatRoomIdAndSenderIdAndReadYn(Long chatRoomId, Long senderId, boolean readYn);
