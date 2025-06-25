@@ -60,4 +60,25 @@ public class ChatController {
                                             ChatMsgRequestDto.FindChatDetail dto) {
         return ResponseEntity.ok().body(chatService.findChatDetail(dto, userDetails.getUsername()));
     }
+
+    /**
+     * 채팅방 나가기
+     * @return ResponseEntity
+     */
+    @PostMapping("/out-room")
+    @Operation(summary = "채팅방 나가기 API", description = "채팅방 나가기 관련 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "사용자정의코드:채팅방 나가기 완료",
+                    content = @Content(schema = @Schema(implementation = ChatMsgResponseDto.OutChatRoom.class))),
+            @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인한 회원을 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "9004", description = "사용자정의에러코드:채팅방 정보를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "4005", description = "사용자정의에러코드:참여하고 있는 채팅방이 아니므로 권한이 없습니다.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<?> outChatRoom(@AuthenticationPrincipal UserDetails userDetails,
+                                         @RequestBody ChatMsgRequestDto.OutChatRoom dto) {
+        return ResponseEntity.ok().body(chatService.outChatRoom(dto, userDetails.getUsername()));
+    }
 }
