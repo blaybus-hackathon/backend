@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class HelperExperienceResponse {
     private String helperName;
-    private String filed;
+    private String field;
 }
