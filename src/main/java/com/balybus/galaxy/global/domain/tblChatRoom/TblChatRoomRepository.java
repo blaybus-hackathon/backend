@@ -45,7 +45,8 @@ public interface TblChatRoomRepository extends JpaRepository<TblChatRoom, Long> 
             select tcr
             from TblChatRoom tcr
             where tcr.id = :chatRoomId
-            and (tcr.userA.id = :userId or tcr.userB.id = :userId)
+            and ((tcr.userA.id = :userId and tcr.outUserA = false)
+                or (tcr.userB.id = :userId and tcr.outUserB = false))
             """)
     Optional<TblChatRoom> findByIdAndOrUser(@Param("chatRoomId") Long chatRoomId, @Param("userId") Long userId);
 }
