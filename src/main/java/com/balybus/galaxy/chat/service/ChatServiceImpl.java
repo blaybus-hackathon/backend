@@ -137,6 +137,9 @@ public class ChatServiceImpl implements ChatService {
         // 2. 로그인 사용자가 참가한 채팅방 리스트 조회
         List<Object[]> objectList = chatRoomRepository.findObjectList(userEntity.getId());
 
+        // 2.1. 로그인 사용자 요양보호사 여부 확인
+        Long helperSeq = findHelperSeq(userEntity);
+
         // 3. entity -> dto 전환
         List<ChatRoomResponseDto.FindList> result = new ArrayList<>();
         for(Object[] entity : objectList) {
@@ -174,9 +177,22 @@ public class ChatServiceImpl implements ChatService {
                     .patientLogId(patientLogId)
                     .patientLogName((String) entity[4])
                     .matchedFinYn(checkMatched.isPresent())
+                    .helperSeq(helperSeq == null ? findHelperSeq(partnerUser): helperSeq)
                     .build());
         }
         return result;
+    }
+
+    /**
+     * 로그인 구분자로 요양보호사 구분자 찾기
+     * @param user TblUser
+     * @return Long : 요양보호사 구분자
+     */
+    private Long findHelperSeq(TblUser user){
+        if(!user.getUserAuth().equals(RoleType.MEMBER)) return null;
+
+        Optional<TblHelper> helperOpt = helperRepository.findByUserId(user.getId());
+        return helperOpt.map(TblHelper::getId).orElse(null);
     }
 
     @Override
