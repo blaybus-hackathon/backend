@@ -88,6 +88,10 @@ public class ChatServiceImpl implements ChatService {
                         .patientLog(patientLogOpt.get())
                         .build()));
 
+        //3-1. 채팅방 사용 가능 여부 확인 (상대 또는 자신이 나가기한 채팅방의 경우 더 이상 채팅이 불가하다.)
+        if(chatRoom.isOutUserA() || chatRoom.isOutUserB())
+            throw new BadRequestException(ExceptionCode.WS_FIN_CHAT_ROOM);
+
         //4. 채팅 내역 엔티티 생성 & 저장
         chatMsgRepository.save(TblChatMsg.builder()
                 .chatRoom(chatRoom)
@@ -137,6 +141,9 @@ public class ChatServiceImpl implements ChatService {
         // 2. 로그인 사용자가 참가한 채팅방 리스트 조회
         List<Object[]> objectList = chatRoomRepository.findObjectList(userEntity.getId());
 
+        // 2.1. 로그인 사용자 요양보호사 여부 확인
+        Long helperSeq = findHelperSeq(userEntity);
+
         // 3. entity -> dto 전환
         List<ChatRoomResponseDto.FindList> result = new ArrayList<>();
         for(Object[] entity : objectList) {
@@ -174,9 +181,22 @@ public class ChatServiceImpl implements ChatService {
                     .patientLogId(patientLogId)
                     .patientLogName((String) entity[4])
                     .matchedFinYn(checkMatched.isPresent())
+                    .helperSeq(helperSeq == null ? findHelperSeq(partnerUser): helperSeq)
                     .build());
         }
         return result;
+    }
+
+    /**
+     * 로그인 구분자로 요양보호사 구분자 찾기
+     * @param user TblUser
+     * @return Long : 요양보호사 구분자
+     */
+    private Long findHelperSeq(TblUser user){
+        if(!user.getUserAuth().equals(RoleType.MEMBER)) return null;
+
+        Optional<TblHelper> helperOpt = helperRepository.findByUserId(user.getId());
+        return helperOpt.map(TblHelper::getId).orElse(null);
     }
 
     @Override
@@ -225,6 +245,7 @@ public class ChatServiceImpl implements ChatService {
         return ChatMsgResponseDto.FindChatDetail.builder()
                 .hasNext(chatListPage.hasNext())
                 .partnerImgAddress(partnerImgStr)
+                .chatYn(!chatRoomEntity.isOutUserA() && !chatRoomEntity.isOutUserB())
                 .list(chatListDto)
                 .build();
     }
@@ -256,5 +277,57 @@ public class ChatServiceImpl implements ChatService {
 
         //2. 해당 데이터 전부 읽음 처리
         notReadChatList.forEach(TblChatMsg::chRead);
+    }
+
+
+    /**
+     * 채팅방 나가기
+     * @param dto ChatMsgRequestDto.OutChatRoom
+     * @param userEmail String
+     * @return ChatMsgResponseDto.OutChatRoom
+     */
+    @Override
+    @Transactional
+    public ChatMsgResponseDto.OutChatRoom outChatRoom(ChatMsgRequestDto.OutChatRoom dto, String userEmail) {
+        //1. 로그인 사용자 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail);
+        if(userOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+
+        //2. 채팅방 번호로 채팅방 조회
+        Optional<TblChatRoom> chatRoomOpt = chatRoomRepository.findById(dto.getChatRoomId());
+        if(chatRoomOpt.isEmpty())
+            throw new BadRequestException(ExceptionCode.WS_NOT_FOUND_CHAT_ROOM);
+
+        //3. 해당 채팅방에 로그인 사용자가 A인지 B인지 분류
+        TblUser user = userOpt.get();
+        TblChatRoom chatRoom = chatRoomOpt.get();
+        if(chatRoom.getUserA().getId().equals(user.getId()) && !chatRoom.isOutUserA()){
+            //3-1. A일 경우, A의 방 나가기 여부 true 로 변경
+            chatRoom.outUser(true);
+        } else if (chatRoom.getUserB().getId().equals(user.getId()) && !chatRoom.isOutUserB()){
+            //3-2. B일 경우, B의 방 나가기 여부 true 로 변경
+            chatRoom.outUser(false);
+        } else {
+            //3-3. A & B 모두 아닐 경우, 잘못된 접근 ExceptionCode.UNAUTHORIZED 발생
+            throw new BadRequestException(ExceptionCode.UNAUTHORIZED);
+        }
+
+        //4. A와 B 모두 나가기 여부 확인
+        if(chatRoom.isOutUserA() && chatRoom.isOutUserB()){ // 모두 나가기 == true 인 경우
+            //4-1. 해당 채팅방에 해당하는 채팅 내역을 전체 조회한다.
+            List<TblChatMsg> chatMsgList = chatMsgRepository.findByChatRoom_Id(dto.getChatRoomId());
+            //4-2. 채팅 내역을 전체 삭제한다.
+            chatMsgRepository.deleteAll(chatMsgList);
+
+            //4-3. 채팅방을 삭제한다.
+            chatRoomRepository.delete(chatRoom);
+        }
+
+        //5. 성공작업 결과를 알리는 메시지를 담아 return 한다.
+        return ChatMsgResponseDto.OutChatRoom.builder()
+                .code(200)
+                .msg("채팅방 나가기 완료")
+                .build();
     }
 }

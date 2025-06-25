@@ -16,4 +16,9 @@ public class ChatMsgRequestDto {
         private int pageNo;
         private Long chatRoomId;
     }
+
+    @Data
+    public static class OutChatRoom {
+        private Long chatRoomId;
+    }
 }
