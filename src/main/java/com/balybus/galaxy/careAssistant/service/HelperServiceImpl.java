@@ -265,7 +265,7 @@ public class HelperServiceImpl implements HelperService {
 
             return HelperExperienceResponse.builder()
                     .helperName(tblHelperExperienceSaved.getHelper().getName())
-                    .filed(tblHelperExperienceSaved.getField())
+                    .field(tblHelperExperienceSaved.getField())
                     .build();
         } catch (Exception e) {
             throw new BadRequestException(INTERNAL_SEVER_ERROR);
