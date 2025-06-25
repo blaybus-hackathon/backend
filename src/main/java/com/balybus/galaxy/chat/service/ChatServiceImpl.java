@@ -245,6 +245,7 @@ public class ChatServiceImpl implements ChatService {
         return ChatMsgResponseDto.FindChatDetail.builder()
                 .hasNext(chatListPage.hasNext())
                 .partnerImgAddress(partnerImgStr)
+                .chatYn(!chatRoomEntity.isOutUserA() && !chatRoomEntity.isOutUserB())
                 .list(chatListDto)
                 .build();
     }

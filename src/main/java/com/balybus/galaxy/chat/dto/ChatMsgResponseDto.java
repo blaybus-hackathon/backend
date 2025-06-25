@@ -24,6 +24,7 @@ public class ChatMsgResponseDto {
     public static class FindChatDetail {
         private boolean hasNext;
         private String partnerImgAddress;
+        private boolean chatYn;
         private List<FindChatDetailList> list;
     }
 
