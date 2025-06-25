@@ -88,6 +88,10 @@ public class ChatServiceImpl implements ChatService {
                         .patientLog(patientLogOpt.get())
                         .build()));
 
+        //3-1. 채팅방 사용 가능 여부 확인 (상대 또는 자신이 나가기한 채팅방의 경우 더 이상 채팅이 불가하다.)
+        if(chatRoom.isOutUserA() || chatRoom.isOutUserB())
+            throw new BadRequestException(ExceptionCode.WS_FIN_CHAT_ROOM);
+
         //4. 채팅 내역 엔티티 생성 & 저장
         chatMsgRepository.save(TblChatMsg.builder()
                 .chatRoom(chatRoom)
