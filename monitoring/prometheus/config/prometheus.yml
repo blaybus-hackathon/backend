@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: "galaxy"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: [ "52.78.187.236:8080" ]
+      - targets: [ "54.180.195.94:8080" ]
