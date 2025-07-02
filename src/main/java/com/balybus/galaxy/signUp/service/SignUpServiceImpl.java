@@ -209,6 +209,7 @@ public class SignUpServiceImpl implements SignUpService{
                     .addressDetail(signUpRequest.getAddressDetail())
                     .carOwnYn(signUpRequest.isCarOwnYn())
                     .eduYn(signUpRequest.isEduYn())
+                    .careGender(signUpRequest.getGender() == 0 ? 1 : 2) //남성 1 : 여성 2
                     .build();
             helperRepository.save(helper);
         }
