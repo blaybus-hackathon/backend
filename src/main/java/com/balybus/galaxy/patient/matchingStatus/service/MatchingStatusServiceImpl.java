@@ -6,6 +6,7 @@ import com.balybus.galaxy.global.domain.tblMatching.MatchState;
 import com.balybus.galaxy.global.domain.tblMatching.TblMatching;
 import com.balybus.galaxy.global.domain.tblMatching.TblMatchingRepository;
 import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
+import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLogRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceImpl;
@@ -32,6 +33,7 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
 
     private final LoginAuthCheckServiceImpl loginAuthCheckService;
     private final TblMatchingRepository tblMatchingRepository;
+    private final TblPatientLogRepository patientLogRepository;
 
     /**
      * 매칭 대기 어르신 정보 반환(관리자 입장)
@@ -39,8 +41,26 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
      * @return MatchingStatusResponseDto.MatchingPatientInfoList
      */
     @Override
-    public MatchingStatusResponseDto.MatchingPatientInfoList matchingWaitPatientInfoList(String userEmail) {
-        return getPatientInfoListByMatchingState(userEmail, INIT);
+    public MatchingStatusResponseDto.MatchingPatientInfoList2 matchingWaitPatientInfoList(String userEmail) {
+        // 매칭 대기 - 요양보호사 기준으로 전부 매칭 요청 전(INIT) 상태인 공고만
+
+        //1. 관리자 로그인 유효성 확인
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 등록한 공고 중 전부 매칭 요청 전(INIT) 상태인 공고만 조회
+        List<MatchingStatusResponseDto.MatchingPatientInfo2> result = patientLogRepository.testQueryDSL(centerManager.getId(), INIT);
+
+        //3. 공고별 매칭된 요양보호사 정보 조회
+        for(MatchingStatusResponseDto.MatchingPatientInfo2 setData : result){
+            List<MatchingStatusResponseDto.MatchedHelperInfo2> data = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq());
+            setData.matchedHelperInfoList(data);
+        }
+
+        //3. dto 전환 및 반환
+        return MatchingStatusResponseDto.MatchingPatientInfoList2.builder()
+                .matchingPatientInfoList(result)
+                .build();
+//        return getPatientInfoListByMatchingState(userEmail, INIT);
     }
 
     /**

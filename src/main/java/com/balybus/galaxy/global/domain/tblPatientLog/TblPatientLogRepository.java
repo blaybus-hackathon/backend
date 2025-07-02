@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface TblPatientLogRepository extends JpaRepository<TblPatientLog, Long> {
+public interface TblPatientLogRepository extends JpaRepository<TblPatientLog, Long>, TblPatientLogRepositoryCustom {
     Page<TblPatientLog> findByManagerId(Long managerSeq, Pageable page);
     Page<TblPatientLog> findByPatientIdAndManagerId(Long patientSeq, Long managerSeq, Pageable page);
     List<TblPatientLog> findAllByManagerId(Long managerSeq);
