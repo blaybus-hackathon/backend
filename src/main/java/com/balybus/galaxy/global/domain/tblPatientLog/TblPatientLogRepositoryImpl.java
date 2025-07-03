@@ -67,6 +67,12 @@ public class TblPatientLogRepositoryImpl implements TblPatientLogRepositoryCusto
                     .where(m.patientLog.id.eq(tpl.id)
                             .and(m.matchState.ne(MatchState.INIT)))
                     .notExists();
+        } else if(matchState.equals(MatchState.MATCH_FIN)){
+            matchingState = JPAExpressions.selectOne()
+                    .from(m)
+                    .where(m.patientLog.id.eq(tpl.id)
+                            .and(m.matchState.eq(MatchState.MATCH_FIN)))
+                    .exists();
         }
 
         if(matchingState != null) {

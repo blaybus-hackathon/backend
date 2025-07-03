@@ -12,12 +12,6 @@ import java.util.List;
 public class MatchingStatusResponseDto {
 
     @Getter
-    @Builder
-    public static class MatchingWaitPatientInfoList{
-        private List<MatchingWaitPatientInfo> matchingPatientInfoList;
-    }
-
-    @Getter
     @NoArgsConstructor
     public static class MatchingWaitPatientInfo extends MatchingPatientInfo {
         private List<MatchedHelperInfo> matchedHelperInfoList;
@@ -27,6 +21,32 @@ public class MatchingStatusResponseDto {
             this.matchedHelperInfoList = matchedHelperInfoList;
         }
     }
+
+    @Getter
+    @NoArgsConstructor
+    public static class MatchedFinPatientInfo extends MatchingPatientInfo {
+        private List<MatchedHelperInfo> matchFinHelperInfoList;         //매칭 완료
+        private List<MatchedHelperInfo> permitTuneHelperInfoList;       //채팅하기(조율중)
+        private List<MatchedHelperInfo> matchRequestHelperInfoList;     //매칭 요청
+        private List<MatchedHelperInfo> initHelperInfoList;             //매칭 요청 전
+        private List<MatchedHelperInfo> rejectHelperInfoList;           //응답거절
+        public MatchedFinPatientInfo(MatchingPatientInfo s
+                                        , List<MatchedHelperInfo> matchFinHelperInfoList
+                                        , List<MatchedHelperInfo> permitTuneHelperInfoList
+                                        , List<MatchedHelperInfo> matchRequestHelperInfoList
+                                        , List<MatchedHelperInfo> initHelperInfoList
+                                        , List<MatchedHelperInfo> rejectHelperInfoList){
+            super(s.patientSeq, s.patientLogSeq, s.name, s.birthDate, s.gender, s.workType, s.careLevel, s.addressFirst, s.addressSecond, s.addressThird);
+            this.age = s.age;
+            this.matchFinHelperInfoList = matchFinHelperInfoList;
+            this.permitTuneHelperInfoList = permitTuneHelperInfoList;
+            this.matchRequestHelperInfoList = matchRequestHelperInfoList;
+            this.initHelperInfoList = initHelperInfoList;
+            this.rejectHelperInfoList = rejectHelperInfoList;
+        }
+    }
+
+
 
 //    @Getter
 //    @Builder
@@ -78,19 +98,13 @@ public class MatchingStatusResponseDto {
     /* ===========================================================
      * COMMON
      * =========================================================== */
-    /**
-     * 만 나이 계산
-     * @param birthDate String
-     * @param pattern String
-     * @return int:만 나이
-     */
-    private static int calAge(String birthDate, String pattern) {
-        LocalDate currentDate = LocalDate.now();
-        // 생일과 현재 날짜의 차이 계산
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        Period period = Period.between(LocalDate.parse(birthDate, formatter), currentDate);
-        // 나이는 Period 객체의 연도를 반환
-        return period.getYears();
+    @Getter
+    @NoArgsConstructor
+    public static class MatchingStatusPatientInfoList<T extends MatchingPatientInfo>{
+        private List<T> list;
+        public MatchingStatusPatientInfoList(List<T> list){
+            this.list = list;
+        }
     }
 
     /**
@@ -146,5 +160,20 @@ public class MatchingStatusResponseDto {
             this.gender = gender;
             this.age = calAge(birthDate, "yyyy:MM:dd");
         }
+    }
+
+    /**
+     * 만 나이 계산
+     * @param birthDate String
+     * @param pattern String
+     * @return int:만 나이
+     */
+    private static int calAge(String birthDate, String pattern) {
+        LocalDate currentDate = LocalDate.now();
+        // 생일과 현재 날짜의 차이 계산
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        Period period = Period.between(LocalDate.parse(birthDate, formatter), currentDate);
+        // 나이는 Period 객체의 연도를 반환
+        return period.getYears();
     }
 }

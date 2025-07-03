@@ -38,10 +38,10 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
     /**
      * 매칭 대기 어르신 정보 반환(관리자 입장)
      * @param userEmail 관리자 이메일
-     * @return MatchingStatusResponseDto.MatchingPatientInfoList
+     * @return MatchingStatusResponseDto.MatchingStatusPatientInfoList<MatchingStatusResponseDto.MatchingWaitPatientInfo>
      */
     @Override
-    public MatchingStatusResponseDto.MatchingWaitPatientInfoList matchingWaitPatientInfoList(String userEmail) {
+    public MatchingStatusResponseDto.MatchingStatusPatientInfoList<MatchingStatusResponseDto.MatchingWaitPatientInfo> matchingWaitPatientInfoList(String userEmail) {
         // 매칭 대기 - 요양보호사 기준으로 전부 매칭 요청 전(INIT) 상태인 공고만
 
         //1. 관리자 로그인 유효성 확인
@@ -53,14 +53,12 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
         //3. 공고별 매칭된 요양보호사 정보 조회
         List<MatchingStatusResponseDto.MatchingWaitPatientInfo> result = new ArrayList<>();
         for(MatchingStatusResponseDto.MatchingPatientInfo setData : logResult){
-            List<MatchingStatusResponseDto.MatchedHelperInfo> data = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq());
+            List<MatchingStatusResponseDto.MatchedHelperInfo> data = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), INIT);
             result.add(new MatchingStatusResponseDto.MatchingWaitPatientInfo(setData, data));
         }
 
         //3. dto 전환 및 반환
-        return MatchingStatusResponseDto.MatchingWaitPatientInfoList.builder()
-                .matchingPatientInfoList(result)
-                .build();
+        return new MatchingStatusResponseDto.MatchingStatusPatientInfoList<>(result);
     }
 
 //    /**
@@ -70,7 +68,8 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
 //     */
 //    @Override
 //    public MatchingStatusResponseDto.MatchingPatientInfoList matchingPatientInfoList(String userEmail) {
-//            return getPatientInfoListByMatchingState(userEmail, MATCH_REQUEST);
+//        // 진행중 - 매칭 대기와 완료 이외의 모든 공고
+//        // 채팅하기(조율중) | 매칭 요청 | 매칭 요청 전 | 응답거절 로 묶어서 데이터 반환
 //    }
 
 //    @Transactional(readOnly = true)
@@ -95,18 +94,50 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
 //                .build();
 //    }
 
-//    /**
-//     * 매칭 완료(수락) 및 매칭 거절 상태인 어르신 정보 리스트 반환(관리자 입장)
-//     * @param userEmail 관리자 이메일
-//     * @return MatchingStatusResponseDto.MatchedPatientInfoList
-//    */
-//    @Override
-//    public MatchingStatusResponseDto.MatchedPatientInfoList matchedPatientInfoList(String userEmail) {
-//        // 1. 관리자 정보 조회
-//        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
-//
-//        return getPatientList(centerManager);
-//    }
+    /**
+     * 매칭 완료(수락) 및 매칭 거절 상태인 어르신 정보 리스트 반환(관리자 입장)
+     * @param userEmail 관리자 이메일
+     * @return MatchingStatusResponseDto.MatchingStatusPatientInfoList<?>
+    */
+    @Override
+    public MatchingStatusResponseDto.MatchingStatusPatientInfoList<?> matchedFinPatientInfoList(String userEmail) {
+        // 완료 - 요양보호사 기준으로 단 한명이라도 (MATCH_FIN) 상태인 공고들 모음
+        //1. 관리자 로그인 유효성 확인
+        TblCenterManager centerManager = loginAuthCheckService.checkManager(userEmail);
+
+        //2. 해당 관리자가 등록한 공고 중 MATCH_FIN 상태가 존재하는 공고만 조회
+        List<MatchingStatusResponseDto.MatchingPatientInfo> logResult = patientLogRepository.matchStatePatientLog(centerManager.getId(), MATCH_FIN);
+
+        //3. 공고별 매칭된 요양보호사 정보 조회
+        List<MatchingStatusResponseDto.MatchedFinPatientInfo> result = new ArrayList<>();
+        for(MatchingStatusResponseDto.MatchingPatientInfo setData : logResult){
+            // 매칭 완료
+            List<MatchingStatusResponseDto.MatchedHelperInfo> matchFinHelperInfoList
+                    = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), MATCH_FIN);
+            // 채팅하기(조율중)
+            List<MatchingStatusResponseDto.MatchedHelperInfo> permitTuneHelperInfoList
+                    = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), PERMIT_TUNE);
+            // 매칭 요청
+            List<MatchingStatusResponseDto.MatchedHelperInfo> matchRequestHelperInfoList
+                    = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), MATCH_REQUEST);
+            // 매칭 요청 전
+            List<MatchingStatusResponseDto.MatchedHelperInfo> initHelperInfoList
+                    = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), INIT);
+            // 응답거절
+            List<MatchingStatusResponseDto.MatchedHelperInfo> rejectHelperInfoList
+                    = tblMatchingRepository.findMatchingHelperInfo(setData.getPatientLogSeq(), REJECT);
+
+            result.add(new MatchingStatusResponseDto.MatchedFinPatientInfo(setData
+                                                                        , matchFinHelperInfoList
+                                                                        , permitTuneHelperInfoList
+                                                                        , matchRequestHelperInfoList
+                                                                        , initHelperInfoList
+                                                                        , rejectHelperInfoList));
+        }
+
+        //3. dto 전환 및 반환
+        return new MatchingStatusResponseDto.MatchingStatusPatientInfoList<>(result);
+    }
 
 //    @Transactional(readOnly = true)
 //    protected MatchingStatusResponseDto.MatchedPatientInfoList getPatientList(TblCenterManager centerManager) {

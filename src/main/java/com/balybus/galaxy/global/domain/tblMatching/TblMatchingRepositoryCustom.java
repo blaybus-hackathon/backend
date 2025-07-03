@@ -5,5 +5,5 @@ import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
 import java.util.List;
 
 public interface TblMatchingRepositoryCustom {
-    List<MatchingStatusResponseDto.MatchedHelperInfo> findMatchingHelperInfo(Long patientLogId);
+    List<MatchingStatusResponseDto.MatchedHelperInfo> findMatchingHelperInfo(Long patientLogId, MatchState matchState);
 }
