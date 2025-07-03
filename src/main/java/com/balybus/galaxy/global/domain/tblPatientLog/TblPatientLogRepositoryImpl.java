@@ -26,7 +26,7 @@ public class TblPatientLogRepositoryImpl implements TblPatientLogRepositoryCusto
     }
 
     @Override
-    public List<MatchingStatusResponseDto.MatchingPatientInfo2> testQueryDSL(Long managerSeq, MatchState matchState) {
+    public List<MatchingStatusResponseDto.MatchingPatientInfo> matchStatePatientLog(Long managerSeq, MatchState matchState) {
         QTblPatientLog tpl = QTblPatientLog.tblPatientLog;
         QTblAddressFirst taf = QTblAddressFirst.tblAddressFirst;
         QTblAddressSecond tas = QTblAddressSecond.tblAddressSecond;
@@ -36,8 +36,8 @@ public class TblPatientLogRepositoryImpl implements TblPatientLogRepositoryCusto
         QTblCare tc3 = new QTblCare("tc3");
         QTblMatching m = QTblMatching.tblMatching;
 
-        JPAQuery<MatchingStatusResponseDto.MatchingPatientInfo2> query = queryFactory
-                .select(Projections.constructor(MatchingStatusResponseDto.MatchingPatientInfo2.class,
+        JPAQuery<MatchingStatusResponseDto.MatchingPatientInfo> query = queryFactory
+                .select(Projections.constructor(MatchingStatusResponseDto.MatchingPatientInfo.class,
                         tpl.patient.id.as("patientSeq"),
                         tpl.id.as("patientLogSeq"),
                         tpl.name.as("name"),

@@ -20,13 +20,13 @@ public class TblMatchingRepositoryImpl implements TblMatchingRepositoryCustom{
     }
 
     @Override
-    public List<MatchingStatusResponseDto.MatchedHelperInfo2> findMatchingHelperInfo(Long patientLogId) {
+    public List<MatchingStatusResponseDto.MatchedHelperInfo> findMatchingHelperInfo(Long patientLogId) {
         QTblMatching m = QTblMatching.tblMatching;
         QTblHelper h = QTblHelper.tblHelper;
         QTblCare c = QTblCare.tblCare;
 
         return queryFactory
-                .select(Projections.constructor(MatchingStatusResponseDto.MatchedHelperInfo2.class,
+                .select(Projections.constructor(MatchingStatusResponseDto.MatchedHelperInfo.class,
                         h.id.as("helperSeq")
                         ,h.name.as("name")
                         ,c.careName.as("gender")
