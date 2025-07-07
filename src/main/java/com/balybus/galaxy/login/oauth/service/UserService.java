@@ -5,6 +5,7 @@ import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.login.oauth.client.KakaoApiToken;
 import com.balybus.galaxy.login.oauth.client.KakaoApiUserInfo;
+import com.balybus.galaxy.login.oauth.domain.type.CaseType;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.login.oauth.domain.TblKakao;
 import com.balybus.galaxy.login.oauth.dto.request.KakaoRequest;
@@ -29,6 +30,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -86,11 +88,12 @@ public class UserService implements UserServiceImpl {
         Optional<TblUser> tblUser = memberRepository.findByEmail(userInfo.getEmail());
 
         ///
-
+        boolean caseNum = false;
         if(kakaoUser.isEmpty() && tblUser.isPresent()) {
             // 케이스 1: 카카오 연동 정보는 없으나, 우리 서비스에 동일 이메일로 가입된 회원이 있는 경우
             // -> 기존 아이디로 자동 로그인 시키기 (카카오 계정과 기존 계정 자동 연동 및 로그인)
             String email = tblUser.get().getEmail();
+            caseNum = true;
             loginService.signIn(MemberRequest.SignInDto.builder()
                     .userId(email)
                     .userPw(tblUser.get().getPassword())
@@ -106,6 +109,7 @@ public class UserService implements UserServiceImpl {
                     .loginType(LoginType.KAKAO_LOGIN)
                     .roleType(code.getRoleType())
                     .description("-카카오 회원 등록 완료 했습니다. 회원가입을 진행해 주세요.")
+                    .caseType(CaseType.CASE2)
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isEmpty()) {
@@ -118,6 +122,7 @@ public class UserService implements UserServiceImpl {
                     .loginType(LoginType.KAKAO_LOGIN)
                     .roleType(code.getRoleType())
                     .description("카카오 연동 정보는 있으나, 우리 서비스 회원 정보가 없습니다. 회원가입을 진행해 주세요.")
+                    .caseType(CaseType.CASE3)
                     .build();
         }
         else if(kakaoUser.isPresent() && tblUser.isPresent()) {
@@ -129,12 +134,23 @@ public class UserService implements UserServiceImpl {
                     .build(), request, response);
         }
 
+        if(caseNum) {
+            return KakaoResponse.builder()
+                    .email(userInfo.getEmail())
+                    .nickName(userInfo.getNickname())
+                    .loginType(LoginType.KAKAO_LOGIN)
+                    .roleType(code.getRoleType())
+                    .description("카카오 로그인이 정상적으로 완료되었습니다.")
+                    .caseType(CaseType.CASE1)
+                    .build();
+        }
         return KakaoResponse.builder()
                 .email(userInfo.getEmail())
                 .nickName(userInfo.getNickname())
                 .loginType(LoginType.KAKAO_LOGIN)
                 .roleType(code.getRoleType())
                 .description("카카오 로그인이 정상적으로 완료되었습니다.")
+                .caseType(CaseType.CASE4)
                 .build();
     }
 
