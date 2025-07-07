@@ -81,8 +81,6 @@ public class SignUpController {
     })
     @PostMapping("/helper")
     public ResponseEntity<?> signUpHelper(@RequestBody SignUpDTO signUpDTO) {
-//        if(SignUpDTO.hasNullDataBeforeSignUp(signUpDTO))
-//            throw new BadRequestException(SIGNUP_INFO_NULL);
         if(signUpDTO.hasNullDataBeforeSignUp())
             throw new BadRequestException(SIGNUP_INFO_NULL);
 
