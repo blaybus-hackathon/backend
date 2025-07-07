@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TblMatchingRepository extends JpaRepository<TblMatching, Long> {
+public interface TblMatchingRepository extends JpaRepository<TblMatching, Long>, TblMatchingRepositoryCustom {
     List<TblMatching> findByPatientLog_id(Long plSeq);
     Optional<TblMatching> findByPatientLog_idAndHelper_id(Long plSeq, Long helperSeq);
     Optional<TblMatching> findByPatientLog_idAndMatchState(Long plSeq, MatchState matchState);

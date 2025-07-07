@@ -1,0 +1,10 @@
+package com.balybus.galaxy.global.domain.tblPatientLog;
+
+import com.balybus.galaxy.global.domain.tblMatching.SelectMatchStatus;
+import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
+
+import java.util.List;
+
+public interface TblPatientLogRepositoryCustom {
+    List<MatchingStatusResponseDto.MatchingPatientInfo> matchStatePatientLog(Long managerSeq, SelectMatchStatus selectMatchStatus);
+}

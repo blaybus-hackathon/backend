@@ -10,7 +10,8 @@ public enum MatchState {
     MATCH_REQUEST(1, "매칭 요청"),
     PERMIT_TUNE(2, "수락함(조율중)"),
     MATCH_FIN(3, "매칭 완료"),
-    REJECT(4, "응답 거절");
+    REJECT(4, "응답 거절"),
+    ONLY_SELECT_ALL(-1, "전체 조회를 위한 state enum");
 
     private final int state;
     private final String msg;
