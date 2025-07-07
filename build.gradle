@@ -110,6 +110,12 @@ dependencies {
 
     // feign client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api:3.1.0"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api:2.1.1"
 }
 
 tasks.named('test') {
@@ -122,4 +128,19 @@ tasks.register('buildZip', Zip) {
     into('lib') {
         from configurations.runtimeClasspath
     }
+}
+
+// QueryDSL Q타입 생성 경로 설정
+def generated = "$buildDir/generated/querydsl"
+
+sourceSets {
+    main {
+        java {
+            srcDirs += [generated]
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
 }

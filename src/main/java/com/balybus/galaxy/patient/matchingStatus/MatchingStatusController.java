@@ -25,7 +25,7 @@ public class MatchingStatusController {
     @Operation(summary = "어르신 매칭 대기 중 리스트 반환 API", description = "매칭 대기 중인 어르신 정보를 반환합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "반환 성공",
-                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchingPatientInfoList.class))),
+                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchingStatusPatientInfoList.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -39,7 +39,7 @@ public class MatchingStatusController {
     @Operation(summary = "어르신 매칭 중 리스트 반환 API", description = "매칭 중인 어르신 정보를 반환합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "반환 성공",
-                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchingPatientInfoList.class))),
+                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchingStatusPatientInfoList.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -53,7 +53,7 @@ public class MatchingStatusController {
     @Operation(summary = "어르신 매칭 완료 리스트 반환 API", description = "매칭 완료 / 거절 상태인 어르신 정보를 반환합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "반환 성공",
-                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchedPatientInfoList.class))),
+                    content = @Content(schema = @Schema(implementation = MatchingStatusResponseDto.MatchingStatusPatientInfoList.class))),
             @ApiResponse(responseCode = "4008", description = "사용자정의에러코드:로그인이 정보 없음(쿠키 없음)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "7000", description = "사용자정의에러코드:로그인한 사용자의 권한이 매니저가 아닙니다.",
@@ -61,7 +61,7 @@ public class MatchingStatusController {
     })
     @GetMapping("/matched-patient-list")
     public ResponseEntity<?> getMatchedPatientList(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok().body(matchingStatusService.matchedPatientInfoList(userDetails.getUsername()));
+        return ResponseEntity.ok().body(matchingStatusService.matchedFinPatientInfoList(userDetails.getUsername()));
     }
 
 
