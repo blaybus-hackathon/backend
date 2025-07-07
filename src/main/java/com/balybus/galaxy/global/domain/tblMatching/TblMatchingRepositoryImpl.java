@@ -5,7 +5,6 @@ import com.balybus.galaxy.global.domain.tblCare.QTblCare;
 import com.balybus.galaxy.global.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

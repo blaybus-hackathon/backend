@@ -1,5 +1,6 @@
 package com.balybus.galaxy.patient.matchingStatus.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,20 +11,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class MatchingStatusResponseDto {
-
     @Getter
-    @NoArgsConstructor
-    public static class MatchingWaitPatientInfo extends MatchingPatientInfo {
-        private List<MatchedHelperInfo> matchedHelperInfoList;
-        public MatchingWaitPatientInfo(MatchingPatientInfo s, List<MatchedHelperInfo> matchedHelperInfoList){
-            super(s.patientSeq, s.patientLogSeq, s.name, s.birthDate, s.gender, s.workType, s.careLevel, s.addressFirst, s.addressSecond, s.addressThird);
-            this.age = s.age;
-            this.matchedHelperInfoList = matchedHelperInfoList;
-        }
+    @Builder
+    public static class MatchingStatusPatientInfoList {
+        private List<MatchedFinPatientInfo> list;
     }
 
     @Getter
     @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class MatchedFinPatientInfo extends MatchingPatientInfo {
         private List<MatchedHelperInfo> matchFinHelperInfoList;         //매칭 완료
         private List<MatchedHelperInfo> permitTuneHelperInfoList;       //채팅하기(조율중)
@@ -31,11 +27,11 @@ public class MatchingStatusResponseDto {
         private List<MatchedHelperInfo> initHelperInfoList;             //매칭 요청 전
         private List<MatchedHelperInfo> rejectHelperInfoList;           //응답거절
         public MatchedFinPatientInfo(MatchingPatientInfo s
-                                        , List<MatchedHelperInfo> matchFinHelperInfoList
-                                        , List<MatchedHelperInfo> permitTuneHelperInfoList
-                                        , List<MatchedHelperInfo> matchRequestHelperInfoList
-                                        , List<MatchedHelperInfo> initHelperInfoList
-                                        , List<MatchedHelperInfo> rejectHelperInfoList){
+                , List<MatchedHelperInfo> matchFinHelperInfoList
+                , List<MatchedHelperInfo> permitTuneHelperInfoList
+                , List<MatchedHelperInfo> matchRequestHelperInfoList
+                , List<MatchedHelperInfo> initHelperInfoList
+                , List<MatchedHelperInfo> rejectHelperInfoList){
             super(s.patientSeq, s.patientLogSeq, s.name, s.birthDate, s.gender, s.workType, s.careLevel, s.addressFirst, s.addressSecond, s.addressThird);
             this.age = s.age;
             this.matchFinHelperInfoList = matchFinHelperInfoList;
@@ -43,67 +39,6 @@ public class MatchingStatusResponseDto {
             this.matchRequestHelperInfoList = matchRequestHelperInfoList;
             this.initHelperInfoList = initHelperInfoList;
             this.rejectHelperInfoList = rejectHelperInfoList;
-        }
-    }
-
-
-
-//    @Getter
-//    @Builder
-//    public static class MatchingPatientInfoList{
-//        private List<MatchingPatientInfo> matchingPatientInfoList;
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class MatchingPatientInfo {
-//        private Long patientSeq; // 어르신 구분자
-//        private Long patientLogSeq; // 어르신 공고 구분자
-//        private String name; // 어르신 이름
-//        private Integer gender; // 어르신 성별
-//        private String birthDate; // 어르신 생년월일
-//        private int workType; // 희망 근무 종류
-//        private String tblAddressFirst; // 시.도
-//        private String tblAddressSecond; // 시.군.구
-//        private String tblAddressThird; // 읍.면.동
-//        private List<MatchedHelperInfo> matchedHelperInfos;
-//        private int careLevel; // 장기 요양 등급
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class MatchedHelperInfo {
-//        private Long helperSeq; // 매칭된 요양 보호사 구분자
-//        private String name; // 매칭된 요양 보호사 이름
-//        private Integer gender; // 매칭된 요양 보호사 성별
-//        private String age; // 매칭된 요양 보호사 나이
-//    }
-//
-//    @Getter
-//    @Builder
-//    public static class MatchedPatientInfoList{
-//        private List<MatchingPatientInfo> matchedPatientInfoList;
-//        private List<MatchingPatientInfo> matchingRejectedPatientInfoList;
-//    }
-
-
-    @Getter
-    @Builder
-    public static class UpdatePatientMatchStatus{
-        private int code;
-        private String msg; //업데이트 결과 반환
-    }
-
-
-    /* ===========================================================
-     * COMMON
-     * =========================================================== */
-    @Getter
-    @NoArgsConstructor
-    public static class MatchingStatusPatientInfoList<T extends MatchingPatientInfo>{
-        private List<T> list;
-        public MatchingStatusPatientInfoList(List<T> list){
-            this.list = list;
         }
     }
 
@@ -175,5 +110,14 @@ public class MatchingStatusResponseDto {
         Period period = Period.between(LocalDate.parse(birthDate, formatter), currentDate);
         // 나이는 Period 객체의 연도를 반환
         return period.getYears();
+    }
+
+
+
+    @Getter
+    @Builder
+    public static class UpdatePatientMatchStatus{
+        private int code;
+        private String msg; //업데이트 결과 반환
     }
 }

@@ -7,6 +7,7 @@ import com.balybus.galaxy.global.domain.tblCare.QTblCare;
 import com.balybus.galaxy.global.domain.tblCare.TblCareTopEnum;
 import com.balybus.galaxy.global.domain.tblMatching.MatchState;
 import com.balybus.galaxy.global.domain.tblMatching.QTblMatching;
+import com.balybus.galaxy.global.domain.tblMatching.SelectMatchStatus;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -26,7 +27,7 @@ public class TblPatientLogRepositoryImpl implements TblPatientLogRepositoryCusto
     }
 
     @Override
-    public List<MatchingStatusResponseDto.MatchingPatientInfo> matchStatePatientLog(Long managerSeq, MatchState matchState) {
+    public List<MatchingStatusResponseDto.MatchingPatientInfo> matchStatePatientLog(Long managerSeq, SelectMatchStatus selectMatchStatus) {
         QTblPatientLog tpl = QTblPatientLog.tblPatientLog;
         QTblAddressFirst taf = QTblAddressFirst.tblAddressFirst;
         QTblAddressSecond tas = QTblAddressSecond.tblAddressSecond;
@@ -60,14 +61,28 @@ public class TblPatientLogRepositoryImpl implements TblPatientLogRepositoryCusto
 
         // 조회 기준
         BooleanExpression matchingState = null;
-        if(matchState.equals(MatchState.INIT)){
+        if(selectMatchStatus.equals(SelectMatchStatus.ONLY_SELECT_MATCHING)) {
+            //매칭 요청 전(INIT) 상태가 전부는 아니면서, 매칭 완료는 아직 이뤄지지 않은 공고들 조회
+            matchingState = JPAExpressions.selectOne()
+                    .from(m)
+                    .where(m.patientLog.id.eq(tpl.id)
+                            .and(m.matchState.eq(MatchState.MATCH_FIN)))
+                    .notExists()
+                    .and(JPAExpressions.selectOne()
+                            .from(m)
+                            .where(m.patientLog.id.eq(tpl.id)
+                                    .and(m.matchState.ne(MatchState.INIT)))
+                            .exists());
+
+        } else if(selectMatchStatus.equals(SelectMatchStatus.ONLY_SELECT_INIT)){
             // 요양보호사 기준으로 전부 매칭 요청 전(INIT) 상태인 공고만 조회
             matchingState = JPAExpressions.selectOne()
                     .from(m)
                     .where(m.patientLog.id.eq(tpl.id)
                             .and(m.matchState.ne(MatchState.INIT)))
                     .notExists();
-        } else if(matchState.equals(MatchState.MATCH_FIN)){
+        } else if(selectMatchStatus.equals(SelectMatchStatus.ONLY_SELECT_MATCH_FIN)){
+            //매칭 완료된 공고만 조회
             matchingState = JPAExpressions.selectOne()
                     .from(m)
                     .where(m.patientLog.id.eq(tpl.id)
