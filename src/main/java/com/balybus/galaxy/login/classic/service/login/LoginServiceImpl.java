@@ -1,15 +1,20 @@
 package com.balybus.galaxy.login.classic.service.login;
 
+import com.balybus.galaxy.careAssistant.domain.TblHelper;
+import com.balybus.galaxy.careAssistant.repository.HelperRepository;
 import com.balybus.galaxy.global.domain.tblAuthenticationMail.TblAuthenticationMailMsgEnum;
 import com.balybus.galaxy.global.config.jwt.CookieUtils;
 import com.balybus.galaxy.global.config.jwt.redis.TokenRedis;
 import com.balybus.galaxy.global.config.jwt.redis.TokenRedisRepository;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManager;
+import com.balybus.galaxy.global.domain.tblCenterManager.TblCenterManagerRepository;
 import com.balybus.galaxy.global.exception.BadRequestException;
 import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.mail.ContentType;
 import com.balybus.galaxy.global.utils.mail.SendMailRequest;
 import com.balybus.galaxy.global.utils.mail.SendMailUtils;
 import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
+import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.login.classic.dto.request.RefreshTokenDTO;
 import com.balybus.galaxy.login.classic.infrastructure.jwt.TokenProvider;
 import com.balybus.galaxy.member.domain.TblUser;
@@ -44,6 +49,9 @@ public class LoginServiceImpl implements LoginService {
     private final MemberRepository memberRepository;
     private final TokenRedisRepository tokenRedisRepository;
 
+    private final HelperRepository helperRepository;
+    private final TblCenterManagerRepository centerManagerRepository;
+
     public String renewAccessToken(RefreshTokenDTO refreshTokenDTO) {
         return tokenProvider.renewAccessToken(refreshTokenDTO.getRefreshToken());
     }
@@ -68,20 +76,34 @@ public class LoginServiceImpl implements LoginService {
                 TblUser login = userOpt.get();
                 // 2. 비밀번호 일치하는지 확인
                 if (bCryptPasswordEncoder.matches(signInDto.getUserPw(), login.getPassword())) {
-                    // 3. 1에서 찾은 데이터를 통해 JWT 생성 및 반환
+                    // 3. 요양보호사/센터관리자 구분자 찾기
+                    Long authSeq = null;
+                    if(login.getUserAuth().equals(RoleType.MEMBER)){
+                        Optional<TblHelper> helperOpt = helperRepository.findByUserId(login.getId());
+                        if(helperOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_HELPER);
+                        authSeq = helperOpt.get().getId();
+                    } else if(login.getUserAuth().equals(RoleType.MANAGER)){
+                        Optional<TblCenterManager> cmOpt = centerManagerRepository.findByMember_Id(login.getId());
+                        if(cmOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_MANAGER);
+                        authSeq = cmOpt.get().getId();
+                    }
+
+                    // 4. 1에서 찾은 데이터를 통해 JWT 생성 및 반환
                     String accessToken = tokenProvider.generateAccessToken(login.getEmail());
                     String refreshToken = tokenProvider.refreshToken(login.getEmail());
                     login.updateRefreshToken(refreshToken);
 
-                    // 4. redis 에 토큰 저장
+                    // 5. redis 에 토큰 저장
                     tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
                     cookieUtils.saveCookie(request, response, accessToken);
 
-                    // 5. 조회 결과 전달
+                    // 6. 조회 결과 전달
                     return MemberResponse.SignInDto.builder()
                             .chatSenderId(login.getId())
                             .email(login.getEmail())
                             .userAuth(login.getUserAuth())
+                            .helperSeq(login.getUserAuth().equals(RoleType.MEMBER) ? authSeq : null)
+                            .cmSeq(login.getUserAuth().equals(RoleType.MANAGER) ? authSeq : null)
                             .build();
                 } else {
                     log.error("로그인 실패 : 아이디, 비밀번호 불일치, 사용자 ID {}", signInDto.getUserId());
