@@ -184,7 +184,7 @@ public class HelperController {
      * @param helperCertDTO 요양 보호사 자격증 정보
      * @return
      */
-    @Operation(summary = "요양 보호사 자격증 검증", description = "요양 보호사 관련 자격증 유효성을 Q-Net에서 검증하기ㅏ")
+    @Operation(summary = "요양 보호사 자격증 검증", description = "요양 보호사 관련 자격증 유효성을 Q-Net에서 검증하기")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요양 보호사 관련 자격증이 인증되었습니다.",
                     content = @Content(schema = @Schema(implementation = HelperSearchResponse.class))),
@@ -197,5 +197,22 @@ public class HelperController {
             @RequestBody List<HelperCertDTO> helperCertDTO) {
         Map<String, String> result = helperService.saveCertificateByQNet(helperCertDTO, userDetails);
         return ResponseEntity.ok(result);
+    }
+
+    //////////////
+
+    @Operation(summary = "요양 보호사 정보 모두보기", description = "개인 요양보호사 구분자로 요양보호사 상세 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "요양 보호사 정보를 성공적으로 불러왔습니다.",
+                    content = @Content(schema = @Schema(implementation = HelperResponse.class))
+            ),
+            @ApiResponse(responseCode = "3000", description = "요양 보호사 정보를 찾을 수 없습니다.")
+    })
+    @PostMapping("/detail/helper-info")
+    public ResponseEntity<?> detailHelperInfo(
+            @RequestBody HelperDetailDTO helperDetailDTO
+    ) {
+        HelperResponse helperResponse = helperService.getHelperDetail(helperDetailDTO);
+        return ResponseEntity.ok(helperResponse);
     }
 }
