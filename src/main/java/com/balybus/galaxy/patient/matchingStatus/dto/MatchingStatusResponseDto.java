@@ -17,6 +17,13 @@ public class MatchingStatusResponseDto {
         private List<MatchedFinPatientInfo> list;
     }
 
+    // 요양보호사 기준 매칭 목록 조회 DTO
+    @Getter
+    @Builder
+    public static class HelperMatchingList {
+        private List<HelperMatchingInfo> list;
+    }
+
     @Getter
     @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -39,6 +46,47 @@ public class MatchingStatusResponseDto {
             this.matchRequestHelperInfoList = matchRequestHelperInfoList;
             this.initHelperInfoList = initHelperInfoList;
             this.rejectHelperInfoList = rejectHelperInfoList;
+        }
+    }
+
+    /**
+     * 요양보호사 기준 매칭 정보 DTO
+     */
+    @Getter
+    @NoArgsConstructor
+    public static class HelperMatchingInfo {
+        private Long patientSeq; // 어르신 구분자
+        private Long patientLogSeq; // 어르신 공고 구분자
+        private String name; // 어르신 이름
+        private String birthDate; // 어르신 생년월일
+        private String gender; // 어르신 성별
+        private String workType; // 희망 근무 종류
+        private String careLevel; // 장기 요양 등급
+        private String addressFirst; // 시.도
+        private String addressSecond; // 시.군.구
+        private String addressThird; // 읍.면.동
+        private int age; // 어르신 만 나이
+        private String matchState; // 매칭 상태
+        private String matchStateMsg; // 매칭 상태 메시지
+        
+        public HelperMatchingInfo(Long patientSeq, Long patientLogSeq,
+                                  String name, String birthDate,
+                                  String gender, String workType, String careLevel,
+                                  String addressFirst, String addressSecond, String addressThird,
+                                  String matchState, String matchStateMsg){
+            this.patientSeq = patientSeq;
+            this.patientLogSeq = patientLogSeq;
+            this.name = name;
+            this.birthDate = birthDate;
+            this.gender = gender;
+            this.workType = workType;
+            this.careLevel = careLevel;
+            this.addressFirst = addressFirst;
+            this.addressSecond = addressSecond;
+            this.addressThird = addressThird;
+            this.matchState = matchState;
+            this.matchStateMsg = matchStateMsg;
+            this.age = calAge(birthDate, "yyyyMMdd"); //만나이 계산
         }
     }
 
@@ -111,8 +159,6 @@ public class MatchingStatusResponseDto {
         // 나이는 Period 객체의 연도를 반환
         return period.getYears();
     }
-
-
 
     @Getter
     @Builder
