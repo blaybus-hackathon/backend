@@ -491,5 +491,38 @@ public class HelperServiceImpl implements HelperService {
         return result;
     }
 
+    @Override
+    public HelperResponse getHelperDetail(HelperDetailDTO helperDetailDTO) {
+        TblHelper helper = helperRepository.findById(helperDetailDTO.getHelperSeq())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+        TblUser user = memberRepository.findById(helper.getUser().getId())
+                .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
+
+        List<TblHelperCert> certificates = helperCertRepository.findAllById(Collections.singleton(helper.getId()));
+        List<HelperCertDTO> certDTOList = new ArrayList<>();
+
+        for(TblHelperCert tblHelperCert : certificates) {
+            certDTOList.add(HelperCertDTO.builder()
+                    .certName(tblHelperCert.getCertName())
+                    .certNum(tblHelperCert.getCertNum())
+                    .certDateIssue(tblHelperCert.getCertDateIssue())
+                    .certSerialNum(tblHelperCert.getCertSerialNum())
+                    .build());
+        }
+
+        return HelperResponse.builder()
+                .id(helper.getId())
+                .userEmail(user.getEmail())
+                .name(helper.getName())
+                .phone(helper.getPhone())
+                .addressDetail(helper.getAddressDetail())
+                .certificates(certDTOList)
+                .carOwnYn(helper.isCarOwnYn())
+                .eduYn(helper.isEduYn())
+                .wage(helper.getWage())
+                .wageState(helper.getWageState())
+                .build();
+    }
+
 
 }

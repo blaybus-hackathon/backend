@@ -9,6 +9,8 @@ import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
 import com.balybus.galaxy.global.domain.tblPatient.TblPatient;
 import com.balybus.galaxy.global.domain.tblPatient.TblPatientRepository;
+import com.balybus.galaxy.careAssistant.domain.TblHelper;
+import com.balybus.galaxy.careAssistant.repository.HelperRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,12 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class LoginAuthCheckServiceImpl implements LoginAuthCheckService{
+public class LoginAuthCheckServiceImpl implements LoginAuthCheckService {
     private final MemberRepository memberRepository;
     private final TblCenterManagerRepository centerManagerRepository;
     private final TblPatientRepository patientRepository;
+    private final HelperRepository helperRepository;
+
     @Override
     public TblCenterManager checkManager(String userEmail) {
         //1. 로그인 테이블 조회
@@ -49,5 +53,24 @@ public class LoginAuthCheckServiceImpl implements LoginAuthCheckService{
             throw new BadRequestException(ExceptionCode.UNAUTHORIZED_UPDATE);
 
         return patient;
+    }
+
+    /**
+     * 요양보호사 권한 확인
+     * @param userEmail String: 사용자 이메일
+     * @return TblHelper
+     */
+    @Override
+    public TblHelper checkHelper(String userEmail) {
+        //1. 로그인 테이블 조회
+        Optional<TblUser> userOpt = memberRepository.findByEmail(userEmail); // 토큰 이메일로 정보 조회
+        if(userOpt.isEmpty()) throw new BadRequestException(ExceptionCode.DO_NOT_LOGIN);
+        TblUser userEntity = userOpt.get();
+
+        //2. 요양보호사 테이블 조회
+        Optional<TblHelper> helperOpt = helperRepository.findByUserId(userEntity.getId());
+        if(!userEntity.getUserAuth().equals(RoleType.MEMBER)
+                || helperOpt.isEmpty()) throw new BadRequestException(ExceptionCode.NOT_FOUND_HELPER);
+        return helperOpt.get();
     }
 }

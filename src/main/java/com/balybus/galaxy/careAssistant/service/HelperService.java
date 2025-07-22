@@ -18,5 +18,5 @@ public interface HelperService {
     HelperSearchResponse helperSearch(HelperSearchDTO helperSearchDTO);
     Map<String, String> saveCertificateByQNet(List<HelperCertDTO> helperCertDTO, UserDetails userDetails);
     String checkCertificate(String name, String birth, String certNo, String issueDate, String insideNo);
-
+    HelperResponse getHelperDetail(HelperDetailDTO helperDetailDTO);
 }

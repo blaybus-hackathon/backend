@@ -13,12 +13,14 @@ import com.balybus.galaxy.login.classic.service.loginAuth.LoginAuthCheckServiceI
 import com.balybus.galaxy.global.domain.tblPatientLog.TblPatientLog;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusRequestDto;
 import com.balybus.galaxy.patient.matchingStatus.dto.MatchingStatusResponseDto;
+import com.balybus.galaxy.careAssistant.domain.TblHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.balybus.galaxy.global.domain.tblMatching.MatchState.*;
 import static com.balybus.galaxy.global.domain.tblMatching.SelectMatchStatus.*;
@@ -151,5 +153,157 @@ public class MatchingStatusServiceImpl implements MatchingStatusService{
                     .msg("SUCCESS")
                     .build();
         }
+    }
+
+    /**
+     * 요양보호사 매칭 요청 목록 조회 (요청/조율)
+     * @param userEmail 요양보호사 이메일
+     * @return MatchingStatusResponseDto.HelperMatchingList
+     */
+    @Override
+    public MatchingStatusResponseDto.HelperMatchingList helperMatchingRequestList(String userEmail) {
+        //1. 요양보호사 로그인 유효성 확인
+        TblHelper helper = loginAuthCheckService.checkHelper(userEmail);
+
+        //2. 해당 요양보호사의 매칭 요청/조율 상태 조회 (MATCH_REQUEST, PERMIT_TUNE)
+        List<MatchState> matchStates = Arrays.asList(MATCH_REQUEST, PERMIT_TUNE);
+        List<TblMatching> matchings = tblMatchingRepository.findMatchingByHelperIdAndMatchStates(helper.getId(), matchStates);
+
+        //3. 매칭 정보를 DTO로 변환
+        List<MatchingStatusResponseDto.HelperMatchingInfo> result = matchings.stream()
+                .map(matching -> {
+                    TblPatientLog patientLog = matching.getPatientLog();
+                    return new MatchingStatusResponseDto.HelperMatchingInfo(
+                            patientLog.getPatient().getId(),
+                            patientLog.getId(),
+                            patientLog.getName(),
+                            patientLog.getBirthDate(),
+                            String.valueOf(patientLog.getGender()),
+                            String.valueOf(patientLog.getWorkType()),
+                            String.valueOf(patientLog.getCareLevel()),
+                            patientLog.getTblAddressFirst().getName(),
+                            patientLog.getTblAddressSecond().getName(),
+                            patientLog.getTblAddressThird().getName(),
+                            matching.getMatchState().name(),
+                            matching.getMatchState().getMsg()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return MatchingStatusResponseDto.HelperMatchingList.builder()
+                .list(result)
+                .build();
+    }
+
+    /**
+     * 요양보호사 매칭 완료 목록 조회 (매칭 완료)
+     * @param userEmail 요양보호사 이메일
+     * @return MatchingStatusResponseDto.HelperMatchingList
+     */
+    @Override
+    public MatchingStatusResponseDto.HelperMatchingList helperMatchingCompletedList(String userEmail) {
+        //1. 요양보호사 로그인 유효성 확인
+        TblHelper helper = loginAuthCheckService.checkHelper(userEmail);
+
+        //2. 해당 요양보호사의 매칭 완료 상태 조회 (MATCH_FIN)
+        List<TblMatching> matchings = tblMatchingRepository.findMatchingByHelperIdAndMatchState(helper.getId(), MATCH_FIN);
+
+        //3. 매칭 정보를 DTO로 변환
+        List<MatchingStatusResponseDto.HelperMatchingInfo> result = matchings.stream()
+                .map(matching -> {
+                    TblPatientLog patientLog = matching.getPatientLog();
+                    return new MatchingStatusResponseDto.HelperMatchingInfo(
+                            patientLog.getPatient().getId(),
+                            patientLog.getId(),
+                            patientLog.getName(),
+                            patientLog.getBirthDate(),
+                            String.valueOf(patientLog.getGender()),
+                            String.valueOf(patientLog.getWorkType()),
+                            String.valueOf(patientLog.getCareLevel()),
+                            patientLog.getTblAddressFirst().getName(),
+                            patientLog.getTblAddressSecond().getName(),
+                            patientLog.getTblAddressThird().getName(),
+                            matching.getMatchState().name(),
+                            matching.getMatchState().getMsg()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return MatchingStatusResponseDto.HelperMatchingList.builder()
+                .list(result)
+                .build();
+    }
+
+    /**
+     * 요양보호사 구분자로 매칭 요청 목록 조회 (요청/조율)
+     * @param helperId 요양보호사 구분자
+     * @return MatchingStatusResponseDto.HelperMatchingList
+     */
+    @Override
+    public MatchingStatusResponseDto.HelperMatchingList helperMatchingRequestListByHelperId(Long helperId) {
+        //1. 해당 요양보호사의 매칭 요청/조율 상태 조회 (MATCH_REQUEST, PERMIT_TUNE)
+        List<MatchState> matchStates = Arrays.asList(MATCH_REQUEST, PERMIT_TUNE);
+        List<TblMatching> matchings = tblMatchingRepository.findMatchingByHelperIdAndMatchStates(helperId, matchStates);
+
+        //2. 매칭 정보를 DTO로 변환
+        List<MatchingStatusResponseDto.HelperMatchingInfo> result = matchings.stream()
+                .map(matching -> {
+                    TblPatientLog patientLog = matching.getPatientLog();
+                    return new MatchingStatusResponseDto.HelperMatchingInfo(
+                            patientLog.getPatient().getId(),
+                            patientLog.getId(),
+                            patientLog.getName(),
+                            patientLog.getBirthDate(),
+                            String.valueOf(patientLog.getGender()),
+                            String.valueOf(patientLog.getWorkType()),
+                            String.valueOf(patientLog.getCareLevel()),
+                            patientLog.getTblAddressFirst().getName(),
+                            patientLog.getTblAddressSecond().getName(),
+                            patientLog.getTblAddressThird().getName(),
+                            matching.getMatchState().name(),
+                            matching.getMatchState().getMsg()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return MatchingStatusResponseDto.HelperMatchingList.builder()
+                .list(result)
+                .build();
+    }
+
+    /**
+     * 요양보호사 구분자로 매칭 완료 목록 조회 (매칭 완료)
+     * @param helperId 요양보호사 구분자
+     * @return MatchingStatusResponseDto.HelperMatchingList
+     */
+    @Override
+    public MatchingStatusResponseDto.HelperMatchingList helperMatchingCompletedListByHelperId(Long helperId) {
+        //1. 해당 요양보호사의 매칭 완료 상태 조회 (MATCH_FIN)
+        List<TblMatching> matchings = tblMatchingRepository.findMatchingByHelperIdAndMatchState(helperId, MATCH_FIN);
+
+        //2. 매칭 정보를 DTO로 변환
+        List<MatchingStatusResponseDto.HelperMatchingInfo> result = matchings.stream()
+                .map(matching -> {
+                    TblPatientLog patientLog = matching.getPatientLog();
+                    return new MatchingStatusResponseDto.HelperMatchingInfo(
+                            patientLog.getPatient().getId(),
+                            patientLog.getId(),
+                            patientLog.getName(),
+                            patientLog.getBirthDate(),
+                            String.valueOf(patientLog.getGender()),
+                            String.valueOf(patientLog.getWorkType()),
+                            String.valueOf(patientLog.getCareLevel()),
+                            patientLog.getTblAddressFirst().getName(),
+                            patientLog.getTblAddressSecond().getName(),
+                            patientLog.getTblAddressThird().getName(),
+                            matching.getMatchState().name(),
+                            matching.getMatchState().getMsg()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return MatchingStatusResponseDto.HelperMatchingList.builder()
+                .list(result)
+                .build();
     }
 }

@@ -94,7 +94,7 @@ public class LoginServiceImpl implements LoginService {
                     login.updateRefreshToken(refreshToken);
 
                     // 5. redis 에 토큰 저장
-                    tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
+//                    tokenRedisRepository.save(new TokenRedis(login.getEmail(), accessToken, refreshToken));
                     cookieUtils.saveCookie(request, response, accessToken);
 
                     // 6. 조회 결과 전달
