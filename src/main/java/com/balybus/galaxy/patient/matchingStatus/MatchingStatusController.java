@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("tient-match-status")
+@RequestMapping("/patient-match-status")
 public class MatchingStatusController {
     private final MatchingStatusServiceImpl matchingStatusService;
     
