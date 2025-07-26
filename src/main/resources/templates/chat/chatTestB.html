@@ -46,6 +46,15 @@
                 messageContainer.innerHTML += `<p>받은 개인 메시지: ${message.content}</p>`;
             });
 
+            // 전송 성공 콜백
+            stompClient.subscribe('/user/queue/success', function(message) {
+                console.log("전송 성공 콜백:", message.body);
+
+                // 메시지를 div에 추가
+                const messageContainer = document.getElementById("messageContainer");
+                messageContainer.innerHTML += `<p>전송 성공 콜백: ${message.body}</p>`;
+            });
+
             stompClient.subscribe('/user/queue/error', function(message) {
                 console.log("에러 발생 메시지:", message.body);
 
