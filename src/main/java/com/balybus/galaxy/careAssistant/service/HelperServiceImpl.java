@@ -3,6 +3,7 @@ package com.balybus.galaxy.careAssistant.service;
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
 import com.balybus.galaxy.global.domain.tblAddressSecond.TblAddressSecond;
 import com.balybus.galaxy.global.domain.tblAddressThird.TblAddressThird;
+import com.balybus.galaxy.global.exception.ExceptionCode;
 import com.balybus.galaxy.global.utils.address.repository.TblAddressFirstRepository;
 import com.balybus.galaxy.global.utils.address.repository.TblAddressSecondRepository;
 import com.balybus.galaxy.global.utils.address.repository.TblAddressThirdRepository;
@@ -71,7 +72,7 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        List<TblHelperCert> certificates = helperCertRepository.findAllById(Collections.singleton(tblHelper.getId()));
+        List<TblHelperCert> certificates = helperCertRepository.findByTblHelperId(tblHelper.getId());
         List<HelperCertDTO> certDTOList = new ArrayList<>();
 
         for(TblHelperCert tblHelperCert : certificates) {
@@ -94,11 +95,14 @@ public class HelperServiceImpl implements HelperService {
                 .eduYn(tblHelper.isEduYn())
                 .wage(tblHelper.getWage())
                 .wageState(tblHelper.getWageState())
+                .introduce(tblHelper.getIntroduce())
+                .careExperience(tblHelper.getIs_experienced())
                 .build();
     }
 
     @Override
-    public void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO) {
+    @Transactional
+    public Map<String, Object> updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO) {
         String username = userDetails.getUsername();
 
         TblUser tblUser = memberRepository.findByEmail(username)
@@ -107,24 +111,83 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
-        tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
-
-        List<TblHelperCert> certificates = helperCertRepository.findAllById(tblHelper.getId());
-
-        for(HelperCertDTO helperCertDTO : helperProfileDTO.getCertificates()) {
-            for(TblHelperCert certificate : certificates) {
-                if(helperCertDTO.getCertName().equals(certificate.getCertName())) {
-                    certificate.setCertNum(helperCertDTO.getCertNum());
-                    certificate.setCertDateIssue(helperCertDTO.getCertDateIssue());
-                    certificate.setCertSerialNum(helperCertDTO.getCertSerialNum());
-                    break;
-                }
-            }
+        Map<String, Object> result = new HashMap<>();
+        Map<String, String> certificateResults = new HashMap<>();
+        
+        // null이 아닌 필드만 업데이트 (부분 업데이트 지원)
+        boolean profileUpdated = false;
+        if (helperProfileDTO.getIntroduce() != null) {
+            tblHelper.setIntroduce(helperProfileDTO.getIntroduce());
+            profileUpdated = true;
+        }
+        if (helperProfileDTO.getCareExperience() != null) {
+            tblHelper.setIs_experienced(helperProfileDTO.getCareExperience());
+            profileUpdated = true;
         }
 
-        helperCertRepository.saveAll(certificates);
+        // 자격증 정보가 있는 경우에만 업데이트
+        if (helperProfileDTO.getCertificates() != null && !helperProfileDTO.getCertificates().isEmpty()) {
+            List<TblHelperCert> certificates = helperCertRepository.findByTblHelperId(tblHelper.getId());
+
+            for (HelperCertDTO helperCertDTO : helperProfileDTO.getCertificates()) {
+                // 자격증 형식 검증
+                validateCertificateFormat(helperCertDTO);
+                
+                // Q-net 인증 시도
+                String qnetResult = checkCertificate(
+                    tblHelper.getName(),
+                    tblHelper.getBirthday(),
+                    helperCertDTO.getCertNum(),
+                    String.valueOf(helperCertDTO.getCertDateIssue()),
+                    String.valueOf(helperCertDTO.getCertSerialNum())
+                );
+
+                certificateResults.put(helperCertDTO.getCertName(), qnetResult);
+
+                // 기존 자격증 찾아서 업데이트
+                TblHelperCert existingCert = certificates.stream()
+                    .filter(cert -> helperCertDTO.getCertName().equals(cert.getCertName()))
+                    .findFirst()
+                    .orElse(null);
+
+                if (existingCert != null) {
+                    // 기존 자격증 업데이트
+                    existingCert.setCertNum(helperCertDTO.getCertNum());
+                    existingCert.setCertDateIssue(helperCertDTO.getCertDateIssue());
+                    existingCert.setCertSerialNum(helperCertDTO.getCertSerialNum());
+                } else {
+                    // 새로운 자격증 추가
+                    TblHelperCert newCert = TblHelperCert.builder()
+                        .tblHelper(tblHelper)
+                        .certName(helperCertDTO.getCertName())
+                        .certNum(helperCertDTO.getCertNum())
+                        .certDateIssue(helperCertDTO.getCertDateIssue())
+                        .certSerialNum(helperCertDTO.getCertSerialNum())
+                        .build();
+                    certificates.add(newCert);
+                }
+
+                // Q-net 인증 실패 시 로그 기록 (fallback으로 DB에는 저장)
+                if (!"VALID".equals(qnetResult)) {
+                    log.warn("Q-net 자격증 인증 실패 - 자격증명: {}, 번호: {}, 결과: {}", 
+                        helperCertDTO.getCertName(), helperCertDTO.getCertNum(), qnetResult);
+                }
+            }
+
+            helperCertRepository.saveAll(certificates);
+        }
+
         helperRepository.save(tblHelper);
+        
+        // 결과 구성
+        result.put("message", "프로필이 정상적으로 업데이트 되었습니다.");
+        result.put("profileUpdated", profileUpdated);
+        result.put("certificatesUpdated", !certificateResults.isEmpty());
+        if (!certificateResults.isEmpty()) {
+            result.put("certificateVerificationResults", certificateResults);
+        }
+        
+        return result;
     }
 
     @Override
@@ -410,6 +473,7 @@ public class HelperServiceImpl implements HelperService {
     }
 
     @Override
+    @Transactional
     public Map<String, String> saveCertificateByQNet(List<HelperCertDTO> helperCertDTO, UserDetails userDetails) {
         TblUser tblUser = memberRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new BadRequestException(MEMBER_NOT_FOUND));
@@ -417,16 +481,58 @@ public class HelperServiceImpl implements HelperService {
         TblHelper tblHelper = helperRepository.findByUserId(tblUser.getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
+        List<TblHelperCert> certificates = helperCertRepository.findByTblHelperId(tblHelper.getId());
         Map<String, String> answers = new HashMap<>();
+        
         for(HelperCertDTO helperCert : helperCertDTO) {
-            answers.put(helperCert.getCertName(), checkCertificate(
+            // 자격증 형식 검증
+            validateCertificateFormat(helperCert);
+            
+            // Q-net 인증 시도
+            String qnetResult = checkCertificate(
                     tblHelper.getName(),
                     tblHelper.getBirthday(),
                     helperCert.getCertNum(),
                     String.valueOf(helperCert.getCertDateIssue()),
                     String.valueOf(helperCert.getCertSerialNum())
-            ));
+            );
+            
+            answers.put(helperCert.getCertName(), qnetResult);
+            
+            // Q-net 인증 결과와 상관없이 DB에 저장 (fallback 로직)
+            // 기존 자격증 찾기
+            TblHelperCert existingCert = certificates.stream()
+                .filter(cert -> helperCert.getCertName().equals(cert.getCertName()))
+                .findFirst()
+                .orElse(null);
+
+            if (existingCert != null) {
+                // 기존 자격증 업데이트
+                existingCert.setCertNum(helperCert.getCertNum());
+                existingCert.setCertDateIssue(helperCert.getCertDateIssue());
+                existingCert.setCertSerialNum(helperCert.getCertSerialNum());
+            } else {
+                // 새로운 자격증 추가
+                TblHelperCert newCert = TblHelperCert.builder()
+                    .tblHelper(tblHelper)
+                    .certName(helperCert.getCertName())
+                    .certNum(helperCert.getCertNum())
+                    .certDateIssue(helperCert.getCertDateIssue())
+                    .certSerialNum(helperCert.getCertSerialNum())
+                    .build();
+                certificates.add(newCert);
+            }
+            
+            // Q-net 인증 실패 시 로그 기록
+            if (!"VALID".equals(qnetResult)) {
+                log.warn("Q-net 자격증 인증 실패하였으나 DB에 저장 - 자격증명: {}, 번호: {}, 결과: {}", 
+                    helperCert.getCertName(), helperCert.getCertNum(), qnetResult);
+            }
         }
+        
+        // 자격증 정보 DB에 저장 (Q-net 결과와 무관하게)
+        helperCertRepository.saveAll(certificates);
+        
         return answers;
     }
 
@@ -491,6 +597,49 @@ public class HelperServiceImpl implements HelperService {
         return result;
     }
 
+    /**
+     * 자격증 형식 검증 메서드
+     * @param helperCertDTO 검증할 자격증 정보
+     */
+    private void validateCertificateFormat(HelperCertDTO helperCertDTO) {
+        // 자격증 이름 검증
+        if (helperCertDTO.getCertName() == null || helperCertDTO.getCertName().trim().isEmpty()) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_NAME);
+        }
+
+        // 자격증 번호 검증 (요양보호사 자격증 형식: 숫자-숫자-숫자 형태)
+        if (helperCertDTO.getCertNum() == null || helperCertDTO.getCertNum().trim().isEmpty()) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_NUMBER);
+        }
+
+        // 요양보호사 자격증 번호 형식 검증 (예: 123456-1234-567890)
+        String certNumPattern = "^\\d{6}-\\d{4}-\\d{6}$";
+        if (!helperCertDTO.getCertNum().matches(certNumPattern)) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_FORMAT);
+        }
+
+        // 발급일 검증
+        if (helperCertDTO.getCertDateIssue() == null) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_ISSUE_DATE);
+        }
+
+        // 발급일 형식 검증 (YYYYMMDD)
+        String issueDateStr = String.valueOf(helperCertDTO.getCertDateIssue());
+        if (issueDateStr.length() != 8 || !issueDateStr.matches("^\\d{8}$")) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_ISSUE_DATE_FORMAT);
+        }
+
+        // 내지번호 검증
+        if (helperCertDTO.getCertSerialNum() == null) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_SERIAL_NUMBER);
+        }
+
+        // 내지번호는 1자리 이상의 숫자
+        if (helperCertDTO.getCertSerialNum() <= 0) {
+            throw new BadRequestException(ExceptionCode.INVALID_CERTIFICATE_SERIAL_NUMBER_FORMAT);
+        }
+    }
+
     @Override
     public HelperResponse getHelperDetail(HelperDetailDTO helperDetailDTO) {
         TblHelper helper = helperRepository.findById(helperDetailDTO.getHelperSeq())
@@ -498,7 +647,7 @@ public class HelperServiceImpl implements HelperService {
         TblUser user = memberRepository.findById(helper.getUser().getId())
                 .orElseThrow(() -> new BadRequestException(NOT_FOUND_HELPER));
 
-        List<TblHelperCert> certificates = helperCertRepository.findAllById(Collections.singleton(helper.getId()));
+        List<TblHelperCert> certificates = helperCertRepository.findByTblHelperId(helper.getId());
         List<HelperCertDTO> certDTOList = new ArrayList<>();
 
         for(TblHelperCert tblHelperCert : certificates) {
@@ -521,6 +670,8 @@ public class HelperServiceImpl implements HelperService {
                 .eduYn(helper.isEduYn())
                 .wage(helper.getWage())
                 .wageState(helper.getWageState())
+                .introduce(helper.getIntroduce())
+                .careExperience(helper.getIs_experienced())
                 .build();
     }
 

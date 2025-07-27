@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface HelperService {
     HelperResponse getAllHelperInfo(UserDetails userDetails);
-    void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO);
+    Map<String, Object> updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO);
     WageUpdateResponse updateWage(UserDetails userDetails, WageUpdateDTO wageUpdateDTO);
     HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails);
     HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails);

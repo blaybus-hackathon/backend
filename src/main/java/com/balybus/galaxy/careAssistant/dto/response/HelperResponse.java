@@ -23,4 +23,6 @@ public class HelperResponse {
     private boolean eduYn;
     private Integer wage;
     private Integer wageState;
+    private String introduce;
+    private Boolean careExperience;
 }

@@ -33,6 +33,15 @@ public enum ExceptionCode {
 
     AGE_CAL_EXCEPTION(3011, "요양 보호사 나이 계산 중 알 수 없는 에러가 발생 했습니다."),
 
+    INVALID_CERTIFICATE_NAME(3012, "자격증 이름이 유효하지 않습니다."),
+    INVALID_CERTIFICATE_NUMBER(3013, "자격증 번호가 유효하지 않습니다."),
+    INVALID_CERTIFICATE_FORMAT(3014, "자격증 번호 형식이 올바르지 않습니다. (형식: 123456-1234-567890)"),
+    INVALID_CERTIFICATE_ISSUE_DATE(3015, "자격증 발급일이 유효하지 않습니다."),
+    INVALID_CERTIFICATE_ISSUE_DATE_FORMAT(3016, "자격증 발급일 형식이 올바르지 않습니다. (형식: YYYYMMDD)"),
+    INVALID_CERTIFICATE_SERIAL_NUMBER(3017, "자격증 내지번호가 유효하지 않습니다."),
+    INVALID_CERTIFICATE_SERIAL_NUMBER_FORMAT(3018, "자격증 내지번호 형식이 올바르지 않습니다. (1 이상의 숫자)"),
+    QNET_CERTIFICATE_VERIFICATION_FAILED(3019, "Q-net 자격증 인증에 실패했습니다."),
+
     // 4xxx 로그인
     LOGIN_ID_EXIST(4000, "로그인 아이디가 이미 존재합니다."),
     SIGNUP_INFO_NULL(4001, "회원 가입 정보를 확인해주세요."),
