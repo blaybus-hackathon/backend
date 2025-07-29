@@ -12,6 +12,8 @@ import com.balybus.galaxy.careAssistant.domain.*;
 import com.balybus.galaxy.careAssistant.dto.request.*;
 import com.balybus.galaxy.careAssistant.dto.response.*;
 import com.balybus.galaxy.careAssistant.repository.*;
+import com.balybus.galaxy.careAssistant.dto.response.HelperWorkLocationDto;
+import com.balybus.galaxy.careAssistant.dto.response.ImageDto;
 import com.balybus.galaxy.login.classic.dto.request.HelperCertDTO;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.repository.MemberRepository;
@@ -84,12 +86,49 @@ public class HelperServiceImpl implements HelperService {
                     .build());
         }
 
+        // 선호 지역
+        List<TblHelperWorkLocation> workLocations = helperWorkLocationRepository.findByHelper_Id(tblHelper.getId());
+        List<HelperWorkLocationDto> helperWorkLocationDtos = workLocations.stream()
+                .map(wl -> HelperWorkLocationDto.builder()
+                        .afSeq(wl.getTblAddressFirst().getId())
+                        .asSeq(wl.getTblAddressSecond().getId())
+                        .atSeq(wl.getTblAddressThird().getId())
+                        .build())
+                .toList();
+
+        // 근무 가능 일정
+        List<TblHelperWorkTime> workTimes = helperWorkTimeRepository.findByHelper(tblHelper);
+        List<HelperWorkTimeDto> helperWorkTimeDtos = workTimes.stream()
+                .map(wt -> HelperWorkTimeDto.builder()
+                        .id(wt.getId())
+                        .date(wt.getDate())
+                        .startTime(wt.getStartTime())
+                        .endTime(wt.getEndTime())
+                        .negotiation(wt.getNegotiation())
+                        .workTerm(wt.getWorkTerm())
+                        .build())
+                .toList();
+
         return HelperResponse.builder()
                 .id(tblHelper.getId())
                 .userEmail(tblUser.getEmail())
                 .name(tblHelper.getName())
                 .phone(tblHelper.getPhone())
                 .addressDetail(tblHelper.getAddressDetail())
+                .img(tblHelper.getImg() != null ? ImageDto.builder()
+                        .id(tblHelper.getImg().getId())
+                        .imgUuid(tblHelper.getImg().getImgUuid())
+                        .imgOriginName(tblHelper.getImg().getImgOriginName())
+                        .build() : null)
+                .helperWorkLocation(helperWorkLocationDtos)
+                .helperWorkTime(helperWorkTimeDtos)
+                .careLevel(tblHelper.getCareLevel())
+                .inmateState(tblHelper.getInmateState())
+                .workType(tblHelper.getWorkType())
+                .careGender(tblHelper.getCareGender())
+                .serviceMeal(tblHelper.getServiceMeal())
+                .serviceMobility(tblHelper.getServiceMobility())
+                .serviceDaily(tblHelper.getServiceDaily())
                 .certificates(certDTOList)
                 .carOwnYn(tblHelper.isCarOwnYn())
                 .eduYn(tblHelper.isEduYn())
@@ -97,6 +136,7 @@ public class HelperServiceImpl implements HelperService {
                 .wageState(tblHelper.getWageState())
                 .introduce(tblHelper.getIntroduce())
                 .careExperience(tblHelper.getIs_experienced())
+                .wageNegotiation(tblHelper.getWageNegotiation())
                 .build();
     }
 
@@ -272,7 +312,7 @@ public class HelperServiceImpl implements HelperService {
                         .startTime(dto.getStartTime())
                         .endTime(dto.getEndTime())
                         .negotiation(helperWorkTimeRequestDTO.getNegotiation())
-                        .workTerm(helperWorkTimeRequestDTO.getWorkTerm())
+                        .workTerm(helperWorkTimeRequestDTO.getWorkTerm().toString())
                         .build())
                 .collect(Collectors.toList());
 
@@ -421,30 +461,13 @@ public class HelperServiceImpl implements HelperService {
                     List<TblHelperWorkTime> workTimes = helperWorkTimeRepository.findByHelper(helper);
 
                     if (!workTimes.isEmpty() && !helperSearchDTO.getTerms().isEmpty()) {
-                        long size = workTimes.size();
-                        long maxWorkTermValue = 0;
-                        for(int i=0; i<size; i++) {
-                            TblHelperWorkTime workTime = workTimes.get(i);
-                            if(workTime.getWorkTerm() != null && !workTime.getWorkTerm().isEmpty()) {
-                                long size2 = workTime.getWorkTerm().size();
-                                for(int j=0; j<size2; j++) {
-                                    maxWorkTermValue = Math.max(maxWorkTermValue, Integer.parseInt(String.valueOf(workTime.getWorkTerm().get(j))));
-                                }
+                        // workTerm이 String이므로 적절히 처리
+                        for (TblHelperWorkTime workTime : workTimes) {
+                            if (workTime.getWorkTerm() != null && !workTime.getWorkTerm().isEmpty()) {
+                                workTerm = workTime.getWorkTerm();
+                                checkInfo[3] = true;
+                                break;
                             }
-                        }
-
-                        if (maxWorkTermValue <= 3) {
-                            workTerm = "6개월";
-                            checkInfo[3] = true;
-                        } else if (maxWorkTermValue == 4) {
-                            workTerm = "1년";
-                            checkInfo[3] = true;
-                        } else if (maxWorkTermValue == 5) {
-                            workTerm = "2년";
-                            checkInfo[3] = true;
-                        } else {
-                            workTerm = "2년 이상";
-                            checkInfo[3] = true;
                         }
                     }
 
@@ -659,12 +682,49 @@ public class HelperServiceImpl implements HelperService {
                     .build());
         }
 
+        // 선호 지역
+        List<TblHelperWorkLocation> workLocations = helperWorkLocationRepository.findByHelper_Id(helper.getId());
+        List<HelperWorkLocationDto> helperWorkLocationDtos = workLocations.stream()
+                .map(wl -> HelperWorkLocationDto.builder()
+                        .afSeq(wl.getTblAddressFirst().getId())
+                        .asSeq(wl.getTblAddressSecond().getId())
+                        .atSeq(wl.getTblAddressThird().getId())
+                        .build())
+                .toList();
+
+        // 근무 가능 일정
+        List<TblHelperWorkTime> workTimes = helperWorkTimeRepository.findByHelper(helper);
+        List<HelperWorkTimeDto> helperWorkTimeDtos = workTimes.stream()
+                .map(wt -> HelperWorkTimeDto.builder()
+                        .id(wt.getId())
+                        .date(wt.getDate())
+                        .startTime(wt.getStartTime())
+                        .endTime(wt.getEndTime())
+                        .negotiation(wt.getNegotiation())
+                        .workTerm(wt.getWorkTerm())
+                        .build())
+                .toList();
+
         return HelperResponse.builder()
                 .id(helper.getId())
                 .userEmail(user.getEmail())
                 .name(helper.getName())
                 .phone(helper.getPhone())
                 .addressDetail(helper.getAddressDetail())
+                .img(helper.getImg() != null ? ImageDto.builder()
+                        .id(helper.getImg().getId())
+                        .imgUuid(helper.getImg().getImgUuid())
+                        .imgOriginName(helper.getImg().getImgOriginName())
+                        .build() : null)
+                .helperWorkLocation(helperWorkLocationDtos)
+                .helperWorkTime(helperWorkTimeDtos)
+                .careLevel(helper.getCareLevel())
+                .inmateState(helper.getInmateState())
+                .workType(helper.getWorkType())
+                .careGender(helper.getCareGender())
+                .serviceMeal(helper.getServiceMeal())
+                .serviceMobility(helper.getServiceMobility())
+                .serviceDaily(helper.getServiceDaily())
                 .certificates(certDTOList)
                 .carOwnYn(helper.isCarOwnYn())
                 .eduYn(helper.isEduYn())
@@ -672,8 +732,7 @@ public class HelperServiceImpl implements HelperService {
                 .wageState(helper.getWageState())
                 .introduce(helper.getIntroduce())
                 .careExperience(helper.getIs_experienced())
+                .wageNegotiation(helper.getWageNegotiation())
                 .build();
     }
-
-
 }

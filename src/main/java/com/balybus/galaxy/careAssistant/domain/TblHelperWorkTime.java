@@ -49,7 +49,6 @@ public class TblHelperWorkTime extends BaseEntity {
     private Boolean negotiation;
 
     @Column(name = "hwt_work_term")
-    @Convert(converter = StringListConverter.class)
     @Comment("근무 가능 기간")
-    private List<Integer> workTerm = new ArrayList<>();
+    private String workTerm;
 }
