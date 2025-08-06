@@ -9,6 +9,14 @@ import java.util.List;
 public class ChatMsgResponseDto {
     @Getter
     @Builder
+    public static class resultNotice {
+        private int code;
+        private String msg;
+        private String successSepCode;
+    }
+
+    @Getter
+    @Builder
     public static class SendPrivateMessage {
         private Long patientLogId;
         private Long senderId;
