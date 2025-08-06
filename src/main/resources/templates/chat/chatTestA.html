@@ -68,8 +68,9 @@
                 const message = {
                     content: document.getElementById("textMsg").value,
                     senderId: chatSenderId, // 메시지를 보낼 사용자
-                    receiverId: document.getElementById("receiverId").value, // 메시지를 받을 사용자
-                    patientLogId: document.getElementById("patientId").value // 메시지를 환자
+                    receiverId: document.getElementById("receiverId").value,  // 메시지를 받을 사용자
+                    patientLogId: document.getElementById("patientId").value, // 메시지를 환자
+                    successSepCode: "123456789"
                 };
                 messageContainer.innerHTML += `<p>보낸 개인 메시지: ${message.content}</p>`;
                 stompClient.send("/app/private-message", {}, JSON.stringify(message)); // private-message 엔드포인트로 메시지 전송

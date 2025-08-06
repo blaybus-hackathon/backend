@@ -9,6 +9,8 @@ public class ChatMsgRequestDto {
         private Long receiverId;
         private Long patientLogId;
         private String content;
+
+        private String successSepCode;
     }
 
     @Data
