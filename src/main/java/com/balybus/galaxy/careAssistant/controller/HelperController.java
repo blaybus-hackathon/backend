@@ -89,6 +89,32 @@ public class HelperController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 요양 보호사 통합 프로필 업데이트
+     * @param helperCompleteProfileDTO
+     * @param userDetails
+     * @return
+     */
+    @Operation(summary = "요양 보호사 통합 프로필 업데이트", description = "현재 로그인한 요양 보호사의 모든 정보를 한 번에 업데이트")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "프로필이 성공적으로 업데이트되었습니다.",
+                    content = @Content(schema = @Schema(implementation = HelperCompleteProfileResponse.class))),
+            @ApiResponse(responseCode = "3000", description = "요양 보호사 테이블을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "3010", description = "로그인한 회원을 찾을 수 없습니다."),
+            @ApiResponse(responseCode = "3008", description = "잘못된 주소 목록"),
+            @ApiResponse(responseCode = "3009", description = "중복된 근무 가능 시간이 존재합니다."),
+            @ApiResponse(responseCode = "3012", description = "자격증 이름이 유효하지 않습니다."),
+            @ApiResponse(responseCode = "3013", description = "자격증 번호가 유효하지 않습니다."),
+            @ApiResponse(responseCode = "3014", description = "자격증 번호 형식이 올바르지 않습니다.")
+    })
+    @PutMapping("/helper/complete-profile")
+    public ResponseEntity<HelperCompleteProfileResponse> updateCompleteProfile(
+            @RequestBody HelperCompleteProfileDTO helperCompleteProfileDTO,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        HelperCompleteProfileResponse response = helperService.updateCompleteProfile(userDetails, helperCompleteProfileDTO);
+        return ResponseEntity.ok(response);
+    }
+
 
     ///////////////////////////////////////
 
@@ -204,7 +230,7 @@ public class HelperController {
 
     //////////////
 
-    @Operation(summary = "요양 보호사 정보 모두보기", description = "개인 요양보호사 구분자로 요양보호사 상세 조회")
+    @Operation(summary = "요양 보호사 정보 조회", description = "개인 요양보호사 구분자로 요양보호사 상세 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "요양 보호사 정보를 성공적으로 불러왔습니다.",
                     content = @Content(schema = @Schema(implementation = HelperResponse.class))

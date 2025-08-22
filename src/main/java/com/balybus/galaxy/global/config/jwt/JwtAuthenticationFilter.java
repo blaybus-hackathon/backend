@@ -48,6 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return false;
     }
 
+    // 1. 엑세스, 리프레시 토큰 발급
+    // 2. 로그인 회원가입 로직
+    // 3. 권한 ROLE -> enum
+    // 4.
+
     // 쿠키 사용
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
