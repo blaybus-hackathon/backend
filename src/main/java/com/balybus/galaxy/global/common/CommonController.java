@@ -104,10 +104,4 @@ public class CommonController {
     public ResponseEntity<?> getRequestCodeList(@RequestBody CareRequestDto.GetRequestCodeList dto) {
         return ResponseEntity.ok().body(careService.getRequestCodeList(dto));
     }
-
-    @GetMapping("/healthcheck")
-    public String healthcheck(){ //https 인증 확인용
-        return "OK";
-    }
-
 }
