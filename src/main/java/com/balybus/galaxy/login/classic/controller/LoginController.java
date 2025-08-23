@@ -34,6 +34,7 @@ public class LoginController {
      */
     @GetMapping("/healthcheck")
     public ResponseEntity<Void> healthcheck(){
+        log.info("healthcheck :: SUCCESS");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
