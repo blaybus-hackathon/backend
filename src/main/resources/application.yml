@@ -24,4 +24,5 @@ management:
 
 cors:
   allowed:
-    origins: http://54.180.195.94:8080, http://54.180.195.94:80, http://54.180.195.94:5173, http://54.180.195.94, https://54.180.195.94:443, http://54.180.195.94:443
+    origins: http://dolbom-work.co.kr:8080, http://dolbom-work.co.kr:80, http://dolbom-work.co.kr:5173, http://dolbom-work.co.kr, https://dolbom-work.co.kr:443, http://dolbom-work.co.kr:443
+#    origins: http://54.180.195.94:8080, http://dolbom-work.co.kr:80, http://54.180.195.94:5173, http://54.180.195.94, https://54.180.195.94:443, http://54.180.195.94:443
