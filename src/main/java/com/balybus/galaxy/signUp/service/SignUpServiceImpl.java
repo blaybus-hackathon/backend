@@ -26,6 +26,7 @@ import com.balybus.galaxy.global.utils.mail.dto.contents.ContentDto;
 import com.balybus.galaxy.login.classic.domain.type.RoleType;
 import com.balybus.galaxy.login.classic.dto.request.HelperCertDTO;
 import com.balybus.galaxy.login.classic.dto.request.SignUpDTO;
+import com.balybus.galaxy.login.classic.dto.response.HelperSignUpResponseDto;
 import com.balybus.galaxy.member.domain.TblUser;
 import com.balybus.galaxy.member.domain.type.LoginType;
 import com.balybus.galaxy.member.repository.MemberRepository;
@@ -192,7 +193,7 @@ public class SignUpServiceImpl implements SignUpService{
      * @return TblHelperResponse
      */
     @Override
-    public List<HelperCertDTO> signUpHelper(SignUpDTO signUpRequest) {
+    public HelperSignUpResponseDto signUpHelper(SignUpDTO signUpRequest) {
         // 1.이메일 유효셩 검사 및 아이디 비밀번호 등록
         TblUser savedMember = signUpLogin(signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getRoleType(), LoginType.DOLBOM_LOGIN);
 
@@ -268,7 +269,10 @@ public class SignUpServiceImpl implements SignUpService{
             }
         }
 
-        return invalidCertList;
+        return HelperSignUpResponseDto.builder()
+                .helperSeq(helper.getId())
+                .invalidCertList(invalidCertList)
+                .build();
     }
 
 //    public TblHelperCert makeCertTbl(String name,

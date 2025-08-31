@@ -1,6 +1,7 @@
 package com.balybus.galaxy.global.domain.tblAddressSecond;
 
 import com.balybus.galaxy.global.domain.tblAddressFirst.TblAddressFirst;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,7 @@ public class TblAddressSecond {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "af_seq", nullable = false)
     @Comment("시.도 구분자")
+    @JsonBackReference
     private TblAddressFirst addressFirst;
 
     @Column(name = "as_name", nullable = false, length = 50)

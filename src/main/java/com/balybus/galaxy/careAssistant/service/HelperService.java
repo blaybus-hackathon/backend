@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface HelperService {
     HelperResponse getAllHelperInfo(UserDetails userDetails);
-    void updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO);
+    Map<String, Object> updateProfile(UserDetails userDetails, HelperProfileDTO helperProfileDTO);
     WageUpdateResponse updateWage(UserDetails userDetails, WageUpdateDTO wageUpdateDTO);
     HelperWorkLocationReponse workLocationSignUp(HelperWorkLocationDTO helperWorkLocationDTO, UserDetails userDetails);
     HelperWorkTimeResponse workTimeSignUp(HelperWorkTimeRequestDTO helperWorkTimeRequestDTO, UserDetails userDetails);
@@ -18,5 +18,6 @@ public interface HelperService {
     HelperSearchResponse helperSearch(HelperSearchDTO helperSearchDTO);
     Map<String, String> saveCertificateByQNet(List<HelperCertDTO> helperCertDTO, UserDetails userDetails);
     String checkCertificate(String name, String birth, String certNo, String issueDate, String insideNo);
-
+    HelperResponse getHelperDetail(HelperDetailDTO helperDetailDTO);
+    HelperCompleteProfileResponse updateCompleteProfile(UserDetails userDetails, HelperCompleteProfileDTO dto);
 }

@@ -34,7 +34,8 @@ public class ChatSocketController {
         String sender = simpUser.getName();
         try {
             ChatMsgResponseDto.SendPrivateMessage responseDto = chatService.saveMessage(message, sender);   //채팅 데이터 DB 저장
-            messagingTemplate.convertAndSendToUser(responseDto.getReceiverMail(), "/queue/private", responseDto);
+            messagingTemplate.convertAndSendToUser(responseDto.getReceiverMail(), "/queue/private", responseDto); //받는사람에게 채팅 전송
+            messagingTemplate.convertAndSendToUser(sender, "/queue/success", "SUCCESS"); //보낸사람에게 채팅 전송 성공여부 전송
         } catch (Exception e) {
             // 예외가 발생한 경우 메시지를 보낸 사람에게 에러 메시지를 보냄
             messagingTemplate.convertAndSendToUser(sender, "/queue/error", "Error occurred: " + e.getMessage());
