@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/update-profile").permitAll()
                                 .requestMatchers("/api/sign/**","/api/sign-up/**").permitAll()
                                 .requestMatchers("/api/token/**", "/api/oauth/kakao-signup").permitAll()
+                                .requestMatchers("/login/oauth2/code/**").permitAll()  // OAuth callback 엔드포인트 허용
                                 .requestMatchers("/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                                 .requestMatchers("/img/**", "/css/**", "/static/js/**", "/docs/**").permitAll()
                                 .requestMatchers("/api/**").authenticated()
