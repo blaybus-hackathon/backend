@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">돌봄 (Dolbom)</h1>
+  <h1 align="center">돌봄워크 (Dolbomwork)</h1>
   <p align="center">
     <strong>요양보호사와 돌봄이 필요한 분을 연결하는 매칭 플랫폼</strong>
   </p>

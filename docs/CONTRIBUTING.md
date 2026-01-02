@@ -1,6 +1,6 @@
-# 기여 가이드
+# 개발 가이드
 
-돌봄(Dolbom) 프로젝트에 기여해 주셔서 감사합니다! 이 문서는 프로젝트에 기여하는 방법을 안내합니다.
+돌봄(Dolbom) 프로젝트의 개발 규칙과 협업 방법을 안내합니다.
 
 ---
 
@@ -326,4 +326,4 @@ public ResponseEntity<ApiResponse<Void>> handleNotFound(UserNotFoundException e)
 
 ## 문의
 
-궁금한 점이 있으면 이슈를 생성하거나 팀 채널로 문의해주세요!
+궁금한 점이 있으면 GitHub 이슈를 생성하거나 팀 슬랙 채널로 문의해주세요.
